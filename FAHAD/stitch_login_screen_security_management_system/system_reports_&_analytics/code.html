@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>System Reports &amp; Analytics</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;family=Noto+Sans+Arabic:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#233b5c",
+                        "background-light": "#ffffff",
+                        "background-dark": "#17191c",
+                        "border-color": "#d4dae2",
+                        "secondary-text": "#5c6f8a",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "Noto Sans Arabic", "sans-serif"],
+                        "body": ["Public Sans", "Noto Sans Arabic", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
+        }.scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            left: 10px;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-full {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+            }
+            body {
+                background-color: white;
+            }
+            aside {
+                display: none;
+            }
+            main {
+                padding: 0;
+                margin: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-[#101418] min-h-screen flex flex-col font-body overflow-hidden">
+<nav class="w-full bg-primary h-16 flex items-center px-4 md:px-8 shadow-sm justify-between z-20 shrink-0 no-print">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-white/10 rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined">security</span>
+</div>
+<span class="text-white font-bold text-lg tracking-wide hidden md:block">نظام الأمن الصناعي</span>
+<span class="text-white font-bold text-lg tracking-wide md:hidden">الأمن الصناعي</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<input class="bg-white/10 border-none rounded-lg h-9 pr-9 pl-4 text-sm text-white placeholder-white/60 focus:ring-1 focus:ring-white/50 w-48 hidden md:block transition-all hover:bg-white/20" placeholder="بحث سريع..." type="text"/>
+<span class="material-symbols-outlined absolute right-2.5 top-2 text-white/60 text-[20px] pointer-events-none hidden md:block">search</span>
+</div>
+<div class="h-6 w-px bg-white/20 mx-1 hidden md:block"></div>
+<div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white cursor-pointer hover:bg-white/30 transition relative">
+<span class="material-symbols-outlined text-sm">notifications</span>
+<span class="absolute top-0 left-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-primary"></span>
+</div>
+<div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 p-1 rounded-lg transition">
+<div class="w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center font-bold text-sm" style="background-image: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%);">
+                    م.أ
+                </div>
+<div class="hidden lg:flex flex-col items-start">
+<span class="text-white text-xs font-bold leading-none mb-1">محمد أحمد</span>
+<span class="text-white/70 text-[10px] leading-none">مدير النظام</span>
+</div>
+<span class="material-symbols-outlined text-white/70 text-sm hidden lg:block">expand_more</span>
+</div>
+</div>
+</nav>
+<div class="flex flex-1 h-[calc(100vh-64px)] overflow-hidden">
+<aside class="w-64 bg-white border-l border-border-color hidden lg:flex flex-col no-print overflow-y-auto shrink-0 z-10">
+<div class="py-6 px-4">
+<div class="text-xs font-bold text-secondary-text uppercase tracking-wider mb-3 px-3">القائمة الرئيسية</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-secondary-text hover:bg-gray-50 hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="font-medium text-sm">لوحة التحكم</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-secondary-text hover:bg-gray-50 hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">local_police</span>
+<span class="font-medium text-sm">الدوريات والمهام</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-secondary-text hover:bg-gray-50 hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">badge</span>
+<span class="font-medium text-sm">سجل الزوار</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-primary/5 text-primary rounded-lg transition-colors group border-r-[3px] border-primary" href="#">
+<span class="material-symbols-outlined text-primary fill-1">analytics</span>
+<span class="font-bold text-sm">التقارير والتحليلات</span>
+</a>
+</nav>
+<div class="text-xs font-bold text-secondary-text uppercase tracking-wider mb-3 mt-8 px-3">الإدارة</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-secondary-text hover:bg-gray-50 hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">group</span>
+<span class="font-medium text-sm">إدارة المستخدمين</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-secondary-text hover:bg-gray-50 hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-medium text-sm">إعدادات النظام</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-4 border-t border-border-color">
+<div class="bg-gray-50 rounded-xl p-4 border border-border-color">
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined text-[20px]">headset_mic</span>
+<span class="font-bold text-sm">الدعم الفني</span>
+</div>
+<p class="text-xs text-secondary-text mb-3">هل تواجه مشكلة؟ فريقنا جاهز للمساعدة على مدار الساعة.</p>
+<button class="w-full bg-white border border-border-color hover:border-primary/50 text-primary text-xs font-bold py-2 rounded-lg transition-colors shadow-sm">
+                        تواصل معنا
+                    </button>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto bg-gray-50 scrollbar-hide relative w-full">
+<div class="flex flex-col w-full h-full">
+<div class="flex flex-1 justify-center py-6 px-4 md:px-8">
+<div class="w-full max-w-[1400px] flex flex-col">
+<div class="flex flex-wrap gap-2 pb-4 items-center no-print">
+<a class="text-secondary-text text-sm font-medium hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[18px]">home</span>
+                                الرئيسية
+                            </a>
+<span class="text-secondary-text text-sm font-medium">/</span>
+<span class="text-[#101418] text-sm font-medium">تقارير وتحليلات النظام</span>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 border-b border-border-color pb-6">
+<div class="flex flex-col gap-2">
+<h1 class="text-[#101418] text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em]">تقارير الحوادث والدوريات</h1>
+<p class="text-secondary-text text-base font-normal">استعراض السجلات الأمنية، تصفية البيانات حسب الورديات، وتصدير التقارير الرسمية للإدارة.</p>
+</div>
+<div class="flex gap-3 no-print">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 border border-border-color bg-white hover:bg-gray-50 text-[#101418] text-sm font-bold transition-all shadow-sm group">
+<span class="material-symbols-outlined text-[20px] ml-2 text-secondary-text group-hover:text-primary">print</span>
+<span class="truncate">طباعة (A4)</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-bold shadow-sm transition-all">
+<span class="material-symbols-outlined text-[20px] ml-2">picture_as_pdf</span>
+<span class="truncate">تصدير PDF</span>
+</button>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-border-color p-5 mb-6 shadow-sm no-print">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">filter_alt</span>
+<h3 class="text-[#101418] text-base font-bold">تصفية البيانات</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+<label class="flex flex-col gap-1.5 flex-1">
+<span class="text-[#101418] text-sm font-semibold">من تاريخ</span>
+<div class="relative">
+<input class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" type="date" value="2023-10-01"/>
+</div>
+</label>
+<label class="flex flex-col gap-1.5 flex-1">
+<span class="text-[#101418] text-sm font-semibold">إلى تاريخ</span>
+<div class="relative">
+<input class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" type="date" value="2023-10-31"/>
+</div>
+</label>
+<label class="flex flex-col gap-1.5 flex-1">
+<span class="text-[#101418] text-sm font-semibold">نوع التقرير</span>
+<div class="relative">
+<select class="w-full h-11 appearance-none rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors">
+<option value="all">جميع السجلات</option>
+<option value="visitors">سجل الزوار</option>
+<option value="patrols">الدوريات الأمنية</option>
+<option value="incidents">الملاحظات والحوادث</option>
+</select>
+<span class="material-symbols-outlined absolute left-3 top-3 pointer-events-none text-secondary-text">expand_more</span>
+</div>
+</label>
+<label class="flex flex-col gap-1.5 flex-1">
+<span class="text-[#101418] text-sm font-semibold">مسؤول الأمن</span>
+<div class="relative">
+<input class="w-full h-11 rounded-lg border border-border-color bg-gray-50 pr-9 pl-3 text-[#101418] text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" placeholder="بحث باسم الموظف..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-3 pointer-events-none text-secondary-text text-[20px]">search</span>
+</div>
+</label>
+</div>
+<div class="flex justify-end mt-4 pt-4 border-t border-dashed border-gray-200">
+<button class="text-secondary-text text-sm font-medium hover:text-primary ml-4 px-2">إعادة تعيين</button>
+<button class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-10 shadow-sm transition-all">تطبيق التصفية</button>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-border-color shadow-sm overflow-hidden flex flex-col print-full mb-8">
+<div class="px-5 py-4 border-b border-border-color flex justify-between items-center bg-gray-50/50">
+<h4 class="font-bold text-[#101418] text-sm">نتائج البحث (4 سجلات)</h4>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded hover:bg-gray-200 text-secondary-text" title="Refresh">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+<button class="p-1.5 rounded hover:bg-gray-200 text-secondary-text" title="Density">
+<span class="material-symbols-outlined text-[20px]">density_medium</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-right border-collapse">
+<thead>
+<tr class="bg-gray-50 border-b border-border-color">
+<th class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">التاريخ والوقت</th>
+<th class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">نوع التقرير</th>
+<th class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">معلومات المستخدم</th>
+<th class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">الموقع</th>
+<th class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">الحالة</th>
+<th class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text min-w-[200px]">الملاحظات</th>
+<th class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text w-10 no-print"></th>
+</tr>
+</thead>
+<tbody class="bg-white divide-y divide-border-color">
+<tr class="hover:bg-blue-50/30 transition-colors group">
+<td class="py-3 px-5 text-sm font-medium text-[#101418] whitespace-nowrap align-middle">
+<div class="flex flex-col">
+<span>24 أكتوبر 2023</span>
+<span class="text-secondary-text text-xs">08:30 صباحاً</span>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-600 text-[18px]">local_police</span>
+                                                    دورية صباحية
+                                                </div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-blue-100 text-xs flex items-center justify-center font-bold text-blue-700 ring-2 ring-white shadow-sm">م</div>
+<div class="flex flex-col">
+<a class="font-bold text-[#101418] hover:text-primary hover:underline transition-colors text-sm" href="#">محمد العتيبي</a>
+<a class="text-[11px] text-secondary-text hover:text-primary flex items-center gap-0.5" href="#" title="عرض الملف الشخصي">
+<span>عرض الملف</span>
+<span class="material-symbols-outlined text-[12px]">arrow_back</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text align-middle">المنطقة الصناعية ب</td>
+<td class="py-3 px-5 align-middle">
+<span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 border border-emerald-200">
+                                                    مكتمل
+                                                </span>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text truncate max-w-[250px] align-middle">
+                                                تم تفقد جميع البوابات، الوضع آمن ولا توجد ملاحظات غير اعتيادية.
+                                            </td>
+<td class="py-3 px-5 no-print text-center align-middle">
+<button class="text-secondary-text hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors group">
+<td class="py-3 px-5 text-sm font-medium text-[#101418] whitespace-nowrap align-middle">
+<div class="flex flex-col">
+<span>24 أكتوبر 2023</span>
+<span class="text-secondary-text text-xs">10:15 صباحاً</span>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-600 text-[18px]">warning</span>
+                                                    ملاحظة سلامة
+                                                </div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-amber-100 text-xs flex items-center justify-center font-bold text-amber-700 ring-2 ring-white shadow-sm">خ</div>
+<div class="flex flex-col">
+<a class="font-bold text-[#101418] hover:text-primary hover:underline transition-colors text-sm" href="#">خالد السالم</a>
+<a class="text-[11px] text-secondary-text hover:text-primary flex items-center gap-0.5" href="#" title="عرض الملف الشخصي">
+<span>عرض الملف</span>
+<span class="material-symbols-outlined text-[12px]">arrow_back</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text align-middle">مستودع الكيماويات</td>
+<td class="py-3 px-5 align-middle">
+<span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 border border-amber-200">
+                                                    قيد المراجعة
+                                                </span>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text truncate max-w-[250px] align-middle">
+                                                تسرب مياه بسيط بالقرب من المخرج رقم 4. تم إبلاغ الصيانة.
+                                            </td>
+<td class="py-3 px-5 no-print text-center align-middle">
+<button class="text-secondary-text hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors group">
+<td class="py-3 px-5 text-sm font-medium text-[#101418] whitespace-nowrap align-middle">
+<div class="flex flex-col">
+<span>23 أكتوبر 2023</span>
+<span class="text-secondary-text text-xs">02:45 مساءً</span>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-purple-600 text-[18px]">badge</span>
+                                                    سجل زوار
+                                                </div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-purple-100 text-xs flex items-center justify-center font-bold text-purple-700 ring-2 ring-white shadow-sm">ع</div>
+<div class="flex flex-col">
+<a class="font-bold text-[#101418] hover:text-primary hover:underline transition-colors text-sm" href="#">عمر الفاروق</a>
+<a class="text-[11px] text-secondary-text hover:text-primary flex items-center gap-0.5" href="#" title="عرض الملف الشخصي">
+<span>عرض الملف</span>
+<span class="material-symbols-outlined text-[12px]">arrow_back</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text align-middle">الاستقبال الرئيسي</td>
+<td class="py-3 px-5 align-middle">
+<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-bold text-gray-700 border border-gray-200">
+                                                    مغادرة
+                                                </span>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text truncate max-w-[250px] align-middle">
+                                                خروج وفد شركة "تقنية المستقبل" بعد انتهاء الاجتماع.
+                                            </td>
+<td class="py-3 px-5 no-print text-center align-middle">
+<button class="text-secondary-text hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors group border-l-4 border-l-red-500 bg-red-50/10">
+<td class="py-3 px-5 text-sm font-medium text-[#101418] whitespace-nowrap align-middle">
+<div class="flex flex-col">
+<span>22 أكتوبر 2023</span>
+<span class="text-secondary-text text-xs">11:00 ليلاً</span>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-red-600 text-[18px]">report</span>
+                                                    بلاغ أمني
+                                                </div>
+</td>
+<td class="py-3 px-5 text-sm text-[#101418] align-middle">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-red-100 text-xs flex items-center justify-center font-bold text-red-700 ring-2 ring-white shadow-sm">ف</div>
+<div class="flex flex-col">
+<a class="font-bold text-[#101418] hover:text-primary hover:underline transition-colors text-sm" href="#">فهد الدوسري</a>
+<a class="text-[11px] text-secondary-text hover:text-primary flex items-center gap-0.5" href="#" title="عرض الملف الشخصي">
+<span>عرض الملف</span>
+<span class="material-symbols-outlined text-[12px]">arrow_back</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text align-middle">البوابة الجنوبية</td>
+<td class="py-3 px-5 align-middle">
+<span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-800 border border-red-200">
+                                                    مخالفة
+                                                </span>
+</td>
+<td class="py-3 px-5 text-sm text-secondary-text truncate max-w-[250px] align-middle">
+                                                محاولة دخول مركبة غير مصرحة. تم إيقافها واستدعاء المشرف.
+                                            </td>
+<td class="py-3 px-5 no-print text-center align-middle">
+<button class="text-secondary-text hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-gray-50 border-t border-border-color px-5 py-3 flex items-center justify-between no-print">
+<span class="text-xs text-secondary-text font-medium">عرض 1 إلى 4 من أصل 128 سجل</span>
+<div class="flex items-center gap-2">
+<button class="h-8 w-8 flex items-center justify-center rounded border border-border-color bg-white hover:bg-gray-100 text-secondary-text disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded border border-primary bg-primary text-white text-xs font-bold shadow-sm">
+                                        1
+                                    </button>
+<button class="h-8 w-8 flex items-center justify-center rounded border border-border-color bg-white hover:bg-gray-100 text-[#101418] text-xs font-bold">
+                                        2
+                                    </button>
+<button class="h-8 w-8 flex items-center justify-center rounded border border-border-color bg-white hover:bg-gray-100 text-[#101418] text-xs font-bold">
+                                        3
+                                    </button>
+<span class="text-secondary-text text-xs">...</span>
+<button class="h-8 w-8 flex items-center justify-center rounded border border-border-color bg-white hover:bg-gray-100 text-[#101418] text-xs font-bold">
+                                        12
+                                    </button>
+<button class="h-8 w-8 flex items-center justify-center rounded border border-border-color bg-white hover:bg-gray-100 text-secondary-text">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

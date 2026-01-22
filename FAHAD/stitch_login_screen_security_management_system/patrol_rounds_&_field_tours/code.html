@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Patrol Rounds &amp; Field Tours</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-light": "#2c4a70",
+                        "background-light": "#ffffff",
+                        "background-dark": "#17191c",
+                        "surface": "#F5F7FA",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "sm": "0.25rem", "lg": "0.375rem", "xl": "0.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .radio-card-input:checked + .radio-card {
+            border-color: currentColor;
+            background-color: var(--tw-bg-opacity, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }.status-normal:checked + div {
+            background-color: #ecfdf5;border-color: #10b981;color: #065f46;}
+        .status-observation:checked + div {
+            background-color: #fffbeb;border-color: #f59e0b;color: #92400e;}
+        .status-danger:checked + div {
+            background-color: #fef2f2;border-color: #ef4444;color: #991b1b;}
+    </style>
+</head>
+<body class="bg-surface dark:bg-background-dark font-display text-[#101418] antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="w-72 h-full bg-primary flex flex-col justify-between shrink-0 shadow-xl z-20 text-white">
+<div class="flex flex-col gap-8 p-6">
+<div class="flex items-center gap-4 pb-6 border-b border-primary-light">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-12 border-2 border-white/20" data-alt="Security officer profile picture placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBjCsOEFSdmz4bmmFqkp0sIy2Omp6JeqLoLn3_uBHbExZ_2qXjmQhlg48jakL5B0oHwLNFekv-Qxf13N69Tprs6OZsnwbutg_380bR2BIrru5zQH_CzK83K5oCRoAQly8Sh-nrutQwgdHDXIvvol4Sba_2B6I1GljGN_Bm6w6ip7JG9Rkj2n5F8SgGQ9WmypqtdF6PLv5N_Z--ogKnBlG3JS-LgGtWhln25Hy7b_r6hMu0ZspN68LyAG99tXWZdiAz8_qsmbBaU07g");'>
+</div>
+<div class="flex flex-col overflow-hidden">
+<h1 class="text-base font-bold leading-tight truncate">الملازم: أحمد العلي</h1>
+<p class="text-gray-300 text-xs font-normal leading-normal truncate">رقم الوحدة: 402-B</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">dashboard</span>
+<p class="text-sm font-medium">لوحة القيادة (Dashboard)</p>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded bg-white/15 text-white shadow-inner border-r-4 border-white" href="#">
+<span class="material-symbols-outlined">shield_person</span>
+<p class="text-sm font-bold">الجولات (Patrols)</p>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">warning</span>
+<p class="text-sm font-medium">الحوادث (Incidents)</p>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">map</span>
+<p class="text-sm font-medium">الخريطة الحية (Live Map)</p>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">history</span>
+<p class="text-sm font-medium">السجلات (Logs)</p>
+</a>
+</nav>
+</div>
+<div class="p-6 border-t border-primary-light">
+<a class="flex items-center gap-4 px-4 py-3 rounded text-gray-300 hover:bg-white/10 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium">الإعدادات (Settings)</p>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-[#F5F7FA]">
+<header class="h-16 bg-white border-b border-[#eaedf1] flex items-center justify-between px-8 shrink-0 z-10">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-xl">local_police</span>
+</div>
+<h2 class="text-lg font-bold text-primary">نظام الأمن الصناعي - بوابة تسجيل الجولات</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex flex-col items-end">
+<span class="text-sm font-bold text-gray-900" id="current-date">--/--/----</span>
+<span class="text-xs font-medium text-gray-500" id="current-time">--:-- --</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 transition-colors text-sm font-bold">
+<span class="material-symbols-outlined text-lg">logout</span>
+<span>تسجيل الخروج</span>
+</button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-6xl mx-auto flex flex-col gap-6">
+<div class="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-gray-200">
+<div>
+<h1 class="text-3xl font-black text-primary tracking-tight mb-2">سجل الجولات الميدانية</h1>
+<p class="text-gray-500 text-base">أدخل بيانات الجولة الجديدة بدقة. الحقول المميزة بـ * مطلوبة.</p>
+</div>
+<div class="hidden sm:flex items-center gap-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium border border-blue-200">
+<span class="size-2 rounded-full bg-blue-600 animate-pulse"></span>
+                            متصل بالشبكة الداخلية
+                        </span>
+<a class="flex items-center gap-2 px-4 py-2 rounded bg-white border border-gray-300 text-gray-700 text-sm font-bold hover:bg-gray-50 hover:text-primary transition-colors shadow-sm group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">summarize</span>
+<span>عرض التقارير (View Report)</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<div class="lg:col-span-8 flex flex-col gap-6">
+<div class="bg-white rounded shadow-sm border border-gray-200 p-6 md:p-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<div class="flex flex-col gap-2">
+<label class="text-gray-700 text-sm font-bold">اسم الحارس (Guard Name)</label>
+<div class="flex items-center gap-3 px-4 h-12 rounded bg-gray-100 border border-gray-200 text-gray-500 cursor-not-allowed select-none">
+<span class="material-symbols-outlined text-gray-400">person</span>
+<span class="font-medium">أحمد العلي</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-gray-700 text-sm font-bold">وقت التسجيل (Timestamp)</label>
+<div class="flex items-center gap-3 px-4 h-12 rounded bg-gray-100 border border-gray-200 text-gray-500 cursor-not-allowed select-none">
+<span class="material-symbols-outlined text-gray-400">schedule</span>
+<span class="font-medium" dir="ltr">2023-10-24 14:35:02</span>
+</div>
+</div>
+<div class="md:col-span-2 flex flex-col gap-2">
+<label class="text-gray-900 text-sm font-bold">الموقع (Location) <span class="text-red-500">*</span></label>
+<div class="relative">
+<select class="w-full h-14 pl-10 pr-4 text-base bg-white border border-gray-300 rounded focus:border-primary focus:ring-1 focus:ring-primary appearance-none transition-shadow cursor-pointer text-gray-900 font-medium">
+<option disabled="" selected="" value="">اختر موقع الجولة...</option>
+<option value="main-gate">البوابة الرئيسية (Main Gate)</option>
+<option value="warehouse-a">مستودع أ (Warehouse A)</option>
+<option value="warehouse-b">مستودع ب (Warehouse B)</option>
+<option value="perimeter-north">السور الشمالي (North Perimeter)</option>
+<option value="loading-dock">منطقة التحميل (Loading Dock)</option>
+</select>
+<div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-8">
+<label class="text-gray-900 text-sm font-bold mb-3 block">الحالة الأمنية (Security Status) <span class="text-red-500">*</span></label>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<label class="cursor-pointer relative">
+<input checked="" class="peer sr-only status-normal" name="status" type="radio" value="normal"/>
+<div class="radio-card flex flex-col items-center justify-center p-4 rounded border-2 border-gray-200 hover:border-emerald-300 transition-all h-full bg-white text-gray-500">
+<span class="material-symbols-outlined text-4xl mb-2">check_circle</span>
+<span class="font-bold text-lg">طبيعي</span>
+<span class="text-xs opacity-75 font-sans">Normal</span>
+</div>
+<div class="absolute top-2 left-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-emerald-600 bg-white rounded-full">check_circle</span>
+</div>
+</label>
+<label class="cursor-pointer relative">
+<input class="peer sr-only status-observation" name="status" type="radio" value="observation"/>
+<div class="radio-card flex flex-col items-center justify-center p-4 rounded border-2 border-gray-200 hover:border-amber-300 transition-all h-full bg-white text-gray-500">
+<span class="material-symbols-outlined text-4xl mb-2">visibility</span>
+<span class="font-bold text-lg">ملاحظة</span>
+<span class="text-xs opacity-75 font-sans">Observation</span>
+</div>
+<div class="absolute top-2 left-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-amber-600 bg-white rounded-full">check_circle</span>
+</div>
+</label>
+<label class="cursor-pointer relative">
+<input class="peer sr-only status-danger" name="status" type="radio" value="danger"/>
+<div class="radio-card flex flex-col items-center justify-center p-4 rounded border-2 border-gray-200 hover:border-red-300 transition-all h-full bg-white text-gray-500">
+<span class="material-symbols-outlined text-4xl mb-2">warning</span>
+<span class="font-bold text-lg">خطر</span>
+<span class="text-xs opacity-75 font-sans">Danger</span>
+</div>
+<div class="absolute top-2 left-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-red-600 bg-white rounded-full">check_circle</span>
+</div>
+</label>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-6 mb-8">
+<div class="flex flex-col gap-2">
+<label class="text-gray-900 text-sm font-bold">الملاحظات (Notes)</label>
+<textarea class="w-full min-h-[160px] p-4 text-base bg-white border border-gray-300 rounded focus:border-primary focus:ring-1 focus:ring-primary resize-y text-gray-900 placeholder:text-gray-400" placeholder="أدخل تفاصيل الجولة الأمنية والمشاهدات هنا..."></textarea>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-gray-900 text-sm font-bold">إرفاق صور (Attachments)</label>
+<div class="border-2 border-dashed border-gray-300 rounded bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer p-8 flex flex-col items-center justify-center text-center group">
+<div class="size-12 rounded-full bg-gray-200 flex items-center justify-center mb-3 group-hover:bg-white group-hover:shadow-sm transition-all">
+<span class="material-symbols-outlined text-gray-500">add_a_photo</span>
+</div>
+<p class="text-gray-900 font-medium text-sm">اضغط لرفع الصور أو اسحب الملفات هنا</p>
+<p class="text-gray-500 text-xs mt-1">JPG, PNG (Max 5MB)</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
+<button class="flex-1 h-12 bg-primary hover:bg-primary-light text-white text-base font-bold rounded shadow-sm hover:shadow transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">save</span>
+<span>حفظ الجولة (Save Patrol)</span>
+</button>
+<button class="sm:w-48 h-12 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-base font-bold rounded shadow-sm transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">print</span>
+<span>طباعة (Print)</span>
+</button>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-gradient-to-br from-primary to-primary-light rounded shadow text-white p-6 relative overflow-hidden">
+<div class="absolute -left-6 -bottom-6 opacity-10">
+<span class="material-symbols-outlined text-[150px]">verified_user</span>
+</div>
+<h3 class="text-lg font-bold mb-1">حالة الوردية</h3>
+<p class="text-blue-100 text-sm mb-4">Shift Status</p>
+<div class="flex items-center gap-3 mb-2">
+<span class="size-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)] animate-pulse"></span>
+<span class="font-bold text-2xl">نشطة (Active)</span>
+</div>
+<p class="text-sm text-blue-100 opacity-80">تم إكمال 4 جولات من أصل 6</p>
+</div>
+<div class="bg-white rounded shadow-sm border border-gray-200 flex flex-col">
+<div class="p-4 border-b border-gray-100 flex items-center justify-between">
+<h3 class="font-bold text-gray-900">آخر السجلات (Recent Logs)</h3>
+<a class="text-xs font-bold text-primary hover:underline" href="#">عرض الكل</a>
+</div>
+<div class="divide-y divide-gray-100">
+<div class="p-4 hover:bg-gray-50 transition-colors flex items-start gap-3">
+<div class="mt-1">
+<span class="material-symbols-outlined text-emerald-600 text-xl">check_circle</span>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-900">البوابة الرئيسية</p>
+<p class="text-xs text-gray-500">منذ 15 دقيقة • طبيعي</p>
+</div>
+</div>
+<div class="p-4 hover:bg-gray-50 transition-colors flex items-start gap-3">
+<div class="mt-1">
+<span class="material-symbols-outlined text-amber-500 text-xl">visibility</span>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-900">مستودع الكيماويات</p>
+<p class="text-xs text-gray-500">منذ 45 دقيقة • ملاحظة: إنارة معطلة</p>
+</div>
+</div>
+<div class="p-4 hover:bg-gray-50 transition-colors flex items-start gap-3">
+<div class="mt-1">
+<span class="material-symbols-outlined text-emerald-600 text-xl">check_circle</span>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-900">محيط السور الجنوبي</p>
+<p class="text-xs text-gray-500">منذ ساعة • طبيعي</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded shadow-sm border border-gray-200 p-1">
+<div class="bg-gray-100 w-full h-48 rounded bg-cover bg-center relative group" data-alt="Static map showing facility zones" data-location="Riyadh Industrial City" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHZLJ48CoMMhGD9zRi5lTnayqRlh98uzAWBnOer4607hxiUH21pRkqBKdRvjzrF_IHEYIMcf2glQhZVkdy4cCSg41r3WmmwvPXppI6gzg86WV6ulxJ1X8d1Gp9BeKjdmIWKGB4srX6_VxZ3gFNmcb1px5KwEYT6380cv69xXkUc3gq_gdjSD1X6HHjdyFS9fiOkVEQDoWTeKN36P3q7YEMFy8ZFUXQ-F0szJK1p469t2dICMJ0ZQt8f7_BDuYCKf5AFhe0rfAM4G0");'>
+<div class="absolute inset-0 bg-primary/10 group-hover:bg-primary/5 transition-colors"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded text-xs font-bold shadow text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">my_location</span>
+                                    موقعك الحالي
+                                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script>
+        // Simple JS to set current date/time (visual only, no functionality)
+        const now = new Date();
+        document.getElementById('current-date').textContent = now.toLocaleDateString('en-GB');
+        document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+    </script>
+
+</body></html>

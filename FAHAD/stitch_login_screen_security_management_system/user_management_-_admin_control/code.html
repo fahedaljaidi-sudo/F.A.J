@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Management - Industrial Security</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#2c4a70",
+                        "background-light": "#f0f2f5",
+                        "background-dark": "#17191c",
+                        "accent-red": "#CC2A36",
+                        "accent-green": "#4C8E4D",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "sm": "0.125rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                    },
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }.toggle-checkbox:checked {
+            right: 0;
+            border-color: #4C8E4D;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4C8E4D;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-primary dark:text-white overflow-hidden">
+<div class="flex flex-row-reverse h-screen w-full overflow-hidden">
+<aside class="w-72 flex-shrink-0 bg-primary h-full flex flex-col justify-between shadow-xl z-20 relative">
+<div class="p-6 flex flex-col gap-4 border-b border-gray-700/50">
+<div class="flex items-center gap-3 flex-row-reverse justify-end">
+<div class="flex flex-col items-end">
+<h1 class="text-white text-lg font-bold tracking-wide uppercase">SecurCore</h1>
+<p class="text-gray-400 text-xs font-normal">Industrial Admin v2.4</p>
+</div>
+<div class="bg-white/10 p-2 rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined">shield_lock</span>
+</div>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded text-gray-400 hover:bg-white/5 hover:text-white transition-colors group justify-end" href="#">
+<span class="text-sm font-medium">Dashboard</span>
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+</a>
+<div class="px-4 py-2 mt-2 mb-1 text-right">
+<p class="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Access Control</p>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 rounded bg-white/10 text-white border-r-4 border-accent-green justify-end shadow-md" href="#">
+<span class="text-sm font-bold">User Management</span>
+<span class="material-symbols-outlined text-[20px] fill-current">group</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-gray-400 hover:bg-white/5 hover:text-white transition-colors justify-end" href="#">
+<span class="text-sm font-medium">Shift Rosters</span>
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-gray-400 hover:bg-white/5 hover:text-white transition-colors justify-end" href="#">
+<span class="text-sm font-medium">Clearance Levels</span>
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</a>
+<div class="px-4 py-2 mt-2 mb-1 text-right">
+<p class="text-[10px] uppercase tracking-wider text-gray-500 font-bold">System</p>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-gray-400 hover:bg-white/5 hover:text-white transition-colors justify-end" href="#">
+<span class="text-sm font-medium">Audit Logs</span>
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-gray-400 hover:bg-white/5 hover:text-white transition-colors justify-end" href="#">
+<span class="text-sm font-medium">Reports</span>
+<span class="material-symbols-outlined text-[20px]">description</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-gray-400 hover:bg-white/5 hover:text-white transition-colors justify-end" href="#">
+<span class="text-sm font-medium">Settings</span>
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-gray-700/50 bg-[#0f1d2e]">
+<div class="flex items-center gap-3 flex-row-reverse">
+<div class="size-10 rounded-full bg-cover bg-center border-2 border-accent-green" data-alt="Admin user profile picture showing a man in professional attire" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDZNBQ_F-FLa129ajObkO01kR9Z5guCJruSdCGsyZwDCWVYBKLRnvY3vg2xUUGExUEhnr9j63SdSHFKKMUBl55i6C4vnYOjyDwbClCPc8I9oXVmVBWqOiaBAUrNlX2JgNbcSJZpnWsZ5JuwNGhLoRkCzdFjgi7AwbR7msCH5IbiWMHuoWj99uWI4QoG-o3sfukn5tJbTgAkxHnBJkszqv4WxWxG7AJWObXDpZZVEK0sCNwimA4mk972jIbyqB-9wkyuqpQqZmxDzdM');"></div>
+<div class="flex flex-col items-end">
+<p class="text-white text-sm font-medium">Hassan Al-Rahim</p>
+<p class="text-gray-400 text-xs">Chief Security Officer</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<header class="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-8 flex-row-reverse">
+<div class="flex items-center gap-2 text-sm">
+<span class="text-gray-400 hover:text-primary cursor-pointer transition-colors">Home</span>
+<span class="text-gray-300">/</span>
+<span class="text-primary dark:text-white font-semibold">User Management</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-gray-400 hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-accent-red rounded-full border border-white"></span>
+</button>
+<button class="text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-[1400px] mx-auto ml-auto mr-0"> 
+<div class="flex flex-wrap justify-between items-end gap-6 mb-8 flex-row-reverse">
+<div class="flex flex-col items-end gap-2 text-right">
+<h2 class="text-3xl font-bold text-primary dark:text-white tracking-tight">User Administration</h2>
+<p class="text-gray-500 dark:text-gray-400">Manage access credentials, roles, and security clearance for site personnel.</p>
+</div>
+<button class="group flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded shadow-lg shadow-primary/20 transition-all active:scale-95">
+<span class="font-semibold text-sm">Add New User</span>
+<span class="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform">add</span>
+</button>
+</div>
+<div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+<div class="flex flex-col md:flex-row-reverse items-center gap-4">
+<div class="relative w-full md:w-96 group">
+<input class="w-full text-right pr-10 pl-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-primary dark:text-white placeholder-gray-400" dir="rtl" placeholder="Search by Name, ID, or Username..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400 group-focus-within:text-primary">search</span>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto flex-row-reverse flex-1 justify-end">
+<div class="relative">
+<select class="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded px-4 py-2.5 pr-10 pl-8 text-sm text-primary dark:text-white focus:outline-none focus:border-primary cursor-pointer text-right" dir="rtl">
+<option>All Roles</option>
+<option>Admin</option>
+<option>Supervisor</option>
+<option>Security Guard</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-lg">filter_list</span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded px-4 py-2.5 pr-10 pl-8 text-sm text-primary dark:text-white focus:outline-none focus:border-primary cursor-pointer text-right" dir="rtl">
+<option>Status: All</option>
+<option>Active</option>
+<option>Inactive</option>
+<option>Suspended</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-lg">toggle_on</span>
+</div>
+<button class="ml-auto md:ml-0 text-gray-500 hover:text-primary transition-colors text-sm font-medium underline underline-offset-4">
+                                    Reset Filters
+                                </button>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full min-w-[800px] border-collapse">
+<thead>
+<tr class="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-right">
+<th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider w-32">Actions</th>
+<th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+<th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Role</th>
+<th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Username</th>
+<th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-accent-red transition-colors" title="Delete User">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" onclick="window.location.href='reports.html?user=fkhalid'" title="View Logs">
+<span class="material-symbols-outlined text-[20px]">history</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+</button>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="inline-flex items-center gap-2 justify-end">
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Active</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-all duration-300 checked:right-0 right-5" id="toggle1" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer" for="toggle1"></label>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2.5 py-1 rounded border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold">
+                                                Admin
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right text-sm font-mono text-gray-600 dark:text-gray-400">@f.khalid</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-3">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-primary dark:text-white">Faris Khalid</span>
+<span class="text-xs text-gray-500">f.khalid@company.com</span>
+</div>
+<div class="size-9 rounded bg-cover bg-center" data-alt="Portrait of Faris Khalid" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBLgefWmypmhs72_qanem8xWwHsEuGav8EzlGfG8daHeb7TIvaXu6ffYRzuyJpoJIp1X7m2evP5OkYh-ikUAXDm1MVOFokK3FHhMjMYu6b2Lr9IDwdZeESmbDqDiKiyuxUfILwejw9iZSo5wBZ5ITPfWB-DeI8DYpTHGM8IzdZ4NbpeyG_1_IEkClvcjA1Th4E_s2fzhPiwhQlaFuapcYLByCsDD8ozS5NtnBTmCkUyBB0cafstaSIQ19H0M8jCUiAnL4bbKpC-nMs');"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-accent-red transition-colors" title="Delete User">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" onclick="window.location.href='reports.html?user=lmansour'" title="View Logs">
+<span class="material-symbols-outlined text-[20px]">history</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+</button>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="inline-flex items-center gap-2 justify-end">
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Active</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-all duration-300 checked:right-0 right-5" id="toggle2" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer" for="toggle2"></label>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2.5 py-1 rounded border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold">
+                                                Supervisor
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right text-sm font-mono text-gray-600 dark:text-gray-400">@l.mansour</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-3">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-primary dark:text-white">Laila Mansour</span>
+<span class="text-xs text-gray-500">l.mansour@company.com</span>
+</div>
+<div class="size-9 rounded bg-cover bg-center" data-alt="Portrait of Laila Mansour" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAnYCGjnvyXJnoIDrUOavBUx67Me_EKVAyPdS5xoqhc-pK7KSZRXmZmSmTB5-AIqYe0uSuSmZS5LjtnL-FXhYqeZctBlkh_HyYbMqTr3pREug2w8mJRnLvIg0zLj4rA-FvjAJhCxl7dvzJCWObzAWCXMNmm8MR3aJxfYeZgPiNa8xRs2pfQxH1SGD-Aj-nQaci8Z2uA9snsHbTm5_PArBpnFlbX14uP2UYw_jMF2pMdB0VbrzWxR89rhPu1Wm2rpOFUzUgo-1Tq9X4');"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-accent-red transition-colors" title="Delete User">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" onclick="window.location.href='reports.html?user=yibrahim'" title="View Logs">
+<span class="material-symbols-outlined text-[20px]">history</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+</button>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="inline-flex items-center gap-2 justify-end">
+<span class="text-xs font-medium text-gray-400 dark:text-gray-500">Inactive</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-all duration-300 checked:right-0 right-5" id="toggle3" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer" for="toggle3"></label>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2.5 py-1 rounded border border-gray-200 bg-gray-100 text-gray-600 text-xs font-bold">
+                                                Guard
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right text-sm font-mono text-gray-600 dark:text-gray-400">@y.ibrahim</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-3">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-gray-400 dark:text-gray-500">Youssef Ibrahim</span>
+<span class="text-xs text-gray-500">y.ibrahim@company.com</span>
+</div>
+<div class="size-9 rounded bg-cover bg-center grayscale opacity-60" data-alt="Portrait of Youssef Ibrahim" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA6OfSVLjwrfRUGF2SCBFQmRh-uGnFIk_m72eAfIKZl2l8hwexTS_tsHYLWvutP43Iug9v_a4Z--r7fn-Tn6zqUAE3f_vUO8rL7zisZGSxOmAHy4DzolwgcXiHfmF0mz4V7wLCtjhEZgDmAvqQjDcrgLTTreve5lAhBl_GlrrNDcnU6V4p5Ro4pHVcUJLptZ1UjMrVeNu1FnXqYjHecDYEd6PNxMvwDtDaIbaOqWM1v_Rqv73-K_vrU5xihw8TYFD8V4JNm6LtRPkg');"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-accent-red transition-colors" title="Delete User">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" onclick="window.location.href='reports.html?user=knasser'" title="View Logs">
+<span class="material-symbols-outlined text-[20px]">history</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+</button>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="inline-flex items-center gap-2 justify-end">
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Active</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-all duration-300 checked:right-0 right-5" id="toggle4" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer" for="toggle4"></label>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2.5 py-1 rounded border border-gray-200 bg-gray-100 text-gray-600 text-xs font-bold">
+                                                Guard
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right text-sm font-mono text-gray-600 dark:text-gray-400">@k.nasser</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-3">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-primary dark:text-white">Karim Nasser</span>
+<span class="text-xs text-gray-500">k.nasser@company.com</span>
+</div>
+<div class="size-9 rounded bg-cover bg-center" data-alt="Portrait of Karim Nasser" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA0YT-6rhUTfdnAIyO4Wf9fqqFqo4PMoiZwmcYdEtaKlqHL8IW5eizuTSUbw7tK3tPjNq1_FTy9bIabEoqzzW3v6J7MhTJ_MxnujVD7mpWXl_Ia8HIzABudwMlLGagRVJ4RPCPSWXwePkgvqN5npE7JQdbjLTywfT55t5OegslyAOwAwNvS-GAAzJ3obuLOG8Z3KcoYtIWSKsDSHglGjMMJayGo9EzwJg4SHzkxLZl9OWG24eY9GfqxA-UIovs1bokopKOY45oR_kk');"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-accent-red transition-colors" title="Delete User">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" onclick="window.location.href='reports.html?user=samari'" title="View Logs">
+<span class="material-symbols-outlined text-[20px]">history</span>
+</button>
+<button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-primary transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+</button>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="inline-flex items-center gap-2 justify-end">
+<span class="text-xs font-medium text-gray-600 dark:text-gray-300">Active</span>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition-all duration-300 checked:right-0 right-5" id="toggle5" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer" for="toggle5"></label>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2.5 py-1 rounded border border-gray-200 bg-gray-100 text-gray-600 text-xs font-bold">
+                                                Guard
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right text-sm font-mono text-gray-600 dark:text-gray-400">@s.amari</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-3">
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-primary dark:text-white">Samir Amari</span>
+<span class="text-xs text-gray-500">s.amari@company.com</span>
+</div>
+<div class="size-9 rounded bg-cover bg-center" data-alt="Portrait of Samir Amari" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0r5ld-b1XN16fyl7PxSXzSCaIw0IEjMpxoZ_udBTwH1sakS3gQ7D2ZFl_pXEy380BrC2Yx8YiQAyYRNb6g_UcWH7ITrpJWGKE7yj1xuE_qfmmReJQEH8eut8Bcise0N3mqvLFhC06conqTW7m-o0Mf-PF-E1wVS_zfRmkhCZsWUE5EvDNOl3FAro2tZxBKvfctuWiLQUt0QTO1sfTu9-L81oqrIDpmXrY75ASWamRFHSH0y9O7gPJQOa9lkoRudQCIw417u1dtFs');"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between flex-row-reverse">
+<span class="text-sm text-gray-500">Showing <span class="font-medium text-primary dark:text-white">1</span> to <span class="font-medium text-primary dark:text-white">5</span> of <span class="font-medium text-primary dark:text-white">42</span> results</span>
+<div class="flex items-center gap-1 flex-row-reverse">
+<button class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 disabled:opacity-50">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+<button class="px-3 py-1 rounded bg-primary text-white text-sm font-medium">1</button>
+<button class="px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium">2</button>
+<button class="px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium">3</button>
+<span class="px-2 text-gray-400">...</span>
+<button class="px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium">8</button>
+<button class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Connected Visitor Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#2c4a6e",
+                        "secondary": "#4C8E4D",
+                        "background-light": "#ffffff",
+                        "background-dark": "#17191c",
+                        "surface-light": "#F5F7FA",
+                        "surface-dark": "#1e2124",
+                        "border-light": "#e2e8f0",
+                        "border-dark": "#2d3748",
+                        "text-main": "#101418",
+                        "text-sub": "#5c6f8a",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "Noto Sans Arabic", "sans-serif"],
+                        "body": ["Public Sans", "Noto Sans Arabic", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem", 
+                        "sm": "0.25rem", 
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", 
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+        .form-input {
+            transition: all 0.2s ease-in-out;
+        }
+        .form-input:focus {
+            box-shadow: 0 0 0 2px rgba(22, 40, 65, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main h-screen flex flex-col font-body overflow-hidden">
+<header class="bg-primary text-white h-16 flex items-center justify-between px-0 shadow-sm z-30 shrink-0 relative">
+<div class="w-64 h-full flex items-center gap-4 px-6 bg-primary border-l border-white/10 shrink-0">
+<div class="bg-white/10 p-2 rounded-sm">
+<span class="material-symbols-outlined text-white">shield</span>
+</div>
+<div>
+<h1 class="text-lg font-bold tracking-wide leading-tight">نظام البوابة</h1>
+</div>
+</div>
+<div class="flex-1 flex items-center justify-between px-6 h-full bg-primary">
+<div class="flex items-center gap-4">
+<button class="text-white/70 hover:text-white lg:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<p class="text-xs text-blue-200 font-medium hidden sm:block">شركة الصناعات المتقدمة - بوابة رقم ١</p>
+</div>
+<div class="flex items-center gap-6 text-sm">
+<div class="flex items-center gap-2 bg-primary-hover px-3 py-1.5 rounded-sm border border-white/10">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-mono dir-ltr">25 Oct 2023 09:41</span>
+</div>
+<div class="h-6 w-px bg-white/20 hidden sm:block"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="font-semibold leading-none">أحمد السيد</p>
+<p class="text-xs text-blue-200 mt-1">ضابط أمن</p>
+</div>
+<div class="size-9 rounded-full bg-blue-200 border-2 border-primary-hover flex items-center justify-center overflow-hidden" data-alt="Security guard profile photo placeholder">
+<span class="material-symbols-outlined text-primary">person</span>
+</div>
+<button class="text-white/70 hover:text-white transition-colors">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden h-[calc(100vh-64px)]">
+<aside class="w-64 bg-primary text-white hidden lg:flex flex-col border-l border-white/10 z-20 shrink-0 overflow-y-auto">
+<nav class="flex-1 py-4 space-y-1">
+<a class="flex items-center gap-3 px-6 py-3 text-blue-200 hover:bg-primary-hover hover:text-white transition-colors group" href="dashboard.html">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">dashboard</span>
+<span class="font-medium">لوحة القيادة</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 bg-primary-hover text-white border-r-4 border-secondary transition-colors" href="#">
+<span class="material-symbols-outlined">how_to_reg</span>
+<span class="font-medium">تسجيل الزوار</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-blue-200 hover:bg-primary-hover hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">badge</span>
+<span class="font-medium">سجل الموظفين</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-blue-200 hover:bg-primary-hover hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">local_shipping</span>
+<span class="font-medium">الشحنات</span>
+</a>
+<div class="py-2"><hr class="border-white/10 mx-6"/></div>
+<a class="flex items-center gap-3 px-6 py-3 text-blue-200 hover:bg-primary-hover hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">bar_chart</span>
+<span class="font-medium">التقارير</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-blue-200 hover:bg-primary-hover hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">notifications</span>
+<span class="font-medium">التنبيهات</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-blue-200 hover:bg-primary-hover hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+<span class="font-medium">الإعدادات</span>
+</a>
+</nav>
+<div class="p-4 bg-black/10 border-t border-white/10">
+<div class="flex items-center gap-2 mb-2">
+<div class="size-2 rounded-full bg-green-500 animate-pulse"></div>
+<span class="text-xs font-semibold text-blue-100">النظام متصل</span>
+</div>
+<p class="text-[10px] text-blue-400 font-mono">v2.4.0 (Build 892)</p>
+</div>
+</aside>
+<main class="flex-1 flex flex-col xl:flex-row overflow-hidden bg-surface-light relative">
+<aside class="w-full xl:w-[400px] 2xl:w-[450px] bg-white border-l border-border-light flex flex-col z-10 shadow-lg xl:shadow-none overflow-y-auto shrink-0">
+<div class="p-6 border-b border-border-light bg-surface-light/30">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary">person_add</span>
+<h2 class="text-xl font-bold text-primary">تسجيل دخول زائر</h2>
+</div>
+<p class="text-sm text-text-sub">الرجاء تعبئة جميع الحقول المطلوبة بدقة.</p>
+</div>
+<form class="flex-1 p-6 space-y-5" onsubmit="event.preventDefault();">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-text-main mb-1.5">الاسم الكامل</label>
+<div class="relative">
+<input class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400" placeholder="اسم الزائر الثلاثي" type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">badge</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-text-main mb-1.5">رقم الهوية / الإقامة</label>
+<input class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400 font-mono" placeholder="##########" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-text-main mb-1.5">رقم الجوال</label>
+<input class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400 dir-ltr text-right" placeholder="05xxxxxxxx" type="tel"/>
+</div>
+</div>
+</div>
+<hr class="border-gray-100"/>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-text-main mb-1.5">الشركة / الجهة</label>
+<div class="relative">
+<input class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400" placeholder="اسم الشركة التابع لها" type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">business</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-text-main mb-1.5">الشخص المضيف</label>
+<input class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400" placeholder="اسم الموظف" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-text-main mb-1.5">سبب الزيارة</label>
+<select class="form-select w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 text-text-main">
+<option>اجتماع عمل</option>
+<option>توصيل طلبية</option>
+<option>مقابلة شخصية</option>
+<option>أعمال صيانة</option>
+<option>أخرى</option>
+</select>
+</div>
+</div>
+</div>
+<div class="bg-surface-light rounded-sm p-3 border border-gray-200 mt-6 grid grid-cols-2 gap-4">
+<div>
+<span class="text-xs text-text-sub block mb-1">وقت الدخول</span>
+<div class="flex items-center gap-1.5 text-primary font-bold font-mono text-sm">
+<span class="material-symbols-outlined text-[16px]">access_time</span>
+<span class="dir-ltr">09:41 AM</span>
+</div>
+</div>
+<div>
+<span class="text-xs text-text-sub block mb-1">المسؤول المناوب</span>
+<div class="flex items-center gap-1.5 text-primary font-bold text-sm">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>أحمد السيد</span>
+</div>
+</div>
+</div>
+<div class="pt-4 flex gap-3">
+<button class="flex-1 bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-4 rounded-sm transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">login</span>
+                        تسجيل دخول
+                    </button>
+<button class="bg-white hover:bg-gray-50 text-text-sub font-medium py-3 px-4 rounded-sm border border-gray-300 transition-colors">
+                        مسح
+                    </button>
+</div>
+</form>
+</aside>
+<section class="flex-1 bg-surface-light p-6 flex flex-col h-full overflow-hidden">
+<div class="flex items-center justify-between mb-4 shrink-0 flex-wrap gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-white p-2 rounded-sm border border-border-light shadow-sm">
+<span class="material-symbols-outlined text-primary">list_alt</span>
+</div>
+<div>
+<h2 class="text-xl font-bold text-primary">سجل زوار اليوم</h2>
+<p class="text-sm text-text-sub">٢٥ أكتوبر ٢٠٢٣</p>
+</div>
+</div>
+<div class="flex gap-2">
+<div class="relative">
+<input class="pl-3 pr-9 py-2 rounded-sm border border-gray-300 text-sm focus:border-primary focus:ring-0 w-64" placeholder="بحث بالاسم أو الهوية..." type="text"/>
+<span class="material-symbols-outlined absolute right-2.5 top-2 text-gray-400 text-[18px]">search</span>
+</div>
+<a class="bg-white hover:bg-gray-50 text-primary border border-gray-300 px-3 py-2 rounded-sm flex items-center gap-2 transition-colors" href="printable-report-layout.html">
+<span class="material-symbols-outlined text-[18px]">print</span>
+<span class="text-sm font-medium">طباعة التقرير</span>
+</a>
+</div>
+</div>
+<div class="flex-1 bg-white border border-border-light rounded-sm shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-right">
+<thead class="bg-gray-50 text-text-sub font-semibold border-b border-border-light sticky top-0">
+<tr>
+<th class="px-4 py-3 whitespace-nowrap">اسم الزائر</th>
+<th class="px-4 py-3 whitespace-nowrap">رقم الهوية</th>
+<th class="px-4 py-3 whitespace-nowrap">الجهة / الشركة</th>
+<th class="px-4 py-3 whitespace-nowrap">المضيف</th>
+<th class="px-4 py-3 whitespace-nowrap text-center">وقت الدخول</th>
+<th class="px-4 py-3 whitespace-nowrap text-center">وقت الخروج</th>
+<th class="px-4 py-3 whitespace-nowrap text-center">الحالة</th>
+<th class="px-4 py-3 whitespace-nowrap text-center">إجراءات</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+<tr class="hover:bg-blue-50/30 transition-colors group">
+<td class="px-4 py-3 font-medium text-text-main">محمد عبدالله الغامدي</td>
+<td class="px-4 py-3 font-mono text-gray-600">1045892311</td>
+<td class="px-4 py-3 text-gray-600">شركة الكهرباء</td>
+<td class="px-4 py-3 text-gray-600">خالد العمري</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr">08:15 AM</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr text-gray-400">--:--</td>
+<td class="px-4 py-3 text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    داخل المنشأة
+                                </span>
+</td>
+<td class="px-4 py-3 text-center">
+<div class="flex items-center justify-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-red-600 hover:bg-red-50 p-1.5 rounded flex items-center gap-1 border border-transparent hover:border-red-200 transition-all" title="تسجيل خروج">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="text-xs font-bold">خروج</span>
+</button>
+<button class="text-gray-500 hover:text-primary p-1.5 rounded hover:bg-gray-100" title="طباعة تصريح">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors group bg-gray-50/30">
+<td class="px-4 py-3 font-medium text-text-main">سعيد عمر باوزير</td>
+<td class="px-4 py-3 font-mono text-gray-600">2314567890</td>
+<td class="px-4 py-3 text-gray-600">خدمات لوجستية</td>
+<td class="px-4 py-3 text-gray-600">مستودع أ</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr">08:42 AM</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr text-gray-400">--:--</td>
+<td class="px-4 py-3 text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    داخل المنشأة
+                                </span>
+</td>
+<td class="px-4 py-3 text-center">
+<div class="flex items-center justify-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-red-600 hover:bg-red-50 p-1.5 rounded flex items-center gap-1 border border-transparent hover:border-red-200 transition-all" title="تسجيل خروج">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="text-xs font-bold">خروج</span>
+</button>
+<button class="text-gray-500 hover:text-primary p-1.5 rounded hover:bg-gray-100" title="طباعة تصريح">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors group">
+<td class="px-4 py-3 font-medium text-gray-500">عبدالرحمن اليوسف</td>
+<td class="px-4 py-3 font-mono text-gray-500">1022334455</td>
+<td class="px-4 py-3 text-gray-500">مكتب استشارات</td>
+<td class="px-4 py-3 text-gray-500">المدير العام</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr text-gray-500">07:55 AM</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr text-gray-800 font-medium">09:10 AM</td>
+<td class="px-4 py-3 text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                    غادر الموقع
+                                </span>
+</td>
+<td class="px-4 py-3 text-center">
+<div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
+<button class="text-gray-400 cursor-not-allowed p-1.5 rounded flex items-center gap-1" disabled="">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</button>
+<button class="text-gray-500 hover:text-primary p-1.5 rounded hover:bg-gray-100" title="طباعة سجل">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors group bg-gray-50/30">
+<td class="px-4 py-3 font-medium text-text-main">جوناثان سميث</td>
+<td class="px-4 py-3 font-mono text-gray-600">2455667788</td>
+<td class="px-4 py-3 text-gray-600">تيك سوليوشنز</td>
+<td class="px-4 py-3 text-gray-600">قسم الـ IT</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr">09:05 AM</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr text-gray-400">--:--</td>
+<td class="px-4 py-3 text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    داخل المنشأة
+                                </span>
+</td>
+<td class="px-4 py-3 text-center">
+<div class="flex items-center justify-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-red-600 hover:bg-red-50 p-1.5 rounded flex items-center gap-1 border border-transparent hover:border-red-200 transition-all" title="تسجيل خروج">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="text-xs font-bold">خروج</span>
+</button>
+<button class="text-gray-500 hover:text-primary p-1.5 rounded hover:bg-gray-100" title="طباعة تصريح">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors group">
+<td class="px-4 py-3 font-medium text-text-main">فهد القحطاني</td>
+<td class="px-4 py-3 font-mono text-gray-600">1098765432</td>
+<td class="px-4 py-3 text-gray-600">زائر شخصي</td>
+<td class="px-4 py-3 text-gray-600">شؤون الموظفين</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr">09:15 AM</td>
+<td class="px-4 py-3 text-center font-mono dir-ltr text-gray-400">--:--</td>
+<td class="px-4 py-3 text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                    داخل المنشأة
+                                </span>
+</td>
+<td class="px-4 py-3 text-center">
+<div class="flex items-center justify-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-red-600 hover:bg-red-50 p-1.5 rounded flex items-center gap-1 border border-transparent hover:border-red-200 transition-all" title="تسجيل خروج">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="text-xs font-bold">خروج</span>
+</button>
+<button class="text-gray-500 hover:text-primary p-1.5 rounded hover:bg-gray-100" title="طباعة تصريح">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-gray-50 border-t border-border-light px-4 py-3 flex items-center justify-between mt-auto">
+<p class="text-xs text-text-sub">عرض ١-٥ من أصل ١٢ زائر اليوم</p>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-gray-200 text-gray-500 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+<button class="p-1 rounded hover:bg-gray-200 text-gray-500">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+<div class="bg-primary text-white p-4 rounded-sm flex items-center justify-between shadow-sm relative overflow-hidden group">
+<div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-400"></div>
+<div>
+<p class="text-blue-200 text-xs font-medium mb-1">الزوار في الداخل</p>
+<h3 class="text-2xl font-bold">٤</h3>
+</div>
+<span class="material-symbols-outlined text-white/20 text-4xl group-hover:scale-110 transition-transform">groups</span>
+</div>
+<div class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
+<div class="absolute right-0 top-0 bottom-0 w-1 bg-green-500"></div>
+<div>
+<p class="text-gray-500 text-xs font-medium mb-1">إجمالي الدخول</p>
+<h3 class="text-2xl font-bold text-gray-800">١٢</h3>
+</div>
+<span class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">login</span>
+</div>
+<div class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
+<div class="absolute right-0 top-0 bottom-0 w-1 bg-gray-400"></div>
+<div>
+<p class="text-gray-500 text-xs font-medium mb-1">إجمالي الخروج</p>
+<h3 class="text-2xl font-bold text-gray-800">٨</h3>
+</div>
+<span class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">logout</span>
+</div>
+</div>
+</section>
+</main>
+</div>
+
+</body></html>

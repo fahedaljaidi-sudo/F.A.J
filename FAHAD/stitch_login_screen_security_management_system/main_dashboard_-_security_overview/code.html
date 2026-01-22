@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Main Dashboard - Security Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#162841",
+              "primary-hover": "#203a5c",
+              "background-light": "#ffffff",
+              "background-dark": "#17191c",
+              "accent-danger": "#CC2A36",
+              "accent-success": "#4C8E4D",
+              "surface": "#F5F7FA",
+            },
+            fontFamily: {
+              "display": ["Public Sans", "sans-serif"],
+              "body": ["Public Sans", "sans-serif"],
+            },
+            borderRadius: {
+              "DEFAULT": "4px",
+              "sm": "4px",
+              "md": "6px",
+              "lg": "8px",
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 overflow-x-hidden flex flex-col h-screen">
+<header class="flex-none h-16 bg-white dark:bg-[#1e2329] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 z-20 shadow-sm relative">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="size-9 bg-primary text-white flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-[24px]">security</span>
+</div>
+<h1 class="text-primary dark:text-white text-lg font-bold tracking-tight">نظام الأمن الصناعي</h1>
+</div>
+<div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-surface dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-slate-500 text-[18px]">schedule</span>
+<span class="text-sm font-mono text-slate-600 dark:text-slate-300 font-medium dir-ltr">12 Oct 2023 | 14:30:05</span>
+</div>
+<nav aria-label="Breadcrumb" class="hidden xl:flex items-center border-r border-gray-200 dark:border-gray-700 pr-6 mr-2 h-8">
+<ol class="flex items-center gap-2 text-sm">
+<li>
+<a class="text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-colors flex items-center" href="#">
+<span class="material-symbols-outlined text-[20px]">home</span>
+</a>
+</li>
+<li>
+<span class="material-symbols-outlined text-slate-400 text-[16px] pt-1">chevron_left</span>
+</li>
+<li>
+<span class="text-slate-500 dark:text-slate-400 font-medium">النظام</span>
+</li>
+<li>
+<span class="material-symbols-outlined text-slate-400 text-[16px] pt-1">chevron_left</span>
+</li>
+<li>
+<span aria-current="page" class="text-primary dark:text-white font-bold">لوحة القيادة</span>
+</li>
+</ol>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3 ltr:flex-row-reverse">
+<div class="text-left hidden sm:block">
+<p class="text-sm font-bold text-slate-800 dark:text-white leading-tight">أحمد الفارسي</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium">مشرف أمن</p>
+</div>
+<div class="size-9 rounded-sm bg-gray-200 overflow-hidden relative border border-gray-300">
+<img alt="صورة الملف الشخصي للمشرف" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD8Tm3gk1SSHqb4RwaS8eX0Awt24Q37S5CNAqwYqOL_Tg7yEQunzpiE05fVcS0u-054gEWgUy8L02tW8JlGCdmdSbXFKBEbZWfAIq7p4JJfBOzup5wWjAK0Qakt54GholA-v3Mp2eGs9gs3uS4FhzygecwmwcoybIs_axHxDfitNRIwFOPveiAz8QI6lBTwH4r4bJQVS9O7DeJ_tRQ5xT4eFZtiPV4rUQRiKZA9IRGZ6lkn2JZcUR3XhW5MV1sa6r1dIlO-2a2jCk"/>
+</div>
+</div>
+<button class="flex items-center justify-center size-9 rounded-sm text-slate-500 hover:text-accent-danger hover:bg-red-50 transition-colors" title="تسجيل الخروج">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-64 bg-primary text-gray-300 flex flex-col flex-none shadow-xl z-10">
+<nav class="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto">
+<p class="px-3 text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">القائمة الرئيسية</p>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-sm bg-primary-hover text-white border-r-4 border-white shadow-lg shadow-black/10 transition-all group relative overflow-hidden" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-bold">لوحة القيادة</span>
+<div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-sm text-gray-400 hover:bg-white/5 hover:text-white border-r-4 border-transparent hover:border-white/20 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">group</span>
+<span class="text-sm font-medium">الزوار</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-sm text-gray-400 hover:bg-white/5 hover:text-white border-r-4 border-transparent hover:border-white/20 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">local_police</span>
+<span class="text-sm font-medium">الدوريات</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-sm text-gray-400 hover:bg-white/5 hover:text-white border-r-4 border-transparent hover:border-white/20 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">description</span>
+<span class="text-sm font-medium">التقارير</span>
+</a>
+<div class="my-4 border-t border-gray-700/50 mx-3"></div>
+<p class="px-3 text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">الإدارة</p>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-sm text-gray-400 hover:bg-white/5 hover:text-white border-r-4 border-transparent hover:border-white/20 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">badge</span>
+<span class="text-sm font-medium">المستخدمين</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-sm text-gray-400 hover:bg-white/5 hover:text-white border-r-4 border-transparent hover:border-white/20 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">settings</span>
+<span class="text-sm font-medium">الإعدادات</span>
+</a>
+</nav>
+<div class="p-4 bg-[#0f1c2e]">
+<div class="flex items-center gap-3 text-xs text-gray-400">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span>الإصدار 2.4.0 (مستقر)</span>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto bg-surface dark:bg-background-dark p-6 lg:p-10 scroll-smooth">
+<div class="max-w-7xl mx-auto space-y-8">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h2 class="text-2xl font-bold text-primary dark:text-white tracking-tight">نظرة عامة على النظام</h2>
+<p class="text-slate-500 text-sm mt-1">ملخص النشاط الأمني لليوم الحالي</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 h-10 px-4 bg-white border border-gray-300 text-slate-700 text-sm font-bold rounded-sm hover:bg-gray-50 shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>تسجيل دخول زائر</span>
+</button>
+<button class="flex items-center gap-2 h-10 px-4 bg-accent-danger text-white text-sm font-bold rounded-sm hover:bg-red-700 shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[20px] animate-pulse">emergency_home</span>
+<span>بروتوكول الطوارئ</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+<div class="bg-white dark:bg-[#1e2329] p-5 rounded-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="absolute top-0 right-0 w-1 h-full bg-primary"></div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">الزوار اليوم</p>
+<h3 class="text-3xl font-bold text-slate-800 dark:text-white">42</h3>
+</div>
+<div class="p-2 bg-slate-100 dark:bg-slate-700 rounded-sm text-primary dark:text-slate-200">
+<span class="material-symbols-outlined">perm_identity</span>
+</div>
+</div>
+<div class="flex items-center text-xs font-medium text-accent-success mt-auto">
+<span class="material-symbols-outlined text-[16px] me-1">trending_up</span>
+<span>+12% عن الأمس</span>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1e2329] p-5 rounded-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="absolute top-0 right-0 w-1 h-full bg-blue-500"></div>
+<div class="flex justify-between items-start w-full">
+<div class="w-full">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">حالة الدوريات</p>
+<div class="flex items-baseline gap-1">
+<h3 class="text-3xl font-bold text-slate-800 dark:text-white">3</h3>
+<span class="text-slate-400 text-lg">/ 5</span>
+</div>
+</div>
+<div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-sm text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined">local_police</span>
+</div>
+</div>
+<div class="w-full bg-gray-200 rounded-full h-1.5 mt-auto dark:bg-gray-700">
+<div class="bg-blue-500 h-1.5 rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1e2329] p-5 rounded-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="absolute top-0 right-0 w-1 h-full bg-indigo-500"></div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">ملاحظات مسجلة</p>
+<h3 class="text-3xl font-bold text-slate-800 dark:text-white">12</h3>
+</div>
+<div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-sm text-indigo-600 dark:text-indigo-400">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+</div>
+<p class="text-xs text-slate-400 mt-auto">تتطلب المراجعة: <span class="font-bold text-indigo-600">4</span></p>
+</div>
+<div class="bg-white dark:bg-[#1e2329] p-5 rounded-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="absolute top-0 right-0 w-1 h-full bg-accent-success"></div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">تنبيهات نشطة</p>
+<h3 class="text-3xl font-bold text-slate-800 dark:text-white">0</h3>
+</div>
+<div class="p-2 bg-green-50 dark:bg-green-900/30 rounded-sm text-accent-success">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+</div>
+<p class="text-xs text-accent-success font-medium mt-auto">النظام آمن ومستقر</p>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1e2329] rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+<h3 class="text-base font-bold text-primary dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">history</span>
+                            سجل النشاط الحديث
+                        </h3>
+<button class="text-xs font-bold text-primary hover:underline">عرض كل السجلات</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-right">
+<thead class="bg-gray-50 dark:bg-gray-800 text-slate-500 font-medium border-b border-gray-200 dark:border-gray-700">
+<tr>
+<th class="px-6 py-3 w-32">الوقت</th>
+<th class="px-6 py-3 w-40">نوع الحدث</th>
+<th class="px-6 py-3">التفاصيل</th>
+<th class="px-6 py-3 w-40">المسؤول</th>
+<th class="px-6 py-3 w-32">الحالة</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3 font-mono text-slate-600 dark:text-slate-400">14:15</td>
+<td class="px-6 py-3"><span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">دخول زائر</span></td>
+<td class="px-6 py-3 text-slate-800 dark:text-slate-200">تسجيل دخول المقاول (شركة الصيانة) - البوابة الشمالية</td>
+<td class="px-6 py-3 text-slate-600 dark:text-slate-400">محمد علي</td>
+<td class="px-6 py-3"><span class="text-xs font-bold text-accent-success flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-accent-success"></span>مكتمل</span></td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3 font-mono text-slate-600 dark:text-slate-400">13:45</td>
+<td class="px-6 py-3"><span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">دورية</span></td>
+<td class="px-6 py-3 text-slate-800 dark:text-slate-200">انتهاء الدورية رقم #402 - المنطقة الصناعية ب</td>
+<td class="px-6 py-3 text-slate-600 dark:text-slate-400">سعيد المري</td>
+<td class="px-6 py-3"><span class="text-xs font-bold text-accent-success flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-accent-success"></span>مكتمل</span></td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3 font-mono text-slate-600 dark:text-slate-400">12:30</td>
+<td class="px-6 py-3"><span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded bg-orange-50 text-orange-700 text-xs font-bold border border-orange-100">ملاحظة</span></td>
+<td class="px-6 py-3 text-slate-800 dark:text-slate-200">بلاغ عن باب مستودع مفتوح - المستودع رقم 4</td>
+<td class="px-6 py-3 text-slate-600 dark:text-slate-400">خالد حسن</td>
+<td class="px-6 py-3"><span class="text-xs font-bold text-orange-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>قيد المعالجة</span></td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3 font-mono text-slate-600 dark:text-slate-400">11:10</td>
+<td class="px-6 py-3"><span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">دخول زائر</span></td>
+<td class="px-6 py-3 text-slate-800 dark:text-slate-200">تسجيل دخول وفد رسمي - المبنى الإداري</td>
+<td class="px-6 py-3 text-slate-600 dark:text-slate-400">أحمد الفارسي</td>
+<td class="px-6 py-3"><span class="text-xs font-bold text-accent-success flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-accent-success"></span>مكتمل</span></td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-3 font-mono text-slate-600 dark:text-slate-400">10:05</td>
+<td class="px-6 py-3"><span class="inline-flex items-center gap-1.5 py-0.5 px-2 rounded bg-gray-100 text-gray-700 text-xs font-bold border border-gray-200">نظام</span></td>
+<td class="px-6 py-3 text-slate-800 dark:text-slate-200">نسخ احتياطي تلقائي لقاعدة البيانات</td>
+<td class="px-6 py-3 text-slate-600 dark:text-slate-400">النظام</td>
+<td class="px-6 py-3"><span class="text-xs font-bold text-accent-success flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-accent-success"></span>نجاح</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+<div class="lg:col-span-2 bg-white dark:bg-[#1e2329] rounded-sm border border-gray-200 dark:border-gray-700 p-4">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-base font-bold text-primary dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+                                البث المباشر (نقاط حرجة)
+                            </h3>
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+<div class="aspect-video bg-gray-900 rounded-sm relative overflow-hidden group">
+<img alt="camera feed showing server room" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOmHc5Rbo9JbZ8rGU4DvuC-jbQZtcqAaV3qQ4QttN9d0DpXuF8HNVxhy_d9QoBGNVkxIWErdZzvJSlC925t2kPEqUoTXvgeSrGkEV-zRxuQMMl-UFxxq5ygy8M4wSooLn9JeLfH1AAjAWuUmyZqqOCYLJo6AnhsJ8_jK2VdNvFaGGDfGeUDs--9B-XffDM9MOZzUQuoeZHwfqexnEv5ks6cpkV-UrsmqSQX-7x3vDZw5Je2b985nDaIfAO33ingIEE4FRLA_GnQAc"/>
+<div class="absolute top-2 right-2 bg-black/60 px-1.5 py-0.5 rounded text-[10px] text-white font-mono">CAM-01</div>
+</div>
+<div class="aspect-video bg-gray-900 rounded-sm relative overflow-hidden group">
+<img alt="camera feed showing factory floor" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPhTp-9xmTSX_EIlNSHx8F9zeyFgdhPJT_utZuFYOufooQTSL3HzZOmZZtSGFsOxz7-a740n1YFYWJshaW7dCNvBFhw_WfbFSn5cSxiN2ludYJxbc_fJv93y_BHZdqQ3yOSsRhclNe95u1Qex6uf4TxWHeraDiwWrHo2RDQ2WBgNKMoSwt62rb-upWFKAXz3wpMW7dE3ZIQ98XCQOQvIFfOUW0zts85XTDsteQhK5jPAzWABP7HMb87SFgTUqAjwdzRShdghA6m1o"/>
+<div class="absolute top-2 right-2 bg-black/60 px-1.5 py-0.5 rounded text-[10px] text-white font-mono">CAM-04</div>
+</div>
+<div class="aspect-video bg-gray-900 rounded-sm relative overflow-hidden group">
+<img alt="camera feed showing warehouse entrance" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZwe-HUeeBfI2LxFgr1AnmR-MuHBXt90SfarBqIRkCpTXa4Vw7Z6DAd_pHtXEn1SKHrtBBAjJ_VcJH7H67PVpyKUxc4ciuUMjEQGBzHkQBnkx5o7iagtPmUe948QTNBXFVqiTrVWexxsCKkSiipxLoDzLH3Anb47KmdUVFHwHH2q0oQdmKLYyCL5-tJ_CSyO8_p-CZM6qX4jFXz23WJlJRKz1kD1ym9OtZfSfrZTapg2rQoSq0wH6aIk8HG5ux17WTJtuuTswInx4"/>
+<div class="absolute top-2 right-2 bg-black/60 px-1.5 py-0.5 rounded text-[10px] text-white font-mono">CAM-07</div>
+</div>
+</div>
+</div>
+<div class="bg-primary text-white rounded-sm p-5 flex flex-col justify-between">
+<div>
+<h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">badge</span>
+                                معلومات المناوبة
+                            </h3>
+<div class="space-y-4">
+<div>
+<p class="text-xs text-blue-200 uppercase tracking-wide">المشرف المناوب</p>
+<p class="font-medium text-lg">أحمد الفارسي</p>
+</div>
+<div>
+<p class="text-xs text-blue-200 uppercase tracking-wide">فريق الأمن</p>
+<div class="flex -space-x-2 space-x-reverse mt-2">
+<img alt="team member avatar" class="w-8 h-8 rounded-full border-2 border-primary object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDpk6pY4Z_Dh3NK2ZD191sn4aLbeAmKh_Q7EWShDV07sdB328i7xNmIdoTi9hSJv7cl3tb_Av0zscgpwp2BU4mjg8V_YiX2eyns5nwBbtRTSUnWitxnBPG2BYR0skioxKt2Rn47ErceZsQjwEYiBW9nBU85EAxFcJP23EL5thjMj8GmC6lWvLJ3l8HelJD4yN5e6ijGHItMViw0OMxaO7PSL__tu7K3thPAp84C_d3MrzwDMHC7Iv-dmG3GAvPU8GE7bVkoDtvQl8"/>
+<img alt="team member avatar" class="w-8 h-8 rounded-full border-2 border-primary object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHHW0JKilhn8pLBQvCgQ9vWaScmkQjcUA-QEQ7O0RNGyyG8MMMSe02WN83VVsFoBCnekABsN2478dsxgkSTGuTIwbV0rR2rEIzLAImd7PudGCZ_jNlPUb7AOzwgJBMxz3C5H_5YiY8SebL2jeKFiDCLDe9O5eqst0JbzKw4ke95y_1XB9xq3DehxiEuaLl-lGROS0Dx4y1PVb9DGnQnMVZtahsSPx8jSuEDar6jTtCL0WHrDeJyujHJZAqITCtj8hIiCebH85Hbw4"/>
+<img alt="team member avatar" class="w-8 h-8 rounded-full border-2 border-primary object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDliTdPj1UGmshdurA37Pe5qbvC9Ua_TSIrcUK2J7wr1VaCGc952gJIeGHTm66MVq1lup9ppXMWm0FozF_ejqQUHs-aRZC1F07L0swF9T1DFbabfonMDWho5DcbZLaTm_4AC5sNxIlxt2sanyvKOABsi_MJwYiSDNGqYq9XCrDmmKQe9civiZA0aNZ2y80Rpk3cDajBbDH899pQEZX8vx3ANj4PqE001450ZkBwKzu8V9jsfqnQLxK-Bg4KoSRCf3reeGXSsA5ZlOE"/>
+<div class="w-8 h-8 rounded-full border-2 border-primary bg-blue-800 flex items-center justify-center text-xs font-bold">+4</div>
+</div>
+</div>
+<div>
+<p class="text-xs text-blue-200 uppercase tracking-wide">وقت انتهاء المناوبة</p>
+<p class="font-mono mt-1">16:00</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 bg-white/10 hover:bg-white/20 text-white text-sm py-2 rounded-sm border border-white/20 transition-colors">
+                            عرض الجدول الكامل
+                        </button>
+</div>
+</div>
+</div>
+<footer class="mt-12 text-center text-xs text-slate-400 pb-4">
+<p>© 2023 شركة الأمن الصناعي المتحدة. جميع الحقوق محفوظة. نظام داخلي للاستخدام المصرح به فقط.</p>
+</footer>
+</main>
+</div>
+</body></html>

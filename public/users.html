@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>إدارة الحراس - نظام FAJ الأمني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#233b5c",
+                        "secondary": "#4C8E4D",
+                        "surface": "#F5F7FA",
+                        "border-color": "#e2e8f0",
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-surface text-[#101418] min-h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
+        <div class="p-6 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <img src="/logo.png" alt="FAJ" class="w-12 h-12 object-contain bg-white/10 rounded-lg p-1" />
+                <div>
+                    <h1 class="text-white font-bold text-lg">FAJ Security</h1>
+                    <p class="text-blue-300 text-xs">نظام الأمن الصناعي</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                href="/dashboard.html">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-medium">لوحة القيادة</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                href="/visitors.html">
+                <span class="material-symbols-outlined">badge</span>
+                <span class="font-medium">تسجيل الزوار</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                href="/patrols.html">
+                <span class="material-symbols-outlined">local_police</span>
+                <span class="font-medium">الدوريات الأمنية</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                href="/reports.html">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-medium">التقارير</span>
+            </a>
+            <div class="py-2">
+                <hr class="border-white/10" />
+            </div>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/15 text-white border-r-4 border-secondary"
+                href="#">
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span class="font-bold">إدارة الحراس</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/10">
+            <button onclick="logout()"
+                class="w-full flex items-center justify-center gap-2 text-red-300 hover:text-red-200 hover:bg-white/5 py-2 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span class="text-sm font-medium">تسجيل الخروج</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="h-16 bg-white border-b border-border-color flex items-center justify-between px-8 shrink-0">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl">manage_accounts</span>
+                <h2 class="text-xl font-bold text-primary">إدارة حراس الأمن</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-sm font-bold text-gray-900" id="user-name">--</p>
+                    <p class="text-xs text-gray-500" id="user-role">--</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <!-- Add Guard Form -->
+                <div class="bg-white rounded-xl border border-border-color p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined">person_add</span>
+                        إضافة حارس أمن جديد
+                    </h3>
+                    <form id="add-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">اسم المستخدم *</label>
+                            <input type="text" id="username" required placeholder="مثال: guard1"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">الاسم الكامل *</label>
+                            <input type="text" id="full_name" required placeholder="مثال: محمد أحمد"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">الرتبة *</label>
+                            <select id="role"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                <option value="guard">حارس الأمن</option>
+                                <option value="supervisor">مشرف الأمن</option>
+                                <option value="admin">مدير الأمن</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">كلمة المرور *</label>
+                            <input type="password" id="password" required placeholder="6 أحرف على الأقل" minlength="6"
+                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit"
+                                class="w-full py-3 bg-secondary text-white rounded-lg font-bold hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">add</span>
+                                إضافة
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Guards List -->
+                <div class="bg-white rounded-xl border border-border-color overflow-hidden">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-border-color flex items-center justify-between">
+                        <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">groups</span>
+                            قائمة حراس الأمن
+                        </h3>
+                        <span id="guards-count" class="text-sm text-gray-500">-- حارس</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-right">
+                            <thead class="bg-gray-50 border-b border-border-color">
+                                <tr>
+                                    <th class="px-6 py-3 font-bold text-gray-600">الاسم</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600">اسم المستخدم</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600">الدور</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600">الجولات</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600">الحالة</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600 text-center">إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guards-table" class="divide-y divide-gray-100">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-400">جاري التحميل...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div class="p-6 border-b border-border-color flex items-center justify-between">
+                <h3 class="font-bold text-lg text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined">edit</span>
+                    تعديل بيانات الموظف
+                </h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="edit-form" class="p-6 space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">الاسم الكامل</label>
+                    <input type="text" id="edit-name" required
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">الرتبة</label>
+                    <select id="edit-role"
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        <option value="guard">حارس الأمن</option>
+                        <option value="supervisor">مشرف الأمن</option>
+                        <option value="admin">مدير الأمن</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">الحالة</label>
+                    <select id="edit-active"
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        <option value="1">نشط</option>
+                        <option value="0">معطل</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">كلمة مرور جديدة (اختياري)</label>
+                    <input type="password" id="edit-password" placeholder="اتركها فارغة للإبقاء على الحالية"
+                        minlength="6"
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                </div>
+                <button type="submit"
+                    class="w-full py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-hover transition-colors">
+                    حفظ التعديلات
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Patrols Modal -->
+    <div id="patrols-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div class="p-6 border-b border-border-color flex items-center justify-between shrink-0">
+                <h3 class="font-bold text-lg text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined">local_police</span>
+                    <span id="patrols-modal-title">جولات الموظف</span>
+                </h3>
+                <button onclick="closePatrolsModal()" class="text-gray-400 hover:text-gray-600">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="patrols-list" class="flex-1 overflow-y-auto p-4">
+                <div class="text-center text-gray-400 py-8">جاري التحميل...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // Check if admin
+        if (!token) {
+            window.location.href = '/';
+        } else if (user.role !== 'admin') {
+            alert('هذه الصفحة للمدير فقط');
+            window.location.href = '/dashboard.html';
+        }
+
+        document.getElementById('user-name').textContent = user.full_name || '--';
+        document.getElementById('user-role').textContent = 'مدير النظام';
+
+        function getHeaders() {
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        }
+
+        // Load guards
+        async function loadGuards() {
+            try {
+                const response = await fetch(`${API_BASE}/users?limit=50`, { headers: getHeaders() });
+                if (response.status === 401) { logout(); return; }
+                const data = await response.json();
+                renderGuards(data.users || []);
+            } catch (error) {
+                console.error('Error loading guards:', error);
+            }
+        }
+
+        function renderGuards(users) {
+            const tbody = document.getElementById('guards-table');
+            document.getElementById('guards-count').textContent = `${users.length} مستخدم`;
+
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">لا يوجد مستخدمين</td></tr>';
+                return;
+            }
+
+            const roleText = { 'admin': 'مدير', 'supervisor': 'مشرف', 'guard': 'حارس' };
+            const roleColor = { 'admin': 'bg-purple-100 text-purple-700', 'supervisor': 'bg-blue-100 text-blue-700', 'guard': 'bg-gray-100 text-gray-700' };
+
+            tbody.innerHTML = users.map(u => `
+                <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-gray-900">${u.full_name}</td>
+                    <td class="px-6 py-4 text-gray-600 font-mono">${u.username}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded text-xs font-bold ${roleColor[u.role] || roleColor.guard}">${roleText[u.role] || u.role}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-bold">
+                                <span class="material-symbols-outlined text-[14px]">today</span>
+                                ${u.today_patrols || 0}
+                            </span>
+                            <span class="text-gray-400">/</span>
+                            <span class="text-xs text-gray-600">${u.patrol_count || 0} إجمالي</span>
+                            <button onclick="viewPatrols(${u.id}, '${u.full_name}')" 
+                                class="text-primary hover:text-primary-hover p-1 rounded transition-colors" title="عرض الجولات">
+                                <span class="material-symbols-outlined text-[18px]">visibility</span>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center gap-1 text-xs font-bold ${u.is_active ? 'text-green-600' : 'text-red-600'}">
+                            <span class="w-2 h-2 rounded-full ${u.is_active ? 'bg-green-500' : 'bg-red-500'}"></span>
+                            ${u.is_active ? 'نشط' : 'معطل'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        ${u.id === user.id ? '<span class="text-gray-400 text-xs">أنت</span>' : `
+                            <button onclick="editGuard(${u.id}, '${u.full_name}', '${u.role}', ${u.is_active})" 
+                                class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-colors" title="تعديل">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </button>
+                            <button onclick="deleteGuard(${u.id}, '${u.full_name}')" 
+                                class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors" title="حذف">
+                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Add guard
+        document.getElementById('add-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const full_name = document.getElementById('full_name').value.trim();
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ username, full_name, password, role })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('تم إضافة الحارس بنجاح ✓');
+                    document.getElementById('add-form').reset();
+                    loadGuards();
+                } else {
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                console.error('Error adding guard:', error);
+                alert('خطأ في الاتصال بالخادم');
+            }
+        });
+
+        // Delete guard
+        async function deleteGuard(id, name) {
+            if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+
+                if (response.ok) {
+                    alert('تم تعطيل الحساب بنجاح');
+                    loadGuards();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                console.error('Error deleting guard:', error);
+            }
+        }
+
+        // Edit guard
+        function editGuard(id, name, role, isActive) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-role').value = role;
+            document.getElementById('edit-active').value = isActive ? '1' : '0';
+            document.getElementById('edit-password').value = '';
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        // Save edit
+        document.getElementById('edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const full_name = document.getElementById('edit-name').value.trim();
+            const role = document.getElementById('edit-role').value;
+            const is_active = document.getElementById('edit-active').value === '1';
+            const password = document.getElementById('edit-password').value;
+
+            const body = { full_name, role, is_active };
+            if (password && password.length >= 6) {
+                body.password = password;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${id}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    alert('تم تحديث البيانات بنجاح ✓');
+                    closeEditModal();
+                    loadGuards();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                console.error('Error updating guard:', error);
+                alert('خطأ في الاتصال بالخادم');
+            }
+        });
+
+        // View patrols
+        async function viewPatrols(guardId, guardName) {
+            document.getElementById('patrols-modal-title').textContent = `جولات ${guardName}`;
+            document.getElementById('patrols-list').innerHTML = '<div class="text-center text-gray-400 py-8">جاري التحميل...</div>';
+            document.getElementById('patrols-modal').classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}/patrols/guard/${guardId}`, { headers: getHeaders() });
+                const data = await response.json();
+                renderPatrolsList(data.patrols || []);
+            } catch (error) {
+                console.error('Error loading patrols:', error);
+                document.getElementById('patrols-list').innerHTML = '<div class="text-center text-red-500 py-8">خطأ في تحميل الجولات</div>';
+            }
+        }
+
+        function renderPatrolsList(patrols) {
+            const container = document.getElementById('patrols-list');
+            if (patrols.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-8">لا توجد جولات مسجلة</div>';
+                return;
+            }
+
+            const statusText = { 'normal': 'طبيعي', 'observation': 'ملاحظة', 'danger': 'خطر' };
+            const statusColor = { 'normal': 'bg-emerald-100 text-emerald-700', 'observation': 'bg-amber-100 text-amber-700', 'danger': 'bg-red-100 text-red-700' };
+
+            container.innerHTML = patrols.map(p => {
+                const date = new Date(p.patrol_time);
+                return `
+                    <div class="p-4 bg-gray-50 rounded-lg mb-3 border border-gray-200">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">location_on</span>
+                                <span class="font-bold text-gray-900">${p.location}</span>
+                            </div>
+                            <span class="px-2 py-1 rounded text-xs font-bold ${statusColor[p.security_status] || statusColor.normal}">${statusText[p.security_status] || p.security_status}</span>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                ${date.toLocaleDateString('ar-SA')}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">schedule</span>
+                                ${date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                        </div>
+                        ${p.notes ? `<p class="mt-2 text-sm text-gray-700 bg-white p-2 rounded">${p.notes}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function closePatrolsModal() {
+            document.getElementById('patrols-modal').classList.add('hidden');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+
+        // Load on page load
+        loadGuards();
+    </script>
+</body>
+
+</html>
