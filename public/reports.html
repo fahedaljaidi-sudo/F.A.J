@@ -118,25 +118,9 @@
     </style>
 </head>
 
-<body class="bg-gray-50 text-[#101418] min-h-screen flex flex-col overflow-hidden">
-    <nav class="w-full bg-primary h-16 flex items-center px-4 md:px-8 shadow-sm justify-between z-20 shrink-0 no-print">
-        <div class="flex items-center gap-3">
-            <img src="/logo.png" alt="FAJ" class="w-10 h-10 object-contain bg-white/10 rounded p-1" />
-            <span class="text-white font-bold text-lg tracking-wide hidden md:block">FAJ - نظام الأمن الصناعي</span>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 p-1 rounded-lg transition">
-                <div class="w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center font-bold text-sm"
-                    id="user-avatar">--</div>
-                <div class="hidden lg:flex flex-col items-start">
-                    <span class="text-white text-xs font-bold leading-none mb-1" id="user-name">--</span>
-                    <span class="text-white/70 text-[10px] leading-none" id="user-role">--</span>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <div class="flex flex-1 h-[calc(100vh-64px)] overflow-hidden">
-        <aside class="w-64 bg-primary flex flex-col shrink-0 no-print">
+<body class="bg-gray-50 text-[#101418] min-h-screen flex overflow-hidden">
+    <div class="flex h-screen w-full">
+        <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
             <div class="p-6 border-b border-white/10">
                 <div class="flex items-center gap-3">
                     <img src="/logo.png" alt="FAJ" class="w-12 h-12 object-contain bg-white/10 rounded-lg p-1" />
@@ -182,7 +166,27 @@
                 </button>
             </div>
         </aside>
+
         <main class="flex-1 overflow-y-auto bg-gray-50 relative w-full">
+            <!-- Header -->
+            <header
+                class="h-16 bg-white border-b border-border-color flex items-center justify-between px-6 shrink-0 no-print">
+                <div>
+                    <h2 class="text-lg font-bold text-primary">التقارير والإحصائيات</h2>
+                    <p class="text-xs text-gray-500" id="current-date">--</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-gray-900" id="user-name">--</p>
+                        <p class="text-xs text-gray-500" id="user-role">--</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                </div>
+            </header>
+
             <!-- Print Header -->
             <div class="print-header">
                 <img src="/logo.png" alt="FAJ Security">
@@ -308,10 +312,22 @@
                 'supervisor': 'مشرف',
                 'guard': 'رجل أمن'
             };
-            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
+            userNameEl.textContent = user.full_name || '--';
+            if (userRoleEl) {
+                userRoleEl.textContent = roleText[user.role] || user.role || '--';
+            }
         }
-        if (userRoleEl) {
-            userRoleEl.textContent = ''; // Clear the separate role display if it's now part of the name
+
+        // Update current date
+        const now = new Date();
+        const dateEl = document.getElementById('current-date');
+        if (dateEl) {
+            dateEl.textContent = now.toLocaleDateString('ar-SA', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
         }
 
         // Show admin link if applicable
