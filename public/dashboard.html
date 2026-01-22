@@ -110,26 +110,27 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
         <!-- Header -->
-        <header class="h-16 bg-white border-b border-border-color flex items-center justify-between px-8 shrink-0">
-            <div>
-                <h2 class="text-xl font-bold text-primary">لوحة القيادة الرئيسية</h2>
-                <p class="text-sm text-gray-500" id="current-date">--</p>
+        <header
+            class="h-16 bg-white border-b border-border-color flex items-center justify-between px-4 md:px-8 shrink-0">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-lg md:text-xl font-bold text-primary truncate">لوحة القيادة الرئيسية</h2>
+                <p class="text-xs md:text-sm text-gray-500 hidden sm:block" id="current-date">--</p>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 md:gap-4">
                 <div
-                    class="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-200">
+                    class="hidden md:flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-200">
                     <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
                     <span class="text-xs font-bold">النظام متصل</span>
                 </div>
-                <div class="h-6 w-px bg-gray-200"></div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
-                        <p class="text-sm font-bold text-gray-900" id="user-name">--</p>
+                <div class="h-6 w-px bg-gray-200 hidden md:block"></div>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xs md:text-sm font-bold text-gray-900" id="user-name">--</p>
                         <p class="text-xs text-gray-500" id="user-role">--</p>
                     </div>
                     <div
-                        class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
-                        <span class="material-symbols-outlined">person</span>
+                        class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-lg md:text-xl">person</span>
                     </div>
                 </div>
             </div>
