@@ -66,42 +66,9 @@
     </style>
 </head>
 
-<body class="bg-background-light text-text-main h-screen flex flex-col font-body overflow-hidden">
-    <header class="bg-primary text-white h-16 flex items-center justify-between px-0 shadow-sm z-30 shrink-0 relative">
-        <div class="w-64 h-full flex items-center gap-4 px-6 bg-primary border-l border-white/10 shrink-0">
-            <img src="/logo.png" alt="FAJ" class="w-10 h-10 object-contain bg-white/10 rounded p-1" />
-            <div>
-                <h1 class="text-lg font-bold tracking-wide leading-tight">FAJ Security</h1>
-            </div>
-        </div>
-        <div class="flex-1 flex items-center justify-between px-6 h-full bg-primary">
-            <div class="flex items-center gap-4">
-                <p class="text-xs text-blue-200 font-medium hidden sm:block">شركة الصناعات المتقدمة - بوابة رقم ١</p>
-            </div>
-            <div class="flex items-center gap-6 text-sm">
-                <div class="flex items-center gap-2 bg-primary-hover px-3 py-1.5 rounded-sm border border-white/10">
-                    <span class="material-symbols-outlined text-[18px]">schedule</span>
-                    <span class="font-mono dir-ltr" id="current-datetime">--</span>
-                </div>
-                <div class="h-6 w-px bg-white/20 hidden sm:block"></div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
-                        <p class="font-semibold leading-none" id="user-name">--</p>
-                        <p class="text-xs text-blue-200 mt-1" id="user-role">--</p>
-                    </div>
-                    <div
-                        class="size-9 rounded-full bg-blue-200 border-2 border-primary-hover flex items-center justify-center overflow-hidden">
-                        <span class="material-symbols-outlined text-primary">person</span>
-                    </div>
-                    <button onclick="logout()" class="text-white/70 hover:text-white transition-colors">
-                        <span class="material-symbols-outlined">logout</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-    <div class="flex flex-1 overflow-hidden h-[calc(100vh-64px)]">
-        <aside class="w-64 bg-primary flex flex-col shrink-0">
+<body class="bg-background-light text-text-main h-screen flex overflow-hidden font-body">
+    <div class="flex h-screen w-full">
+        <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
             <div class="p-6 border-b border-white/10">
                 <div class="flex items-center gap-3">
                     <img src="/logo.png" alt="FAJ" class="w-12 h-12 object-contain bg-white/10 rounded-lg p-1" />
@@ -147,6 +114,7 @@
                 </button>
             </div>
         </aside>
+
         <main class="flex-1 flex flex-col xl:flex-row overflow-hidden bg-surface-light relative">
             <aside
                 class="w-full xl:w-[400px] 2xl:w-[450px] bg-white border-l border-border-light flex flex-col z-10 shadow-lg xl:shadow-none overflow-y-auto shrink-0">
@@ -246,92 +214,115 @@
                     </div>
                 </form>
             </aside>
-            <section class="flex-1 bg-surface-light p-6 flex flex-col h-full overflow-hidden">
-                <div class="flex items-center justify-between mb-4 shrink-0 flex-wrap gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white p-2 rounded-sm border border-border-light shadow-sm">
-                            <span class="material-symbols-outlined text-primary">list_alt</span>
+            <section class="flex-1 bg-surface-light flex flex-col h-full overflow-hidden">
+                <!-- Header -->
+                <header
+                    class="h-16 bg-white border-b border-border-light flex items-center justify-between px-4 md:px-6 shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-lg md:text-xl font-bold text-primary truncate">تسجيل الزوار</h2>
+                        <p class="text-xs text-gray-500 hidden sm:block" id="current-datetime">--</p>
+                    </div>
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-xs md:text-sm font-bold text-gray-900" id="user-name">--</p>
+                            <p class="text-xs text-gray-500" id="user-role">--</p>
                         </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-primary">سجل زوار اليوم</h2>
-                            <p class="text-sm text-text-sub" id="today-date">--</p>
+                        <div
+                            class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                            <span class="material-symbols-outlined text-lg md:text-xl">person</span>
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <div class="relative">
-                            <input id="search-input"
-                                class="pl-3 pr-9 py-2 rounded-sm border border-gray-300 text-sm focus:border-primary focus:ring-0 w-64"
-                                placeholder="بحث بالاسم أو الهوية..." type="text" />
+                </header>
+
+                <!-- Main Content -->
+                <div class="flex-1 p-4 md:p-6 overflow-hidden flex flex-col">
+                    <div class="flex items-center justify-between mb-4 shrink-0 flex-wrap gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white p-2 rounded-sm border border-border-light shadow-sm">
+                                <span class="material-symbols-outlined text-primary">list_alt</span>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-primary">سجل زوار اليوم</h2>
+                                <p class="text-sm text-text-sub" id="today-date">--</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="relative">
+                                <input id="search-input"
+                                    class="pl-3 pr-9 py-2 rounded-sm border border-gray-300 text-sm focus:border-primary focus:ring-0 w-64"
+                                    placeholder="بحث بالاسم أو الهوية..." type="text" />
+                                <span
+                                    class="material-symbols-outlined absolute right-2.5 top-2 text-gray-400 text-[18px]">search</span>
+                            </div>
+                            <button onclick="window.print()"
+                                class="bg-white hover:bg-gray-50 text-primary border border-gray-300 px-3 py-2 rounded-sm flex items-center gap-2 transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">print</span>
+                                <span class="text-sm font-medium">طباعة التقرير</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        class="flex-1 bg-white border border-border-light rounded-sm shadow-sm overflow-hidden flex flex-col">
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-sm text-right">
+                                <thead
+                                    class="bg-gray-50 text-text-sub font-semibold border-b border-border-light sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3 whitespace-nowrap">اسم الزائر</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">رقم الهوية</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">الجهة / الشركة</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">المضيف</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">وقت الدخول</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">وقت الخروج</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">الحالة</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="visitors-table" class="divide-y divide-gray-100">
+                                    <tr>
+                                        <td colspan="8" class="px-4 py-8 text-center text-gray-400">جاري تحميل
+                                            البيانات...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            class="bg-gray-50 border-t border-border-light px-4 py-3 flex items-center justify-between mt-auto">
+                            <p class="text-xs text-text-sub" id="visitors-count">--</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <div
+                            class="bg-primary text-white p-4 rounded-sm flex items-center justify-between shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-400"></div>
+                            <div>
+                                <p class="text-blue-200 text-xs font-medium mb-1">الزوار في الداخل</p>
+                                <h3 class="text-2xl font-bold" id="stat-inside">٠</h3>
+                            </div>
                             <span
-                                class="material-symbols-outlined absolute right-2.5 top-2 text-gray-400 text-[18px]">search</span>
+                                class="material-symbols-outlined text-white/20 text-4xl group-hover:scale-110 transition-transform">groups</span>
                         </div>
-                        <button onclick="window.print()"
-                            class="bg-white hover:bg-gray-50 text-primary border border-gray-300 px-3 py-2 rounded-sm flex items-center gap-2 transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">print</span>
-                            <span class="text-sm font-medium">طباعة التقرير</span>
-                        </button>
-                    </div>
-                </div>
-                <div
-                    class="flex-1 bg-white border border-border-light rounded-sm shadow-sm overflow-hidden flex flex-col">
-                    <div class="overflow-x-auto flex-1">
-                        <table class="w-full text-sm text-right">
-                            <thead
-                                class="bg-gray-50 text-text-sub font-semibold border-b border-border-light sticky top-0">
-                                <tr>
-                                    <th class="px-4 py-3 whitespace-nowrap">اسم الزائر</th>
-                                    <th class="px-4 py-3 whitespace-nowrap">رقم الهوية</th>
-                                    <th class="px-4 py-3 whitespace-nowrap">الجهة / الشركة</th>
-                                    <th class="px-4 py-3 whitespace-nowrap">المضيف</th>
-                                    <th class="px-4 py-3 whitespace-nowrap text-center">وقت الدخول</th>
-                                    <th class="px-4 py-3 whitespace-nowrap text-center">وقت الخروج</th>
-                                    <th class="px-4 py-3 whitespace-nowrap text-center">الحالة</th>
-                                    <th class="px-4 py-3 whitespace-nowrap text-center">إجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="visitors-table" class="divide-y divide-gray-100">
-                                <tr>
-                                    <td colspan="8" class="px-4 py-8 text-center text-gray-400">جاري تحميل البيانات...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div
-                        class="bg-gray-50 border-t border-border-light px-4 py-3 flex items-center justify-between mt-auto">
-                        <p class="text-xs text-text-sub" id="visitors-count">--</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                    <div
-                        class="bg-primary text-white p-4 rounded-sm flex items-center justify-between shadow-sm relative overflow-hidden group">
-                        <div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-400"></div>
-                        <div>
-                            <p class="text-blue-200 text-xs font-medium mb-1">الزوار في الداخل</p>
-                            <h3 class="text-2xl font-bold" id="stat-inside">٠</h3>
+                        <div
+                            class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-green-500"></div>
+                            <div>
+                                <p class="text-gray-500 text-xs font-medium mb-1">إجمالي الدخول</p>
+                                <h3 class="text-2xl font-bold text-gray-800" id="stat-total">٠</h3>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">login</span>
                         </div>
-                        <span
-                            class="material-symbols-outlined text-white/20 text-4xl group-hover:scale-110 transition-transform">groups</span>
-                    </div>
-                    <div
-                        class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
-                        <div class="absolute right-0 top-0 bottom-0 w-1 bg-green-500"></div>
-                        <div>
-                            <p class="text-gray-500 text-xs font-medium mb-1">إجمالي الدخول</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="stat-total">٠</h3>
+                        <div
+                            class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-gray-400"></div>
+                            <div>
+                                <p class="text-gray-500 text-xs font-medium mb-1">إجمالي الخروج</p>
+                                <h3 class="text-2xl font-bold text-gray-800" id="stat-left">٠</h3>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">logout</span>
                         </div>
-                        <span
-                            class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">login</span>
-                    </div>
-                    <div
-                        class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
-                        <div class="absolute right-0 top-0 bottom-0 w-1 bg-gray-400"></div>
-                        <div>
-                            <p class="text-gray-500 text-xs font-medium mb-1">إجمالي الخروج</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="stat-left">٠</h3>
-                        </div>
-                        <span
-                            class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">logout</span>
                     </div>
                 </div>
             </section>
