@@ -58,6 +58,11 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Simple ping route for debugging
+app.get('/ping', (req, res) => {
+    res.send('pong');
+});
+
 // Serve index.html for root route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
