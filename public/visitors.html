@@ -341,13 +341,17 @@
 
         // Update sidebar user info
         const userNameEl = document.getElementById('user-name');
+        const userRoleEl = document.getElementById('user-role');
         if (userNameEl) {
             const roleText = {
                 'admin': 'مدير النظام',
                 'supervisor': 'مشرف',
                 'guard': 'رجل أمن'
             };
-            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
+            userNameEl.textContent = user.full_name || '--';
+            if (userRoleEl) {
+                userRoleEl.textContent = roleText[user.role] || user.role || '--';
+            }
         }
 
         // Show admin link if applicable
@@ -356,17 +360,26 @@
             if (adminLink) adminLink.classList.remove('hidden');
         }
 
-        // Update guard name (this was previously part of the header info update)
-        document.getElementById('guard-name').textContent = user.full_name || '--';
+        // Update guard name in form
+        const guardNameEl = document.getElementById('guard-name');
+        if (guardNameEl) {
+            guardNameEl.textContent = user.full_name || '--';
+        }
 
         // Update current time
         function updateDateTime() {
             const now = new Date();
             const dateStr = now.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
             const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('current-datetime').textContent = timeStr;
-            document.getElementById('today-date').textContent = dateStr;
-            document.getElementById('entry-time').textContent = timeStr;
+
+            const datetimeEl = document.getElementById('current-datetime');
+            if (datetimeEl) datetimeEl.textContent = timeStr;
+
+            const todayDateEl = document.getElementById('today-date');
+            if (todayDateEl) todayDateEl.textContent = dateStr;
+
+            const entryTimeEl = document.getElementById('entry-time');
+            if (entryTimeEl) entryTimeEl.textContent = timeStr;
         }
         updateDateTime();
         setInterval(updateDateTime, 60000);
