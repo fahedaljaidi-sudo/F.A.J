@@ -1,0 +1,459 @@
+/* ============================
+   Responsive Design System
+   FAJ Security Management
+   ============================ */
+
+/* Mobile First Approach */
+* {
+    box-sizing: border-box;
+}
+
+/* Base Responsive Layout */
+body {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* ============================
+   Sidebar Responsive
+   ============================ */
+
+/* Mobile: Hide sidebar by default, show with toggle */
+@media (max-width: 1024px) {
+    aside {
+        position: fixed !important;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 280px !important;
+        z-index: 9999;
+        transition: right 0.3s ease;
+        box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    aside.mobile-open {
+        right: 0;
+    }
+
+    /* Overlay when sidebar is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* Show mobile menu button */
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+
+    /* Adjust main content */
+    main {
+        width: 100% !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* Desktop: Sidebar always visible */
+@media (min-width: 1025px) {
+    aside {
+        position: sticky;
+        top: 0;
+    }
+
+    .mobile-menu-btn {
+        display: none !important;
+    }
+
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* ============================
+   Header Responsive
+   ============================ */
+
+@media (max-width: 768px) {
+    header {
+        padding: 0.75rem 1rem !important;
+        flex-wrap: wrap;
+    }
+
+    header > div:first-child {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    header h2 {
+        font-size: 1.125rem !important;
+    }
+
+    header .flex.items-center {
+        flex-wrap: wrap;
+        gap: 0.5rem !important;
+    }
+
+    /* Hide some header elements on small screens */
+    header .h-6.w-px {
+        display: none;
+    }
+}
+
+/* ============================
+   Grid Systems Responsive
+   ============================ */
+
+/* Dashboard Stats Cards */
+@media (max-width: 640px) {
+    .grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4 {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Main Content Grid */
+@media (max-width: 1024px) {
+    .grid.grid-cols-1.lg\\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .lg\\:col-span-2 {
+        grid-column: span 1 !important;
+    }
+}
+
+/* ============================
+   Tables Responsive
+   ============================ */
+
+@media (max-width: 768px) {
+    /* Make tables scrollable horizontally */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 600px;
+        font-size: 0.875rem;
+    }
+
+    table th,
+    table td {
+        padding: 0.5rem !important;
+        white-space: nowrap;
+    }
+
+    /* Stack table info */
+    table td:first-child {
+        position: sticky;
+        right: 0;
+        background: white;
+        z-index: 1;
+    }
+}
+
+/* ============================
+   Forms Responsive
+   ============================ */
+
+@media (max-width: 640px) {
+    /* Login Form */
+    .max-w-\\[420px\\] {
+        max-width: 100% !important;
+        padding: 1rem;
+    }
+
+    /* Form inputs */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+
+    /* Buttons */
+    button {
+        min-height: 44px; /* Touch-friendly size */
+    }
+
+    /* Modal/Dialog on mobile */
+    .modal-content,
+    .dialog-content {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin: 0.5rem;
+    }
+}
+
+/* ============================
+   Cards & Containers
+   ============================ */
+
+@media (max-width: 768px) {
+    /* Reduce padding on cards */
+    .stat-card,
+    .bg-white.rounded-xl {
+        padding: 1rem !important;
+    }
+
+    /* Adjust card headers */
+    .px-6.py-4 {
+        padding: 1rem !important;
+    }
+
+    /* Reduce gaps */
+    .space-y-6 {
+        gap: 1rem !important;
+    }
+
+    .gap-6 {
+        gap: 1rem !important;
+    }
+}
+
+/* ============================
+   Text & Typography
+   ============================ */
+
+@media (max-width: 640px) {
+    /* Scale down headings */
+    h1 {
+        font-size: 1.5rem !important;
+    }
+
+    h2 {
+        font-size: 1.25rem !important;
+    }
+
+    h3 {
+        font-size: 1.125rem !important;
+    }
+
+    /* Stat numbers */
+    .text-4xl {
+        font-size: 2rem !important;
+    }
+
+    /* Small text should remain readable */
+    .text-xs {
+        font-size: 0.75rem !important;
+    }
+
+    .text-sm {
+        font-size: 0.875rem !important;
+    }
+}
+
+/* ============================
+   Spacing & Padding
+   ============================ */
+
+@media (max-width: 768px) {
+    /* Page padding */
+    .p-8 {
+        padding: 1rem !important;
+    }
+
+    .px-8 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .py-8 {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    /* Container max width */
+    .max-w-7xl {
+        max-width: 100% !important;
+    }
+}
+
+/* ============================
+   Navigation & Actions
+   ============================ */
+
+@media (max-width: 640px) {
+    /* Quick actions */
+    .space-y-3 > a {
+        padding: 0.75rem !important;
+    }
+
+    /* Navigation items */
+    nav a {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    nav .material-symbols-outlined {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* ============================
+   Utility Classes
+   ============================ */
+
+/* Hide on mobile */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Show only on mobile */
+@media (min-width: 769px) {
+    .show-mobile {
+        display: none !important;
+    }
+}
+
+/* ============================
+   Print Styles
+   ============================ */
+
+@media print {
+    aside,
+    header,
+    .no-print {
+        display: none !important;
+    }
+
+    main {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .stat-card,
+    .bg-white {
+        break-inside: avoid;
+    }
+}
+
+/* ============================
+   Landscape Orientation
+   ============================ */
+
+@media (max-width: 768px) and (orientation: landscape) {
+    /* Compact header in landscape */
+    header {
+        height: auto !important;
+        min-height: 3rem;
+    }
+
+    /* Reduce vertical spacing */
+    .space-y-6 {
+        gap: 0.75rem !important;
+    }
+}
+
+/* ============================
+   Touch Device Enhancements
+   ============================ */
+
+@media (hover: none) and (pointer: coarse) {
+    /* Larger tap targets */
+    a, button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Better hover states for touch */
+    .hover\:bg-white\/10:active {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .hover\:bg-gray-50\/50:active {
+        background-color: rgba(249, 250, 251, 0.5);
+    }
+}
+
+/* ============================
+   Scrollbar Responsive
+   ============================ */
+
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    /* Hide scrollbar on mobile for cleaner look */
+    .overflow-y-auto,
+    .overflow-x-auto {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+}
+
+/* ============================
+   Animations - Reduced Motion
+   ============================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================
+   High DPI / Retina Displays
+   ============================ */
+
+@media (-webkit-min-device-pixel-ratio: 2),
+       (min-resolution: 192dpi) {
+    /* Sharper borders and shadows */
+    .border {
+        border-width: 0.5px;
+    }
+
+    .shadow-card {
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+                    0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+}
+
+/* ============================
+   iOS Safe Area Support
+   ============================ */
+
+@supports (padding: max(0px)) {
+    body {
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-left: max(0px, env(safe-area-inset-left));
+    }
+
+    header,
+    aside {
+        padding-right: max(1rem, calc(1rem + env(safe-area-inset-right)));
+        padding-left: max(1rem, calc(1rem + env(safe-area-inset-left)));
+    }
+}
+
+/* ============================
+   Dark Mode Responsive
+   ============================ */
+
+@media (prefers-color-scheme: dark) {
+    /* Auto dark mode adjustments can be added here if needed */
+}
