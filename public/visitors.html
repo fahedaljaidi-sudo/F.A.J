@@ -346,15 +346,25 @@
             window.location.href = '/';
         }
 
-        // Update header info
-        document.getElementById('user-name').textContent = user.full_name || '--';
-        document.getElementById('user-role').textContent = user.role === 'admin' ? 'مدير النظام' : user.role === 'supervisor' ? 'مشرف أمن' : 'ضابط أمن';
-        document.getElementById('guard-name').textContent = user.full_name || '--';
-
-        // Show admin link for admin users
-        if (user.role === 'admin') {
-            document.getElementById('admin-link')?.classList.remove('hidden');
+        // Update sidebar user info
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+            const roleText = {
+                'admin': 'مدير النظام',
+                'supervisor': 'مشرف',
+                'guard': 'رجل أمن'
+            };
+            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
         }
+
+        // Show admin link if applicable
+        if (user.role === 'admin') {
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) adminLink.classList.remove('hidden');
+        }
+
+        // Update guard name (this was previously part of the header info update)
+        document.getElementById('guard-name').textContent = user.full_name || '--';
 
         // Update current time
         function updateDateTime() {

@@ -295,13 +295,27 @@
         if (!token) window.location.href = '/';
 
         // Update header
-        document.getElementById('user-name').textContent = user.full_name || '--';
-        document.getElementById('user-role').textContent = user.role === 'admin' ? 'مدير النظام' : 'ضابط أمن';
         document.getElementById('user-avatar').textContent = (user.full_name || '--').slice(0, 2);
 
-        // Show admin link for admin users
+        // Update sidebar user info
+        const userNameEl = document.getElementById('user-name');
+        const userRoleEl = document.getElementById('user-role');
+        if (userNameEl) {
+            const roleText = {
+                'admin': 'مدير النظام',
+                'supervisor': 'مشرف',
+                'guard': 'رجل أمن'
+            };
+            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
+        }
+        if (userRoleEl) {
+            userRoleEl.textContent = ''; // Clear the separate role display if it's now part of the name
+        }
+
+        // Show admin link if applicable
         if (user.role === 'admin') {
-            document.getElementById('admin-link')?.classList.remove('hidden');
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) adminLink.classList.remove('hidden');
         }
 
         // Set default dates

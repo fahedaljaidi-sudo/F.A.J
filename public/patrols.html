@@ -297,14 +297,22 @@
 
         if (!token) window.location.href = '/';
 
-        // Update UI
-        const guardNameEl = document.getElementById('guard-name');
-        if (guardNameEl) guardNameEl.textContent = user.full_name || '--';
+        // Update sidebar user info
+        const userNameEl = document.getElementById('guard-name'); // Changed to guard-name as per original context
+        if (userNameEl) {
+            const roleText = {
+                'admin': 'مدير النظام',
+                'supervisor': 'مشرف',
+                'guard': 'رجل أمن'
+            };
+            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
+        }
         document.getElementById('form-guard-name').textContent = user.full_name || '--';
 
-        // Show admin link for admin users
+        // Show admin link if applicable
         if (user.role === 'admin') {
-            document.getElementById('admin-link')?.classList.remove('hidden');
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) adminLink.classList.remove('hidden');
         }
 
         function updateTime() {
