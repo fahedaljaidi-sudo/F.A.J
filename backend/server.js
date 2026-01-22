@@ -69,13 +69,13 @@ app.use('/api/*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║     نظام إدارة الحراسات الأمنية                      ║
 ║     Security Management System                       ║
 ╠══════════════════════════════════════════════════════╣
-║  Server running on: http://localhost:${PORT}            ║
+║  Server running on port: ${PORT}                      ║
 ║  Status: Online ✓                                    ║
 ╚══════════════════════════════════════════════════════╝
     `);
