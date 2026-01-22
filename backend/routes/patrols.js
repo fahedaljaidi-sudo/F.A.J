@@ -10,28 +10,38 @@ router.get('/', authenticateToken, async (req, res) => {
         await getDatabase();
         const { date, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
 
-        let patrols;
-        if (date) {
-            patrols = prepare(`
-                SELECT p.*, u.full_name as guard_name, u.unit_number
-                FROM patrol_rounds p
-                LEFT JOIN users u ON p.guard_id = u.id
-                WHERE DATE(p.patrol_time) = ?
-                ORDER BY p.patrol_time DESC
-                LIMIT ? OFFSET ?
-            `).all(date, parseInt(limit), parseInt(offset));
-        } else {
-            patrols = prepare(`
-                SELECT p.*, u.full_name as guard_name, u.unit_number
-                FROM patrol_rounds p
-                LEFT JOIN users u ON p.guard_id = u.id
-                ORDER BY p.patrol_time DESC
-                LIMIT ? OFFSET ?
-            `).all(parseInt(limit), parseInt(offset));
+        let query = `
+            SELECT p.*, u.full_name as guard_name, u.unit_number
+            FROM patrol_rounds p
+            LEFT JOIN users u ON p.guard_id = u.id
+            WHERE 1=1
+        `;
+        let countQuery = `SELECT COUNT(*) as total FROM patrol_rounds WHERE 1=1`;
+        let params = [];
+        let countParams = [];
+
+        // Role filter
+        if (!isAdmin) {
+            query += ` AND p.guard_id = ?`;
+            countQuery += ` AND guard_id = ?`;
+            params.push(req.user.id);
+            countParams.push(req.user.id);
         }
 
-        const totalResult = prepare('SELECT COUNT(*) as total FROM patrol_rounds').get();
+        if (date) {
+            query += ` AND DATE(p.patrol_time) = ?`;
+            countQuery += ` AND DATE(patrol_time) = ?`;
+            params.push(date);
+            countParams.push(date);
+        }
+
+        query += ` ORDER BY p.patrol_time DESC LIMIT ? OFFSET ?`;
+        params.push(parseInt(limit), parseInt(offset));
+
+        const patrols = prepare(query).all(...params);
+        const totalResult = prepare(countQuery).get(...countParams);
 
         res.json({
             patrols,
@@ -46,6 +56,74 @@ router.get('/', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Get patrols error:', error);
         res.status(500).json({ error: 'خطأ في جلب بيانات الدوريات' });
+    }
+});
+
+// ... (GET /recent, GET /guard/:id, GET /shift-status, GET /locations, POST / kept as is) ...
+
+// PUT /api/patrols/:id - Update patrol
+router.put('/:id', authenticateToken, async (req, res) => {
+    try {
+        await getDatabase();
+        const { id } = req.params;
+        const { location, security_status, notes } = req.body;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+
+        const patrol = prepare('SELECT * FROM patrol_rounds WHERE id = ?').get(id);
+
+        if (!patrol) {
+            return res.status(404).json({ error: 'الجولة غير موجودة' });
+        }
+
+        // Ownership Check
+        if (!isAdmin && patrol.guard_id !== req.user.id) {
+            return res.status(403).json({ error: 'غير مصرح لك بتعديل هذه الجولة' });
+        }
+
+        prepare(`
+            UPDATE patrol_rounds 
+            SET location = ?, security_status = ?, notes = ?
+            WHERE id = ?
+        `).run(location, security_status, notes || '', id);
+
+        res.json({ message: 'تم تحديث الجولة بنجاح' });
+
+    } catch (error) {
+        console.error('Update patrol error:', error);
+        res.status(500).json({ error: 'خطأ في تحديث الجولة' });
+    }
+});
+
+// PUT /api/patrols/:id/status - Change resolution status
+router.put('/:id/status', authenticateToken, async (req, res) => {
+    try {
+        await getDatabase();
+        const { id } = req.params;
+        const { resolution_status } = req.body;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+
+        const patrol = prepare('SELECT * FROM patrol_rounds WHERE id = ?').get(id);
+
+        if (!patrol) {
+            return res.status(404).json({ error: 'الجولة غير موجودة' });
+        }
+
+        // Ownership Check
+        if (!isAdmin && patrol.guard_id !== req.user.id) {
+            return res.status(403).json({ error: 'غير مصرح لك بتعديل حالة هذه الجولة' });
+        }
+
+        prepare(`
+            UPDATE patrol_rounds 
+            SET resolution_status = ?
+            WHERE id = ?
+        `).run(resolution_status, id);
+
+        res.json({ message: 'تم تحديث حالة الجولة' });
+
+    } catch (error) {
+        console.error('Change status error:', error);
+        res.status(500).json({ error: 'خطأ في تحديث الحالة' });
     }
 });
 
@@ -223,6 +301,18 @@ router.put('/:id', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
         const { location, security_status, notes } = req.body;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+
+        const patrol = prepare('SELECT * FROM patrol_rounds WHERE id = ?').get(id);
+
+        if (!patrol) {
+            return res.status(404).json({ error: 'الجولة غير موجودة' });
+        }
+
+        // Ownership Check
+        if (!isAdmin && patrol.guard_id !== req.user.id) {
+            return res.status(403).json({ error: 'غير مصرح لك بتعديل هذه الجولة' });
+        }
 
         prepare(`
             UPDATE patrol_rounds 
@@ -244,6 +334,18 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
         const { resolution_status } = req.body;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+
+        const patrol = prepare('SELECT * FROM patrol_rounds WHERE id = ?').get(id);
+
+        if (!patrol) {
+            return res.status(404).json({ error: 'الجولة غير موجودة' });
+        }
+
+        // Ownership Check
+        if (!isAdmin && patrol.guard_id !== req.user.id) {
+            return res.status(403).json({ error: 'غير مصرح لك بتعديل حالة هذه الجولة' });
+        }
 
         prepare(`
             UPDATE patrol_rounds 

@@ -10,29 +10,42 @@ router.get('/', authenticateToken, async (req, res) => {
         await getDatabase();
         const { date, status, search, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
 
         // Build query based on filters
-        let visitors;
-        if (date) {
-            visitors = prepare(`
-                SELECT v.*, u.full_name as registered_by_name
-                FROM visitors v
-                LEFT JOIN users u ON v.registered_by = u.id
-                WHERE DATE(v.entry_time) = ?
-                ORDER BY v.entry_time DESC
-                LIMIT ? OFFSET ?
-            `).all(date, parseInt(limit), parseInt(offset));
-        } else {
-            visitors = prepare(`
-                SELECT v.*, u.full_name as registered_by_name
-                FROM visitors v
-                LEFT JOIN users u ON v.registered_by = u.id
-                ORDER BY v.entry_time DESC
-                LIMIT ? OFFSET ?
-            `).all(parseInt(limit), parseInt(offset));
+        let visitors, totalResult;
+
+        let query = `
+            SELECT v.*, u.full_name as registered_by_name
+            FROM visitors v
+            LEFT JOIN users u ON v.registered_by = u.id
+            WHERE 1=1
+        `;
+        let countQuery = `SELECT COUNT(*) as total FROM visitors WHERE 1=1`;
+        let params = [];
+        let countParams = [];
+
+        // Role filter
+        if (!isAdmin) {
+            query += ` AND v.registered_by = ?`;
+            countQuery += ` AND registered_by = ?`;
+            params.push(req.user.id);
+            countParams.push(req.user.id);
         }
 
-        const totalResult = prepare('SELECT COUNT(*) as total FROM visitors').get();
+        if (date) {
+            query += ` AND DATE(v.entry_time) = ?`;
+            countQuery += ` AND DATE(entry_time) = ?`;
+            params.push(date);
+            countParams.push(date);
+        }
+
+        query += ` ORDER BY v.entry_time DESC LIMIT ? OFFSET ?`;
+        params.push(parseInt(limit), parseInt(offset));
+
+        visitors = prepare(query).all(...params);
+        totalResult = prepare(countQuery).get(...countParams);
+
         const totalCount = totalResult ? totalResult.total : 0;
 
         res.json({
@@ -56,14 +69,24 @@ router.get('/today', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const today = new Date().toISOString().split('T')[0];
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
 
-        const visitors = prepare(`
+        let query = `
             SELECT v.*, u.full_name as registered_by_name
             FROM visitors v
             LEFT JOIN users u ON v.registered_by = u.id
             WHERE DATE(v.entry_time) = ?
-            ORDER BY v.entry_time DESC
-        `).all(today);
+        `;
+        let params = [today];
+
+        if (!isAdmin) {
+            query += ` AND v.registered_by = ?`;
+            params.push(req.user.id);
+        }
+
+        query += ` ORDER BY v.entry_time DESC`;
+
+        const visitors = prepare(query).all(...params);
 
         res.json({ visitors, date: today });
 
@@ -78,17 +101,31 @@ router.get('/stats', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const today = new Date().toISOString().split('T')[0];
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
 
-        // Today's stats
-        const total = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ?`).get(today);
-        const inside = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND status = 'inside'`).get(today);
-        const left = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND status = 'left'`).get(today);
+        let total, inside, left, yesterdayTotal;
 
-        // Yesterday for comparison
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-        const yesterdayTotal = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ?`).get(yesterdayStr);
+        if (isAdmin) {
+            // Admin sees all stats
+            total = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ?`).get(today);
+            inside = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND status = 'inside'`).get(today);
+            left = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND status = 'left'`).get(today);
+
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            yesterdayTotal = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ?`).get(yesterdayStr);
+        } else {
+            // Guard sees only their stats
+            total = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND registered_by = ?`).get(today, req.user.id);
+            inside = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND status = 'inside' AND registered_by = ?`).get(today, req.user.id);
+            left = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND status = 'left' AND registered_by = ?`).get(today, req.user.id);
+
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            yesterdayTotal = prepare(`SELECT COUNT(*) as count FROM visitors WHERE DATE(entry_time) = ? AND registered_by = ?`).get(yesterdayStr, req.user.id);
+        }
 
         let percentChange = 0;
         if (yesterdayTotal && yesterdayTotal.count > 0) {
@@ -162,11 +199,17 @@ router.put('/:id/checkout', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
         const exit_time = new Date().toISOString();
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
 
         const visitor = prepare('SELECT * FROM visitors WHERE id = ?').get(parseInt(id));
 
         if (!visitor) {
             return res.status(404).json({ error: 'الزائر غير موجود' });
+        }
+
+        // Enforce ownership for non-admins
+        if (!isAdmin && visitor.registered_by !== req.user.id) {
+            return res.status(403).json({ error: 'غير مصرح لك بتسجيل خروج هذا الزائر' });
         }
 
         if (visitor.status === 'left') {
@@ -199,6 +242,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const { id } = req.params;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
 
         const visitor = prepare(`
             SELECT v.*, u.full_name as registered_by_name
@@ -209,6 +253,11 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
         if (!visitor) {
             return res.status(404).json({ error: 'الزائر غير موجود' });
+        }
+
+        // Enforce ownership for non-admins
+        if (!isAdmin && visitor.registered_by !== req.user.id) {
+            return res.status(403).json({ error: 'غير مصرح لك وعرض تفاصيل هذا الزائر' });
         }
 
         res.json({ visitor });
