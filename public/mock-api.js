@@ -1,5 +1,5 @@
 // API Configuration - Production Mode
-const API_BASE_URL = 'https://faj-production-a522.up.railway.app';
+const API_BASE_URL = 'https://faj-backend.onrender.com';
 const MOCK_MODE = false;
 
 // Override fetch to use Railway backend
