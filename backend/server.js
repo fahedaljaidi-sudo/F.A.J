@@ -25,9 +25,23 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Database migration - add resolution_status column if not exists
 const { getDatabase, prepare } = require('./database/db');
 const { updateAdminCredentials } = require('./scripts/update-admin');
+const fs = require('fs');
 
 (async () => {
     try {
+        // Check if we need to force reset database
+        if (process.env.RESET_DB === 'true') {
+            console.log('🔄 RESET_DB=true detected - Deleting old database...');
+            const dbPath = path.join(__dirname, 'database/security.db');
+
+            if (fs.existsSync(dbPath)) {
+                fs.unlinkSync(dbPath);
+                console.log('✓ Old database deleted');
+            }
+
+            console.log('✓ Will create fresh database on first request');
+        }
+
         await getDatabase();
 
         // Update admin credentials automatically
