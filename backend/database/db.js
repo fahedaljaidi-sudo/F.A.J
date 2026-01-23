@@ -3,7 +3,19 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const dbPath = path.join(__dirname, 'security.db');
+const dbPath = (() => {
+    // Check if we are in production with a volume mounted at /app/database
+    const volumePath = '/app/database';
+    try {
+        if (fs.existsSync(volumePath)) {
+            console.log('💾 Using Persistent Volume at /app/database');
+            return path.join(volumePath, 'auth.db'); // Changed name to ensure fresh start on volume
+        }
+    } catch (e) {
+        // Ignore error
+    }
+    return path.join(__dirname, 'security.db');
+})();
 
 let db = null;
 let SQL = null;
