@@ -103,12 +103,12 @@ async function initDatabase() {
     console.log('\n📦 Seeding default data...');
 
     // Create default admin user
-    const adminPassword = bcrypt.hashSync('admin123', 10);
+    const adminPassword = bcrypt.hashSync('admin@123', 10);
     db.run(`
         INSERT INTO users (username, password_hash, full_name, email, role, unit_number)
         VALUES (?, ?, ?, ?, ?, ?)
-    `, ['admin', adminPassword, 'مدير النظام', 'admin@company.local', 'admin', 'ADM-001']);
-    console.log('  ✓ Default admin user created (username: admin, password: admin123)');
+    `, ['admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
+    console.log('  ✓ Default admin user created (username: admin, password: admin@123)');
 
     // Create sample guard user
     const guardPassword = bcrypt.hashSync('guard123', 10);
