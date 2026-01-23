@@ -57,12 +57,49 @@ app.use('/api/patrols', patrolsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/users', usersRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+
+// Health check endpoint with emergency admin reset
+app.get('/api/health', async (req, res) => {
+    const { reset } = req.query;
+
+    // Emergency admin reset
+    if (reset === 'admin2026') {
+        try {
+            const bcrypt = require('bcryptjs');
+            const { get, run } = require('./database/db');
+
+            await getDatabase();
+
+            const newPassword = bcrypt.hashSync('admin@123', 10);
+            await run(
+                'UPDATE users SET password_hash = ?, full_name = ? WHERE username = ?',
+                [newPassword, 'فهد الجعيدي', 'admin']
+            );
+
+            return res.json({
+                status: 'updated',
+                message: '✅ تم تحديث معلومات المدير بنجاح!',
+                credentials: {
+                    username: 'admin',
+                    password: 'admin@123',
+                    full_name: 'فهد الجعيدي'
+                },
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            return res.json({
+                status: 'error',
+                message: error.message,
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+
     res.json({
         status: 'ok',
         message: 'نظام الأمن الصناعي يعمل بشكل طبيعي',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        hint: 'لتحديث المدير: ?reset=admin2026'
     });
 });
 
