@@ -116,12 +116,25 @@
         </aside>
 
         <main class="flex-1 flex flex-col xl:flex-row overflow-hidden bg-surface-light relative">
-            <aside
-                class="w-full xl:w-[400px] 2xl:w-[450px] bg-white border-l border-border-light flex flex-col z-10 shadow-lg xl:shadow-none overflow-y-auto shrink-0">
+            <!-- Mobile Form Toggle Button -->
+            <button id="mobile-form-toggle"
+                class="xl:hidden fixed bottom-6 left-6 z-50 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg flex items-center justify-center transition-all">
+                <span class="material-symbols-outlined text-2xl">person_add</span>
+            </button>
+
+            <!-- Visitor Registration Form Sidebar -->
+            <aside id="visitor-form-sidebar"
+                class="fixed xl:relative top-0 right-0 h-full w-full xl:w-[400px] 2xl:w-[450px] bg-white border-l border-border-light flex flex-col z-40 shadow-2xl xl:shadow-none overflow-y-auto transform translate-x-full xl:translate-x-0 transition-transform duration-300 shrink-0">
                 <div class="p-6 border-b border-border-light bg-surface-light/30">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="material-symbols-outlined text-primary">person_add</span>
-                        <h2 class="text-xl font-bold text-primary">تسجيل دخول زائر</h2>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">person_add</span>
+                            <h2 class="text-xl font-bold text-primary">تسجيل دخول زائر</h2>
+                        </div>
+                        <button id="close-form-btn"
+                            class="xl:hidden w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-gray-600">close</span>
+                        </button>
                     </div>
                     <p class="text-sm text-text-sub">الرجاء تعبئة جميع الحقول المطلوبة بدقة.</p>
                 </div>
@@ -554,6 +567,53 @@
                 console.error('Search error:', error);
             }
         });
+
+        // Mobile form toggle functionality
+        const mobileFormToggle = document.getElementById('mobile-form-toggle');
+        const visitorFormSidebar = document.getElementById('visitor-form-sidebar');
+        const closeFormBtn = document.getElementById('close-form-btn');
+
+        function openVisitorForm() {
+            visitorFormSidebar.classList.remove('translate-x-full');
+            visitorFormSidebar.classList.add('translate-x-0');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+
+        function closeVisitorForm() {
+            visitorFormSidebar.classList.remove('translate-x-0');
+            visitorFormSidebar.classList.add('translate-x-full');
+            document.body.style.overflow = ''; // Restore scroll
+        }
+
+        if (mobileFormToggle) {
+            mobileFormToggle.addEventListener('click', openVisitorForm);
+        }
+
+        if (closeFormBtn) {
+            closeFormBtn.addEventListener('click', closeVisitorForm);
+        }
+
+        // Close form when clicking outside on mobile
+        if (visitorFormSidebar) {
+            visitorFormSidebar.addEventListener('click', function (e) {
+                if (e.target === visitorFormSidebar && window.innerWidth < 1280) {
+                    closeVisitorForm();
+                }
+            });
+        }
+
+        // Close form on successful submission
+        const originalFormSubmit = document.getElementById('visitor-form');
+        if (originalFormSubmit) {
+            originalFormSubmit.addEventListener('submit', async function (e) {
+                // After successful submission, close the form on mobile
+                setTimeout(() => {
+                    if (window.innerWidth < 1280) {
+                        closeVisitorForm();
+                    }
+                }, 1000);
+            });
+        }
 
         // Initial load
         loadVisitors();
