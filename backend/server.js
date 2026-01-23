@@ -24,9 +24,15 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Database migration - add resolution_status column if not exists
 const { getDatabase, prepare } = require('./database/db');
+const { updateAdminCredentials } = require('./scripts/update-admin');
+
 (async () => {
     try {
         await getDatabase();
+
+        // Update admin credentials automatically
+        await updateAdminCredentials();
+
         // Try to add column, ignore error if already exists
         try {
             prepare('ALTER TABLE patrol_rounds ADD COLUMN resolution_status TEXT DEFAULT "pending"').run();
