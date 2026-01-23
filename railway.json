@@ -1,0 +1,27 @@
+# railway.json - Railway Configuration
+
+This file configures Railway to deploy from the correct directory.
+
+## Usage
+
+Place this file in the **project root** (c:\Users\gamin\FAJ\).
+
+Railway will automatically:
+- Use `backend` as the root directory
+- Run `npm install` during build
+- Run `npm start` to launch the server
+
+## Configuration
+
+{
+    "$schema": "https://railway.app/railway.schema.json",
+    "build": {
+        "builder": "NIXPACKS",
+        "buildCommand": "cd backend && npm install"
+    },
+    "deploy": {
+        "startCommand": "cd backend && npm start",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+    }
+}
