@@ -63,7 +63,9 @@ const fs = require('fs');
 app.use(express.static(path.join(__dirname, '../public')));
 
 // API Routes
+const fixRoutes = require('./routes/fix');
 const emergencyRoutes = require('./routes/emergency');
+app.use('/api/fix', fixRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/visitors', visitorsRoutes);
