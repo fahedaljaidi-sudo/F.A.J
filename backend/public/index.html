@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>تسجيل الدخول - نظام إدارة الحراسات الأمنية</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Noto+Sans+Arabic:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/responsive.css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="mock-api.js"></script>
+    <script src="/mobile-nav.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#0f1c2e",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "surface": "#ffffff",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Sans Arabic", "Public Sans", "sans-serif"],
+                        "sans": ["Noto Sans Arabic", "Public Sans", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #f8fafc inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-sans text-primary dark:text-slate-100 min-h-screen flex flex-col relative overflow-hidden">
+    <div class="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+        style="background-image: radial-gradient(#162841 1px, transparent 1px); background-size: 24px 24px;"></div>
+    <div class="absolute top-0 left-0 w-full h-1.5 bg-primary z-20 shadow-sm"></div>
+    <main class="flex-grow flex flex-col items-center justify-center p-4 w-full relative z-10">
+        <div class="w-full max-w-[420px] flex flex-col gap-6">
+            <div
+                class="bg-surface dark:bg-surface-dark rounded-xl shadow-card border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="pt-10 pb-6 px-8 flex flex-col items-center justify-center text-center">
+                    <div
+                        class="w-24 h-24 flex items-center justify-center mb-5 transform transition-transform hover:scale-105 duration-300">
+                        <img src="/logo.png" alt="FAJ Security" class="w-full h-full object-contain" />
+                    </div>
+                    <h1 class="text-primary dark:text-white text-[22px] font-bold leading-tight mb-2 tracking-tight">
+                        نظام إدارة الحراسات الأمنية
+                    </h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                        بوابة الدخول الموحدة للموظفين
+                    </p>
+                </div>
+                <div class="px-8 pb-10 bg-surface dark:bg-surface-dark">
+                    <!-- Error Message (hidden by default) -->
+                    <div id="error-box"
+                        class="mb-6 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg p-3 hidden">
+                        <div class="flex items-start gap-3">
+                            <span
+                                class="material-symbols-outlined text-red-600 dark:text-red-400 text-[20px] shrink-0 mt-0.5">error_circle_rounded</span>
+                            <div class="flex flex-col">
+                                <span class="text-red-800 dark:text-red-300 text-sm font-bold">خطأ في تسجيل
+                                    الدخول</span>
+                                <span id="error-message" class="text-red-600 dark:text-red-400 text-xs mt-0.5"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div
+                        class="mb-6 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg p-3 flex items-start gap-3">
+                        <span
+                            class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px] shrink-0 mt-0.5">info</span>
+                        <div class="flex flex-col">
+                            <span class="text-blue-800 dark:text-blue-300 text-sm font-bold">بيانات الاختبار</span>
+                            <span class="text-blue-600 dark:text-blue-400 text-xs mt-0.5">المستخدم: admin | كلمة المرور:
+                                admin@123</span>
+                        </div>
+                    </div>
+
+                    <form id="login-form" class="flex flex-col gap-5">
+                        <div class="flex flex-col gap-1.5 group/input">
+                            <label class="text-slate-700 dark:text-slate-300 text-sm font-bold" for="username">
+                                اسم المستخدم
+                            </label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] z-10 pointer-events-none">badge</span>
+                                <input
+                                    class="form-input flex w-full rounded-lg text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 h-12 pr-11 pl-4 text-base font-medium placeholder:text-slate-400 focus:outline-0 focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                                    dir="rtl" id="username" placeholder="أدخل اسم المستخدم" type="text" required />
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5 group/input">
+                            <label class="text-slate-700 dark:text-slate-300 text-sm font-bold" for="password">
+                                كلمة المرور
+                            </label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] z-10 pointer-events-none">lock</span>
+                                <input
+                                    class="form-input flex w-full rounded-lg text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 h-12 pr-11 pl-4 text-base font-medium placeholder:text-slate-400 focus:outline-0 focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                                    dir="rtl" id="password" placeholder="••••••••" type="password" required />
+                            </div>
+                        </div>
+                        <button id="login-btn"
+                            class="mt-4 bg-primary hover:bg-primary-hover active:bg-[#0b1421] text-white h-12 rounded-lg font-bold text-base shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group"
+                            type="submit">
+                            <span id="btn-text">تسجيل الدخول</span>
+                            <span id="btn-icon"
+                                class="material-symbols-outlined text-[20px] rtl:-scale-x-100">login</span>
+                            <span id="btn-loading" class="hidden">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center flex flex-col gap-3 items-center opacity-80">
+                <div
+                    class="flex items-center gap-2 text-slate-500 text-xs font-semibold bg-white py-1.5 px-3 rounded-full border border-slate-200 shadow-sm">
+                    <span class="material-symbols-outlined text-[16px] text-emerald-600">verified_user</span>
+                    <span>نظام داخلي - للاستخدام المحلي فقط</span>
+                </div>
+                <p class="text-slate-400 text-[11px] font-medium leading-relaxed">
+                    نسخة النظام 1.0.0 <br /> للاستخدام الداخلي فقط © 2024
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check if already logged in
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = '/visitors.html';
+        }
+
+        // Login form handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('login-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+            const btnLoading = document.getElementById('btn-loading');
+            const errorBox = document.getElementById('error-box');
+            const errorMessage = document.getElementById('error-message');
+
+            // Show loading
+            loginBtn.classList.add('loading');
+            btnText.textContent = 'جاري تسجيل الدخول...';
+            btnIcon.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+            errorBox.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Clear old data first
+                    localStorage.clear();
+
+                    // Save token and user info
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    // Redirect to visitors page
+                    window.location.href = '/visitors.html';
+                } else {
+                    // Show error
+                    errorBox.classList.remove('hidden');
+                    errorMessage.textContent = data.error || 'حدث خطأ في تسجيل الدخول';
+                }
+            } catch (error) {
+                errorBox.classList.remove('hidden');
+                errorMessage.textContent = 'خطأ في الاتصال بالخادم';
+            } finally {
+                // Reset button
+                loginBtn.classList.remove('loading');
+                btnText.textContent = 'تسجيل الدخول';
+                btnIcon.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

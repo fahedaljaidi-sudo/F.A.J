@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار التجاوب - FAJ Security</title>
+    <link rel="stylesheet" href="/responsive.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .screen-size {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #162841;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 9999;
+            direction: ltr;
+        }
+
+        .device-icon {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+
+        h1 {
+            color: #162841;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #2c4a70;
+            margin: 20px 0 10px;
+            font-size: 20px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+
+        .status.mobile {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.tablet {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status.desktop {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .grid-demo {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        @media (min-width: 768px) {
+            .grid-demo {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .grid-demo {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .grid-item {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="screen-size" id="screenSize">
+        <span id="widthDisplay">Width: --</span> x <span id="heightDisplay">Height: --</span>
+        <br>
+        <span id="deviceType" class="status mobile">Mobile</span>
+    </div>
+
+    <div class="test-container">
+        <div class="test-card">
+            <div style="text-align: center;">
+                <div class="device-icon" id="deviceIcon">📱</div>
+                <h1>اختبار التصميم المتجاوب</h1>
+                <p>قم بتغيير حجم نافذة المتصفح أو استخدم وضع المطور (F12 → Ctrl+Shift+M)</p>
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h2>📐 أحجام الشاشات</h2>
+            <p>
+                <span class="status mobile">📱 Mobile: < 768px</span>
+                        <span class="status tablet">📱 Tablet: 768px - 1024px</span>
+                        <span class="status desktop">💻 Desktop: > 1024px</span>
+            </p>
+        </div>
+
+        <div class="test-card">
+            <h2>🎨 شبكة متجاوبة (Grid)</h2>
+            <p>لاحظ كيف تتغير الأعمدة حسب حجم الشاشة:</p>
+            <div class="grid-demo">
+                <div class="grid-item">العنصر 1</div>
+                <div class="grid-item">العنصر 2</div>
+                <div class="grid-item">العنصر 3</div>
+                <div class="grid-item">العنصر 4</div>
+                <div class="grid-item">العنصر 5</div>
+                <div class="grid-item">العنصر 6</div>
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h2>✅ الميزات المتاحة</h2>
+            <ul style="padding-right: 20px; line-height: 2;">
+                <li>✅ تصميم Mobile-First</li>
+                <li>✅ قائمة جانبية متجاوبة مع زر hamburger</li>
+                <li>✅ جداول قابلة للتمرير الأفقي</li>
+                <li>✅ نماذج محسّنة للمس</li>
+                <li>✅ شبكات تكيفية</li>
+                <li>✅ نصوص متناسبة</li>
+                <li>✅ دعم iOS وAndroid</li>
+                <li>✅ دعم الطباعة</li>
+            </ul>
+        </div>
+
+        <div class="test-card">
+            <h2>🧪 اختبر بنفسك</h2>
+            <p><strong>على الكمبيوتر:</strong></p>
+            <ol style="padding-right: 20px; line-height: 2;">
+                <li>اضغط F12 لفتح أدوات المطور</li>
+                <li>اضغط Ctrl+Shift+M للوضع المتجاوب</li>
+                <li>جرّب الأحجام: iPhone 12 Pro, iPad, Desktop</li>
+            </ol>
+
+            <p style="margin-top: 20px;"><strong>على الهاتف:</strong></p>
+            <ol style="padding-right: 20px; line-height: 2;">
+                <li>افتح أي صفحة من صفحات النظام</li>
+                <li>انقر على زر القائمة (☰)</li>
+                <li>جرّب التمرير والتنقل</li>
+            </ol>
+        </div>
+
+        <div class="test-card">
+            <h2>📄 الصفحات المحدثة</h2>
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                <a href="/index.html"
+                    style="display: block; padding: 15px; background: #162841; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: bold;">تسجيل
+                    الدخول</a>
+                <a href="/dashboard.html"
+                    style="display: block; padding: 15px; background: #162841; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: bold;">لوحة
+                    التحكم</a>
+                <a href="/visitors.html"
+                    style="display: block; padding: 15px; background: #162841; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: bold;">الزوار</a>
+                <a href="/patrols.html"
+                    style="display: block; padding: 15px; background: #162841; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: bold;">الدوريات</a>
+                <a href="/reports.html"
+                    style="display: block; padding: 15px; background: #162841; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: bold;">التقارير</a>
+                <a href="/users.html"
+                    style="display: block; padding: 15px; background: #162841; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: bold;">المستخدمين</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateScreenInfo() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            document.getElementById('widthDisplay').textContent = `Width: ${width}px`;
+            document.getElementById('heightDisplay').textContent = `Height: ${height}px`;
+
+            const deviceTypeEl = document.getElementById('deviceType');
+            const iconEl = document.getElementById('deviceIcon');
+
+            if (width < 768) {
+                deviceTypeEl.textContent = 'Mobile';
+                deviceTypeEl.className = 'status mobile';
+                iconEl.textContent = '📱';
+            } else if (width >= 768 && width < 1024) {
+                deviceTypeEl.textContent = 'Tablet';
+                deviceTypeEl.className = 'status tablet';
+                iconEl.textContent = '📱';
+            } else {
+                deviceTypeEl.textContent = 'Desktop';
+                deviceTypeEl.className = 'status desktop';
+                iconEl.textContent = '💻';
+            }
+        }
+
+        // Update on load
+        updateScreenInfo();
+
+        // Update on resize
+        window.addEventListener('resize', updateScreenInfo);
+
+        // Update every second (for smooth transitions)
+        setInterval(updateScreenInfo, 100);
+    </script>
+</body>
+
+</html>

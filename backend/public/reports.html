@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>التقارير - نظام إدارة الحراسات الأمنية</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;family=Noto+Sans+Arabic:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/responsive.css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="mock-api.js"></script>
+    <script src="/mobile-nav.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#233b5c",
+                        "border-color": "#d4dae2",
+                        "secondary-text": "#5c6f8a",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
+        }
+
+        .print-header {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            aside {
+                display: none !important;
+            }
+
+            nav {
+                display: none !important;
+            }
+
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .print-header {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                padding: 15px;
+                border-bottom: 2px solid #162841;
+                margin-bottom: 15px;
+            }
+
+            .print-header img {
+                width: 60px;
+                height: 60px;
+            }
+
+            body {
+                background: white !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            table {
+                width: 100% !important;
+                font-size: 11px !important;
+                border-collapse: collapse !important;
+            }
+
+            th,
+            td {
+                padding: 6px 4px !important;
+                border: 1px solid #ddd !important;
+            }
+
+            th {
+                background: #f3f4f6 !important;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .overflow-x-auto {
+                overflow: visible !important;
+            }
+
+            div[class*="rounded"],
+            div[class*="shadow"] {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-[#101418] min-h-screen flex overflow-hidden">
+    <div class="flex h-screen w-full">
+        <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <img src="/logo.png" alt="FAJ" class="w-12 h-12 object-contain bg-white/10 rounded-lg p-1" />
+                    <div>
+                        <h1 class="text-white font-bold text-lg">FAJ Security</h1>
+                        <p class="text-blue-300 text-xs">نظام الأمن الصناعي</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/dashboard.html">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-medium">لوحة القيادة</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/visitors.html">
+                    <span class="material-symbols-outlined">badge</span>
+                    <span class="font-medium">تسجيل الزوار</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/patrols.html">
+                    <span class="material-symbols-outlined">local_police</span>
+                    <span class="font-medium">الدوريات الأمنية</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/15 text-white border-r-4 border-secondary"
+                    href="#">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span class="font-bold">التقارير</span>
+                </a>
+                <a id="admin-link"
+                    class="hidden flex items-center gap-3 px-4 py-3 rounded-lg text-yellow-300 hover:bg-white/10 hover:text-yellow-200 transition-colors"
+                    href="/users.html">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                    <span class="font-medium">إدارة الحراس</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-white/10">
+                <button onclick="logout()"
+                    class="w-full flex items-center justify-center gap-2 text-red-300 hover:text-red-200 hover:bg-white/5 py-2 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                    <span class="text-sm font-medium">تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto bg-gray-50 relative w-full">
+            <!-- Header -->
+            <header
+                class="h-16 bg-white border-b border-border-color flex items-center justify-between px-6 shrink-0 no-print">
+                <div>
+                    <h2 class="text-lg font-bold text-primary">التقارير والإحصائيات</h2>
+                    <p class="text-xs text-gray-500" id="current-date">--</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-gray-900" id="user-name">--</p>
+                        <p class="text-xs text-gray-500" id="user-role">--</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Print Header -->
+            <div class="print-header">
+                <img src="/logo.png" alt="FAJ Security">
+                <h1 style="font-size: 24px; font-weight: bold; margin-top: 10px; color: #162841;">FAJ For Security
+                    Guards</h1>
+                <p style="font-size: 14px; color: #666; margin-top: 5px;">تقرير السجلات الأمنية</p>
+                <p style="font-size: 12px; color: #888; margin-top: 5px;" id="print-date"></p>
+            </div>
+            <div class="flex flex-col w-full h-full">
+                <div class="flex flex-1 justify-center py-6 px-4 md:px-8">
+                    <div class="w-full max-w-[1400px] flex flex-col">
+                        <div
+                            class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 border-b border-border-color pb-6">
+                            <div class="flex flex-col gap-2">
+                                <h1
+                                    class="text-[#101418] text-3xl md:text-4xl font-black leading-tight tracking-[-0.02em]">
+                                    تقارير الحوادث والدوريات</h1>
+                                <p class="text-secondary-text text-base font-normal">استعراض السجلات الأمنية وتصدير
+                                    التقارير الرسمية للإدارة.</p>
+                            </div>
+                            <div class="flex gap-3 no-print">
+                                <button onclick="window.print()"
+                                    class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 border border-border-color bg-white hover:bg-gray-50 text-[#101418] text-sm font-bold transition-all shadow-sm group">
+                                    <span
+                                        class="material-symbols-outlined text-[20px] ml-2 text-secondary-text group-hover:text-primary">print</span>
+                                    <span class="truncate">طباعة (A4)</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-border-color p-5 mb-6 shadow-sm no-print">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined text-primary">filter_alt</span>
+                                <h3 class="text-[#101418] text-base font-bold">تصفية البيانات</h3>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                                <label class="flex flex-col gap-1.5 flex-1">
+                                    <span class="text-[#101418] text-sm font-semibold">من تاريخ</span>
+                                    <input id="from-date"
+                                        class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary outline-none"
+                                        type="date" />
+                                </label>
+                                <label class="flex flex-col gap-1.5 flex-1">
+                                    <span class="text-[#101418] text-sm font-semibold">إلى تاريخ</span>
+                                    <input id="to-date"
+                                        class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary outline-none"
+                                        type="date" />
+                                </label>
+                                <button onclick="applyFilter()"
+                                    class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-11 shadow-sm transition-all">تطبيق
+                                    التصفية</button>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-white rounded-xl border border-border-color shadow-sm overflow-hidden flex flex-col mb-8">
+                            <div
+                                class="px-5 py-4 border-b border-border-color flex justify-between items-center bg-gray-50/50">
+                                <h4 class="font-bold text-[#101418] text-sm" id="results-count">نتائج البحث (-- سجل)
+                                </h4>
+                                <button onclick="loadReports()"
+                                    class="p-1.5 rounded hover:bg-gray-200 text-secondary-text" title="Refresh">
+                                    <span class="material-symbols-outlined text-[20px]">refresh</span>
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b border-border-color">
+                                            <th
+                                                class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">
+                                                التاريخ والوقت</th>
+                                            <th
+                                                class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">
+                                                نوع الحدث</th>
+                                            <th
+                                                class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">
+                                                المسؤول</th>
+                                            <th
+                                                class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">
+                                                الموقع</th>
+                                            <th
+                                                class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">
+                                                الحالة</th>
+                                            <th
+                                                class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text min-w-[200px]">
+                                                الوصف</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reports-table" class="bg-white divide-y divide-border-color">
+                                        <tr>
+                                            <td colspan="6" class="py-8 text-center text-gray-400">جاري تحميل
+                                                البيانات...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div
+                                class="bg-gray-50 border-t border-border-color px-5 py-3 flex items-center justify-between no-print">
+                                <span class="text-xs text-secondary-text font-medium" id="pagination-info">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = '/';
+
+        // Update header
+        document.getElementById('user-avatar').textContent = (user.full_name || '--').slice(0, 2);
+
+        // Update sidebar user info
+        const userNameEl = document.getElementById('user-name');
+        const userRoleEl = document.getElementById('user-role');
+        if (userNameEl) {
+            const roleText = {
+                'admin': 'مدير النظام',
+                'supervisor': 'مشرف',
+                'guard': 'رجل أمن'
+            };
+            userNameEl.textContent = user.full_name || '--';
+            if (userRoleEl) {
+                userRoleEl.textContent = roleText[user.role] || user.role || '--';
+            }
+        }
+
+        // Update current date
+        const now = new Date();
+        const dateEl = document.getElementById('current-date');
+        if (dateEl) {
+            dateEl.textContent = now.toLocaleDateString('ar-SA', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Show admin link if applicable
+        if (user.role === 'admin') {
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) adminLink.classList.remove('hidden');
+        }
+
+        // Set default dates
+        const today = new Date();
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        document.getElementById('from-date').value = weekAgo.toISOString().split('T')[0];
+        document.getElementById('to-date').value = today.toISOString().split('T')[0];
+
+        function getHeaders() {
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        }
+
+        async function loadReports() {
+            const fromDate = document.getElementById('from-date').value;
+            const toDate = document.getElementById('to-date').value;
+
+            let url = `${API_BASE}/reports?limit=50`;
+            if (fromDate) url += `&from_date=${fromDate}`;
+            if (toDate) url += `&to_date=${toDate}`;
+
+            try {
+                const response = await fetch(url, { headers: getHeaders() });
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return;
+                }
+                const data = await response.json();
+                renderReports(data.logs || []);
+                document.getElementById('results-count').textContent = `نتائج البحث (${data.logs?.length || 0} سجل)`;
+                document.getElementById('pagination-info').textContent = `عرض ${data.logs?.length || 0} من أصل ${data.pagination?.total || 0} سجل`;
+            } catch (error) {
+                console.error('Error loading reports:', error);
+            }
+        }
+
+        function renderReports(logs) {
+            const tbody = document.getElementById('reports-table');
+
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-gray-400">لا توجد سجلات</td></tr>';
+                return;
+            }
+
+            const eventTypes = {
+                'visitor_entry': { icon: 'badge', color: 'text-blue-600', bg: 'bg-blue-50', text: 'دخول زائر' },
+                'visitor_exit': { icon: 'logout', color: 'text-gray-600', bg: 'bg-gray-100', text: 'خروج زائر' },
+                'patrol': { icon: 'local_police', color: 'text-indigo-600', bg: 'bg-indigo-50', text: 'دورية' },
+                'system': { icon: 'settings', color: 'text-gray-600', bg: 'bg-gray-100', text: 'نظام' }
+            };
+
+            const statusColors = {
+                'completed': 'text-emerald-600',
+                'success': 'text-emerald-600',
+                'review': 'text-amber-600',
+                'pending': 'text-orange-600'
+            };
+
+            tbody.innerHTML = logs.map(log => {
+                const event = eventTypes[log.event_type] || eventTypes.system;
+                const date = new Date(log.event_time);
+                const statusColor = statusColors[log.status] || 'text-gray-600';
+
+                return `
+            <tr class="hover:bg-blue-50/30 transition-colors">
+                <td class="py-3 px-5 text-sm font-medium text-[#101418] whitespace-nowrap">
+                    <div class="flex flex-col">
+                        <span>${date.toLocaleDateString('ar-SA')}</span>
+                        <span class="text-secondary-text text-xs">${date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                </td>
+                <td class="py-3 px-5 text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined ${event.color} text-[18px]">${event.icon}</span>
+                        ${event.text}
+                    </div>
+                </td>
+                <td class="py-3 px-5 text-sm text-[#101418]">${log.user_name || '--'}</td>
+                <td class="py-3 px-5 text-sm text-secondary-text">${log.location || '--'}</td>
+                <td class="py-3 px-5">
+                    <span class="text-xs font-bold ${statusColor} flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full ${statusColor.replace('text-', 'bg-')}"></span>
+                        ${log.status || '--'}
+                    </span>
+                </td>
+                <td class="py-3 px-5 text-sm text-secondary-text max-w-[300px]">
+                    <div class="flex flex-col">
+                        <span>${log.description || '--'}</span>
+                        ${log.patrol_notes ? `<span class="text-primary font-medium mt-1">📝 ${log.patrol_notes}</span>` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+            }).join('');
+        }
+
+        function applyFilter() {
+            loadReports();
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+
+        // Initial load
+        loadReports();
+    </script>
+</body>
+
+</html>

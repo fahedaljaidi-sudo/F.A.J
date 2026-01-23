@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>الدوريات الأمنية - نظام إدارة الحراسات الأمنية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/responsive.css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="mock-api.js"></script>
+    <script src="/mobile-nav.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-light": "#2c4a70",
+                        "surface": "#F5F7FA",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .status-normal:checked+div {
+            background-color: #ecfdf5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .status-observation:checked+div {
+            background-color: #fffbeb;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .status-danger:checked+div {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-display text-[#101418] antialiased overflow-hidden">
+    <div class="flex h-screen w-full">
+        <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <img src="/logo.png" alt="FAJ" class="w-12 h-12 object-contain bg-white/10 rounded-lg p-1" />
+                    <div>
+                        <h1 class="text-white font-bold text-lg">FAJ Security</h1>
+                        <p class="text-blue-300 text-xs">نظام الأمن الصناعي</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/dashboard.html">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-medium">لوحة القيادة</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/visitors.html">
+                    <span class="material-symbols-outlined">badge</span>
+                    <span class="font-medium">تسجيل الزوار</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/15 text-white border-r-4 border-secondary"
+                    href="#">
+                    <span class="material-symbols-outlined">local_police</span>
+                    <span class="font-bold">الدوريات الأمنية</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/reports.html">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span class="font-medium">التقارير</span>
+                </a>
+                <a id="admin-link"
+                    class="hidden flex items-center gap-3 px-4 py-3 rounded-lg text-yellow-300 hover:bg-white/10 hover:text-yellow-200 transition-colors"
+                    href="/users.html">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                    <span class="font-medium">إدارة الحراس</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-white/10">
+                <button onclick="logout()"
+                    class="w-full flex items-center justify-center gap-2 text-red-300 hover:text-red-200 hover:bg-white/5 py-2 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                    <span class="text-sm font-medium">تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#F5F7FA]">
+            <header
+                class="h-16 bg-white border-b border-[#eaedf1] flex items-center justify-between px-8 shrink-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="size-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined text-xl">local_police</span>
+                    </div>
+                    <h2 class="text-lg font-bold text-primary">نظام الأمن الصناعي - بوابة تسجيل الجولات</h2>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-bold text-gray-900" id="current-date">--</span>
+                        <span class="text-xs font-medium text-gray-500" id="current-time">--</span>
+                    </div>
+                </div>
+            </header>
+            <div class="flex-1 overflow-y-auto p-8">
+                <div class="max-w-6xl mx-auto flex flex-col gap-6">
+                    <div class="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-gray-200">
+                        <div>
+                            <h1 class="text-3xl font-black text-primary tracking-tight mb-2">سجل الجولات الميدانية</h1>
+                            <p class="text-gray-500 text-base">أدخل بيانات الجولة الجديدة بدقة. الحقول المميزة بـ *
+                                مطلوبة.</p>
+                        </div>
+                        <span
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium border border-blue-200">
+                            <span class="size-2 rounded-full bg-blue-600 animate-pulse"></span>
+                            متصل بالنظام
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        <div class="lg:col-span-8 flex flex-col gap-6">
+                            <form id="patrol-form" class="bg-white rounded shadow-sm border border-gray-200 p-6 md:p-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-gray-700 text-sm font-bold">اسم الحارس</label>
+                                        <div
+                                            class="flex items-center gap-3 px-4 h-12 rounded bg-gray-100 border border-gray-200 text-gray-500 cursor-not-allowed select-none">
+                                            <span class="material-symbols-outlined text-gray-400">person</span>
+                                            <span class="font-medium" id="form-guard-name">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-gray-700 text-sm font-bold">وقت التسجيل</label>
+                                        <div
+                                            class="flex items-center gap-3 px-4 h-12 rounded bg-gray-100 border border-gray-200 text-gray-500 cursor-not-allowed select-none">
+                                            <span class="material-symbols-outlined text-gray-400">schedule</span>
+                                            <span class="font-medium" dir="ltr" id="form-time">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-2 flex flex-col gap-2">
+                                        <label class="text-gray-900 text-sm font-bold">الموقع (Location) <span
+                                                class="text-red-500">*</span></label>
+                                        <select id="location"
+                                            class="w-full h-14 px-4 text-base bg-white border border-gray-300 rounded focus:border-primary focus:ring-1 focus:ring-primary text-gray-900 font-medium"
+                                            required>
+                                            <option disabled selected value="">اختر موقع الجولة...</option>
+                                            <option value="حرم المصنع الشمالي">حرم المصنع الشمالي (North Factory)
+                                            </option>
+                                            <option value="حرم المصنع الشرقي">حرم المصنع الشرقي (East Factory)</option>
+                                            <option value="حرم المصنع الغربي">حرم المصنع الغربي (West Factory)</option>
+                                            <option value="حرم المصنع الجنوبي">حرم المصنع الجنوبي (South Factory)
+                                            </option>
+                                            <option value="البوابة الرئيسية">البوابة الرئيسية (Main Gate)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-8">
+                                    <label class="text-gray-900 text-sm font-bold mb-3 block">الحالة الأمنية <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <label class="cursor-pointer relative">
+                                            <input checked class="peer sr-only status-normal" name="status" type="radio"
+                                                value="normal" />
+                                            <div
+                                                class="radio-card flex flex-col items-center justify-center p-4 rounded border-2 border-gray-200 hover:border-emerald-300 transition-all h-full bg-white text-gray-500">
+                                                <span
+                                                    class="material-symbols-outlined text-4xl mb-2">check_circle</span>
+                                                <span class="font-bold text-lg">طبيعي</span>
+                                                <span class="text-xs opacity-75">Normal</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer relative">
+                                            <input class="peer sr-only status-observation" name="status" type="radio"
+                                                value="observation" />
+                                            <div
+                                                class="radio-card flex flex-col items-center justify-center p-4 rounded border-2 border-gray-200 hover:border-amber-300 transition-all h-full bg-white text-gray-500">
+                                                <span class="material-symbols-outlined text-4xl mb-2">visibility</span>
+                                                <span class="font-bold text-lg">ملاحظة</span>
+                                                <span class="text-xs opacity-75">Observation</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer relative">
+                                            <input class="peer sr-only status-danger" name="status" type="radio"
+                                                value="danger" />
+                                            <div
+                                                class="radio-card flex flex-col items-center justify-center p-4 rounded border-2 border-gray-200 hover:border-red-300 transition-all h-full bg-white text-gray-500">
+                                                <span class="material-symbols-outlined text-4xl mb-2">warning</span>
+                                                <span class="font-bold text-lg">خطر</span>
+                                                <span class="text-xs opacity-75">Danger</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 gap-6 mb-8">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-gray-900 text-sm font-bold">الملاحظات</label>
+                                        <textarea id="notes"
+                                            class="w-full min-h-[100px] p-4 text-base bg-white border border-gray-300 rounded focus:border-primary focus:ring-1 focus:ring-primary resize-y text-gray-900 placeholder:text-gray-400"
+                                            placeholder="أدخل تفاصيل الجولة الأمنية والمشاهدات هنا..."></textarea>
+                                    </div>
+
+                                    <!-- Image Upload -->
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-gray-900 text-sm font-bold">إرفاق صورة</label>
+                                        <input type="file" id="patrol-image" accept="image/*"
+                                            class="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:bg-primary file:text-white hover:file:bg-primary-light cursor-pointer"
+                                            onchange="previewImage(this)">
+                                        <div id="image-preview"
+                                            class="hidden mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                            <img id="preview-img" src="" alt="Preview"
+                                                class="max-h-40 mx-auto rounded shadow-sm">
+                                            <button type="button" onclick="removeImage()"
+                                                class="mt-2 w-full text-red-600 text-sm font-bold py-2 hover:bg-red-50 rounded flex items-center justify-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                                إزالة الصورة
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
+                                    <button type="submit"
+                                        class="flex-1 h-12 bg-primary hover:bg-primary-light text-white text-base font-bold rounded shadow-sm hover:shadow transition-all flex items-center justify-center gap-2">
+                                        <span class="material-symbols-outlined">save</span>
+                                        <span>حفظ الجولة</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="lg:col-span-4 flex flex-col gap-6">
+                            <div
+                                class="bg-gradient-to-br from-primary to-primary-light rounded shadow text-white p-6 relative overflow-hidden">
+                                <h3 class="text-lg font-bold mb-1">حالة الوردية</h3>
+                                <p class="text-blue-100 text-sm mb-4">Shift Status</p>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span
+                                        class="size-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)] animate-pulse"></span>
+                                    <span class="font-bold text-2xl">نشطة</span>
+                                </div>
+                                <p class="text-sm text-blue-100 opacity-80" id="shift-progress">تم إكمال 0 جولات من أصل
+                                    6</p>
+                            </div>
+                            <div class="bg-white rounded shadow-sm border border-gray-200 flex flex-col">
+                                <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                                    <h3 class="font-bold text-gray-900">آخر السجلات</h3>
+                                </div>
+                                <div id="recent-patrols" class="divide-y divide-gray-100">
+                                    <div class="p-4 text-center text-gray-400 text-sm">جاري التحميل...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Patrol Detail Modal -->
+    <div id="patrol-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                <h3 class="font-bold text-lg text-gray-900">تفاصيل الجولة</h3>
+                <button onclick="closeModal()"
+                    class="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-gray-600">close</span>
+                </button>
+            </div>
+            <div id="modal-content" class="p-4 overflow-y-auto max-h-[calc(90vh-60px)]">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = '/';
+
+        // Update sidebar user info
+        const userNameEl = document.getElementById('guard-name'); // Changed to guard-name as per original context
+        if (userNameEl) {
+            const roleText = {
+                'admin': 'مدير النظام',
+                'supervisor': 'مشرف',
+                'guard': 'رجل أمن'
+            };
+            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
+        }
+        document.getElementById('form-guard-name').textContent = user.full_name || '--';
+
+        // Show admin link if applicable
+        if (user.role === 'admin') {
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) adminLink.classList.remove('hidden');
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-GB');
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('form-time').textContent = now.toISOString().slice(0, 19).replace('T', ' ');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        function getHeaders() {
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        }
+
+        // Load locations
+        async function loadLocations() {
+            try {
+                const response = await fetch(`${API_BASE}/patrols/locations`, { headers: getHeaders() });
+                const data = await response.json();
+                const select = document.getElementById('location');
+                (data.locations || []).forEach(loc => {
+                    const option = document.createElement('option');
+                    option.value = loc.name_ar;
+                    option.textContent = `${loc.name_ar} (${loc.name_en})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading locations:', error);
+            }
+        }
+
+        // Load recent patrols
+        async function loadRecentPatrols() {
+            try {
+                const response = await fetch(`${API_BASE}/patrols/recent?limit=10`, { headers: getHeaders() });
+                const data = await response.json();
+                patrolsData = data.patrols || [];
+                renderRecentPatrols(patrolsData);
+                loadShiftStatus();
+            } catch (error) {
+                console.error('Error loading patrols:', error);
+            }
+        }
+
+        function renderRecentPatrols(patrols) {
+            const container = document.getElementById('recent-patrols');
+            if (patrols.length === 0) {
+                container.innerHTML = '<div class="p-4 text-center text-gray-400 text-sm">لا توجد جولات</div>';
+                return;
+            }
+
+            const statusIcons = {
+                'normal': { icon: 'check_circle', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                'observation': { icon: 'visibility', color: 'text-amber-500', bg: 'bg-amber-50' },
+                'danger': { icon: 'warning', color: 'text-red-600', bg: 'bg-red-50' }
+            };
+
+            const statusText = {
+                'normal': 'طبيعي',
+                'observation': 'ملاحظة',
+                'danger': 'خطر'
+            };
+
+            container.innerHTML = patrols.map(p => {
+                const status = statusIcons[p.security_status] || statusIcons.normal;
+                const time = new Date(p.patrol_time);
+                const ago = getTimeAgo(time);
+                const isResolved = p.is_resolved || false;
+
+                return `
+                <div class="p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
+                    <div class="flex items-start gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-full ${status.bg} flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined ${status.color} text-lg">${status.icon}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-gray-900">${p.location}</p>
+                            <p class="text-xs text-gray-500">${ago} • ${statusText[p.security_status]}</p>
+                            ${p.notes ? `<p class="text-xs text-gray-600 mt-1 truncate">${p.notes}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mr-11">
+                        <button onclick="viewPatrol(${p.id})" class="text-xs px-2 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center gap-1" title="معاينة">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                            معاينة
+                        </button>
+                        <select onchange="changeStatus(${p.id}, this.value)" class="text-xs px-2 py-1 rounded border cursor-pointer ${p.resolution_status === 'closed' ? 'bg-green-100 text-green-700 border-green-300' :
+                        p.resolution_status === 'in_progress' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
+                            'bg-gray-100 text-gray-600 border-gray-300'
+                    }">
+                            <option value="pending" ${p.resolution_status === 'pending' || !p.resolution_status ? 'selected' : ''}>لا تزال</option>
+                            <option value="in_progress" ${p.resolution_status === 'in_progress' ? 'selected' : ''}>تحت التنفيذ</option>
+                            <option value="closed" ${p.resolution_status === 'closed' ? 'selected' : ''}>مغلق</option>
+                        </select>
+                        <button onclick="editPatrol(${p.id})" class="text-xs px-2 py-1 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center gap-1" title="تعديل">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // Store patrols data for modal access
+        let patrolsData = [];
+
+        // View patrol details in modal
+        async function viewPatrol(id) {
+            const patrol = patrolsData.find(p => p.id === id);
+            if (!patrol) return;
+
+            const statusInfo = {
+                'normal': { text: 'طبيعي', color: 'bg-emerald-100 text-emerald-700' },
+                'observation': { text: 'ملاحظة', color: 'bg-amber-100 text-amber-700' },
+                'danger': { text: 'خطر', color: 'bg-red-100 text-red-700' }
+            };
+            const status = statusInfo[patrol.security_status] || statusInfo.normal;
+            const time = new Date(patrol.patrol_time).toLocaleString('ar-SA');
+
+            document.getElementById('modal-content').innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-3xl">location_on</span>
+                        <div>
+                            <p class="text-xs text-gray-500">الموقع</p>
+                            <p class="font-bold text-gray-900">${patrol.location}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="text-xs text-gray-500">الحالة الأمنية</p>
+                            <span class="inline-block mt-1 px-2 py-1 rounded text-xs font-bold ${status.color}">${status.text}</span>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="text-xs text-gray-500">التاريخ والوقت</p>
+                            <p class="font-bold text-gray-900 text-sm mt-1">${time}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">الحارس</p>
+                        <p class="font-bold text-gray-900">${patrol.guard_name || 'غير محدد'}</p>
+                    </div>
+
+                    ${patrol.notes ? `
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500 mb-1">الملاحظات</p>
+                        <p class="text-gray-800">${patrol.notes}</p>
+                    </div>
+                    ` : ''}
+
+                    ${patrol.attachments ? `
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500 mb-2">الصورة المرفقة</p>
+                        <img src="${patrol.attachments}" alt="صورة مرفقة" class="w-full rounded-lg shadow-sm">
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            openModal();
+        }
+
+        // Edit patrol
+        function editPatrol(id) {
+            const patrol = patrolsData.find(p => p.id === id);
+            if (!patrol) return;
+
+            document.getElementById('modal-content').innerHTML = `
+                <form id="edit-form" class="space-y-4">
+                    <input type="hidden" id="edit-id" value="${patrol.id}">
+                    
+                    <div>
+                        <label class="text-sm font-bold text-gray-700">الموقع</label>
+                        <select id="edit-location" class="w-full mt-1 p-3 border rounded-lg">
+                            <option value="حرم المصنع الشمالي" ${patrol.location === 'حرم المصنع الشمالي' ? 'selected' : ''}>حرم المصنع الشمالي</option>
+                            <option value="حرم المصنع الشرقي" ${patrol.location === 'حرم المصنع الشرقي' ? 'selected' : ''}>حرم المصنع الشرقي</option>
+                            <option value="حرم المصنع الغربي" ${patrol.location === 'حرم المصنع الغربي' ? 'selected' : ''}>حرم المصنع الغربي</option>
+                            <option value="حرم المصنع الجنوبي" ${patrol.location === 'حرم المصنع الجنوبي' ? 'selected' : ''}>حرم المصنع الجنوبي</option>
+                            <option value="البوابة الرئيسية" ${patrol.location === 'البوابة الرئيسية' ? 'selected' : ''}>البوابة الرئيسية</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-bold text-gray-700">الحالة الأمنية</label>
+                        <select id="edit-status" class="w-full mt-1 p-3 border rounded-lg">
+                            <option value="normal" ${patrol.security_status === 'normal' ? 'selected' : ''}>طبيعي</option>
+                            <option value="observation" ${patrol.security_status === 'observation' ? 'selected' : ''}>ملاحظة</option>
+                            <option value="danger" ${patrol.security_status === 'danger' ? 'selected' : ''}>خطر</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-bold text-gray-700">الملاحظات</label>
+                        <textarea id="edit-notes" class="w-full mt-1 p-3 border rounded-lg min-h-[100px]">${patrol.notes || ''}</textarea>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-light">
+                        حفظ التعديلات
+                    </button>
+                </form>
+            `;
+
+            document.getElementById('edit-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('edit-id').value;
+                const location = document.getElementById('edit-location').value;
+                const status = document.getElementById('edit-status').value;
+                const notes = document.getElementById('edit-notes').value;
+
+                try {
+                    const response = await fetch(`${API_BASE}/patrols/${id}`, {
+                        method: 'PUT',
+                        headers: getHeaders(),
+                        body: JSON.stringify({ location, security_status: status, notes })
+                    });
+                    if (response.ok) {
+                        alert('تم حفظ التعديلات بنجاح ✓');
+                        closeModal();
+                        loadRecentPatrols();
+                    } else {
+                        alert('حدث خطأ أثناء الحفظ');
+                    }
+                } catch (error) {
+                    console.error('Error saving:', error);
+                    alert('خطأ في الاتصال بالخادم');
+                }
+            });
+
+            openModal();
+        }
+
+        // Change resolution status
+        async function changeStatus(id, newStatus) {
+            try {
+                const response = await fetch(`${API_BASE}/patrols/${id}/status`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ resolution_status: newStatus })
+                });
+                if (response.ok) {
+                    loadRecentPatrols();
+                }
+            } catch (error) {
+                console.error('Error changing status:', error);
+            }
+        }
+
+        function openModal() {
+            document.getElementById('patrol-modal').classList.remove('hidden');
+            document.getElementById('patrol-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('patrol-modal').classList.add('hidden');
+            document.getElementById('patrol-modal').classList.remove('flex');
+        }
+
+        function getTimeAgo(date) {
+            const mins = Math.floor((new Date() - date) / 60000);
+            if (mins < 1) return 'الآن';
+            if (mins < 60) return `منذ ${mins} دقيقة`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            return `منذ ${Math.floor(hours / 24)} يوم`;
+        }
+
+        async function loadShiftStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/patrols/shift-status`, { headers: getHeaders() });
+                const data = await response.json();
+                document.getElementById('shift-progress').textContent = `تم إكمال ${data.completed} جولات من أصل ${data.expected}`;
+            } catch (error) {
+                console.error('Error loading shift status:', error);
+            }
+        }
+
+        // Image handling
+        let imageBase64 = null;
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                // Check file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('حجم الصورة كبير جداً. الحد الأقصى 5MB');
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imageBase64 = e.target.result;
+                    document.getElementById('preview-img').src = imageBase64;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            imageBase64 = null;
+            document.getElementById('patrol-image').value = '';
+            document.getElementById('preview-img').src = '';
+            document.getElementById('image-preview').classList.add('hidden');
+        }
+
+        // Submit patrol
+        document.getElementById('patrol-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                location: document.getElementById('location').value,
+                security_status: document.querySelector('input[name="status"]:checked').value,
+                notes: document.getElementById('notes').value,
+                image: imageBase64 || null
+            };
+
+            if (!formData.location) {
+                alert('يرجى اختيار الموقع');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/patrols`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('تم تسجيل الجولة بنجاح ✓');
+                    document.getElementById('patrol-form').reset();
+                    document.querySelector('input[value="normal"]').checked = true;
+                    removeImage();
+                    loadRecentPatrols();
+                } else {
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+
+        // Initial load
+        loadRecentPatrols();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>لوحة القيادة - نظام إدارة الحراسات الأمنية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/responsive.css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="mock-api.js"></script>
+    <script src="/mobile-nav.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#233b5c",
+                        "secondary": "#4C8E4D",
+                        "surface": "#F5F7FA",
+                        "border-color": "#e2e8f0",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .stat-card {
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-[#101418] min-h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
+        <div class="p-6 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <img src="/logo.png" alt="FAJ" class="w-12 h-12 object-contain bg-white/10 rounded-lg p-1" />
+                <div>
+                    <h1 class="text-white font-bold text-lg">FAJ Security</h1>
+                    <p class="text-blue-300 text-xs">نظام الأمن الصناعي</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/15 text-white border-r-4 border-secondary"
+                href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-bold">لوحة القيادة</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                href="/visitors.html">
+                <span class="material-symbols-outlined">badge</span>
+                <span class="font-medium">تسجيل الزوار</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                href="/patrols.html">
+                <span class="material-symbols-outlined">local_police</span>
+                <span class="font-medium">الدوريات الأمنية</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                href="/reports.html">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-medium">التقارير</span>
+            </a>
+            <a id="admin-link"
+                class="hidden flex items-center gap-3 px-4 py-3 rounded-lg text-yellow-300 hover:bg-white/10 hover:text-yellow-200 transition-colors"
+                href="/users.html">
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span class="font-medium">إدارة الحراس</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/10">
+            <button onclick="logout()"
+                class="w-full flex items-center justify-center gap-2 text-red-300 hover:text-red-200 hover:bg-white/5 py-2 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span class="text-sm font-medium">تسجيل الخروج</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Header -->
+        <header
+            class="h-16 bg-white border-b border-border-color flex items-center justify-between px-4 md:px-8 shrink-0">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-lg md:text-xl font-bold text-primary truncate">لوحة القيادة الرئيسية</h2>
+                <p class="text-xs md:text-sm text-gray-500 hidden sm:block" id="current-date">--</p>
+            </div>
+            <div class="flex items-center gap-2 md:gap-4">
+                <div
+                    class="hidden md:flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-200">
+                    <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-xs font-bold">النظام متصل</span>
+                </div>
+                <div class="h-6 w-px bg-gray-200 hidden md:block"></div>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xs md:text-sm font-bold text-gray-900" id="user-name">--</p>
+                        <p class="text-xs text-gray-500" id="user-role">--</p>
+                    </div>
+                    <div
+                        class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-lg md:text-xl">person</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-7xl mx-auto space-y-6">
+                <!-- Stats Cards Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Visitors Inside -->
+                    <div
+                        class="stat-card bg-gradient-to-br from-primary to-primary-hover text-white rounded-xl p-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-blue-400"></div>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-blue-200 text-sm font-medium mb-1">الزوار في الداخل</p>
+                                <h3 class="text-4xl font-black" id="stat-visitors-inside">٠</h3>
+                                <p class="text-blue-300 text-xs mt-2" id="stat-visitors-today">اليوم: ٠ زائر</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-3xl text-white/80">groups</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patrols Today -->
+                    <div class="stat-card bg-white rounded-xl p-6 border border-border-color relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium mb-1">جولات اليوم</p>
+                                <h3 class="text-4xl font-black text-gray-900" id="stat-patrols-today">٠</h3>
+                                <p class="text-gray-400 text-xs mt-2" id="stat-patrols-expected">المطلوب: ٦ جولات</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-3xl text-emerald-600">shield</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Entries Today -->
+                    <div class="stat-card bg-white rounded-xl p-6 border border-border-color relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium mb-1">دخول اليوم</p>
+                                <h3 class="text-4xl font-black text-gray-900" id="stat-entries-today">٠</h3>
+                                <p class="text-gray-400 text-xs mt-2" id="stat-exits-today">خروج: ٠</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-3xl text-blue-600">login</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observations/Alerts -->
+                    <div class="stat-card bg-white rounded-xl p-6 border border-border-color relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium mb-1">ملاحظات أمنية</p>
+                                <h3 class="text-4xl font-black text-gray-900" id="stat-observations">٠</h3>
+                                <p class="text-red-500 text-xs mt-2 font-bold" id="stat-dangers">تنبيهات: ٠</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-xl bg-amber-50 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-3xl text-amber-600">visibility</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="lg:col-span-2 bg-white rounded-xl border border-border-color overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-border-color flex items-center justify-between bg-gray-50/50">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">history</span>
+                                <h3 class="font-bold text-gray-900">آخر الأحداث</h3>
+                            </div>
+                            <a href="/reports.html" class="text-primary text-sm font-medium hover:underline">عرض الكل
+                                ←</a>
+                        </div>
+                        <div id="recent-activity" class="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
+                            <div class="p-6 text-center text-gray-400">جاري تحميل البيانات...</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions & Status -->
+                    <div class="space-y-6">
+                        <!-- Quick Actions -->
+                        <div class="bg-white rounded-xl border border-border-color overflow-hidden">
+                            <div class="px-6 py-4 border-b border-border-color bg-gray-50/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">bolt</span>
+                                    <h3 class="font-bold text-gray-900">إجراءات سريعة</h3>
+                                </div>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <a href="/visitors.html"
+                                    class="flex items-center gap-3 p-3 rounded-lg border border-border-color hover:border-primary hover:bg-primary/5 transition-all group">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                                        <span class="material-symbols-outlined text-blue-600">person_add</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900 text-sm">تسجيل زائر جديد</p>
+                                        <p class="text-xs text-gray-500">إضافة دخول زائر</p>
+                                    </div>
+                                </a>
+                                <a href="/patrols.html"
+                                    class="flex items-center gap-3 p-3 rounded-lg border border-border-color hover:border-primary hover:bg-primary/5 transition-all group">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                                        <span class="material-symbols-outlined text-emerald-600">add_location_alt</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900 text-sm">تسجيل جولة أمنية</p>
+                                        <p class="text-xs text-gray-500">إضافة جولة ميدانية</p>
+                                    </div>
+                                </a>
+                                <a href="/reports.html"
+                                    class="flex items-center gap-3 p-3 rounded-lg border border-border-color hover:border-primary hover:bg-primary/5 transition-all group">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+                                        <span class="material-symbols-outlined text-purple-600">summarize</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900 text-sm">عرض التقارير</p>
+                                        <p class="text-xs text-gray-500">تقارير يومية وشهرية</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Shift Status -->
+                        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-6 text-white">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined">schedule</span>
+                                <h3 class="font-bold">حالة الوردية</h3>
+                            </div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <span
+                                    class="size-3 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.6)] animate-pulse"></span>
+                                <span class="font-bold text-xl">الوردية نشطة</span>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-3">
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>تقدم الجولات</span>
+                                    <span id="patrol-progress-text">0/6</span>
+                                </div>
+                                <div class="w-full h-2 bg-white/30 rounded-full overflow-hidden">
+                                    <div id="patrol-progress-bar" class="h-full bg-white rounded-full transition-all"
+                                        style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Visitors Table -->
+                <div class="bg-white rounded-xl border border-border-color overflow-hidden">
+                    <div class="px-6 py-4 border-b border-border-color flex items-center justify-between bg-gray-50/50">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">recent_actors</span>
+                            <h3 class="font-bold text-gray-900">آخر الزوار المسجلين</h3>
+                        </div>
+                        <a href="/visitors.html" class="text-primary text-sm font-medium hover:underline">إدارة الزوار
+                            ←</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-right">
+                            <thead class="bg-gray-50 border-b border-border-color">
+                                <tr>
+                                    <th class="px-6 py-3 font-bold text-gray-600">الاسم</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600">الجهة</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600">وقت الدخول</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600 text-center">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-visitors" class="divide-y divide-gray-100">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-8 text-center text-gray-400">جاري التحميل...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = '/api';
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) window.location.href = '/';
+
+        // Update sidebar user info
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+            const roleText = {
+                'admin': 'مدير النظام',
+                'supervisor': 'مشرف',
+                'guard': 'رجل أمن'
+            };
+            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
+        }
+
+        // Show admin link if applicable
+        if (user.role === 'admin') {
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) adminLink.classList.remove('hidden');
+        } // Update date
+        const now = new Date();
+        document.getElementById('current-date').textContent = now.toLocaleDateString('ar-SA', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        function getHeaders() {
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        }
+
+        function toArabicNum(num) {
+            return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+        }
+
+        // Load all dashboard data
+        async function loadDashboard() {
+            await Promise.all([
+                loadVisitorStats(),
+                loadPatrolStats(),
+                loadRecentActivity(),
+                loadRecentVisitors()
+            ]);
+        }
+
+        async function loadVisitorStats() {
+            try {
+                const response = await fetch(`${API_BASE}/visitors/stats`, { headers: getHeaders() });
+                if (response.status === 401) { logout(); return; }
+                const data = await response.json();
+
+                document.getElementById('stat-visitors-inside').textContent = toArabicNum(data.today?.inside || 0);
+                document.getElementById('stat-visitors-today').textContent = `اليوم: ${toArabicNum(data.today?.total || 0)} زائر`;
+                document.getElementById('stat-entries-today').textContent = toArabicNum(data.today?.total || 0);
+                document.getElementById('stat-exits-today').textContent = `خروج: ${toArabicNum(data.today?.left || 0)}`;
+            } catch (error) {
+                console.error('Error loading visitor stats:', error);
+            }
+        }
+
+        async function loadPatrolStats() {
+            try {
+                const response = await fetch(`${API_BASE}/patrols/shift-status`, { headers: getHeaders() });
+                const data = await response.json();
+
+                document.getElementById('stat-patrols-today').textContent = toArabicNum(data.completed || 0);
+                document.getElementById('stat-patrols-expected').textContent = `المطلوب: ${toArabicNum(data.expected || 6)} جولات`;
+                document.getElementById('stat-observations').textContent = toArabicNum(data.observation || 0);
+                document.getElementById('stat-dangers').textContent = `تنبيهات: ${toArabicNum(data.danger || 0)}`;
+
+                // Update progress bar
+                const progress = Math.min((data.completed / data.expected) * 100, 100);
+                document.getElementById('patrol-progress-bar').style.width = `${progress}%`;
+                document.getElementById('patrol-progress-text').textContent = `${data.completed}/${data.expected}`;
+            } catch (error) {
+                console.error('Error loading patrol stats:', error);
+            }
+        }
+
+        async function loadRecentActivity() {
+            try {
+                const response = await fetch(`${API_BASE}/reports/recent?limit=8`, { headers: getHeaders() });
+                const data = await response.json();
+
+                const container = document.getElementById('recent-activity');
+                const logs = data.logs || [];
+
+                if (logs.length === 0) {
+                    container.innerHTML = '<div class="p-6 text-center text-gray-400">لا توجد أحداث مسجلة</div>';
+                    return;
+                }
+
+                const eventTypes = {
+                    'visitor_entry': { icon: 'login', color: 'text-blue-600', bg: 'bg-blue-50', text: 'دخول زائر' },
+                    'visitor_exit': { icon: 'logout', color: 'text-gray-600', bg: 'bg-gray-100', text: 'خروج زائر' },
+                    'patrol': { icon: 'shield', color: 'text-emerald-600', bg: 'bg-emerald-50', text: 'جولة أمنية' },
+                    'system': { icon: 'settings', color: 'text-purple-600', bg: 'bg-purple-50', text: 'نظام' }
+                };
+
+                container.innerHTML = logs.map(log => {
+                    const event = eventTypes[log.event_type] || eventTypes.system;
+                    const time = new Date(log.event_time);
+                    const timeAgo = getTimeAgo(time);
+
+                    return `
+                        <div class="px-6 py-4 hover:bg-gray-50/50 transition-colors flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg ${event.bg} flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined ${event.color}">${event.icon}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-gray-900 text-sm">${log.description || event.text}</p>
+                                <p class="text-xs text-gray-500 mt-1">${log.user_name || '--'} • ${timeAgo}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+            }
+        }
+
+        async function loadRecentVisitors() {
+            try {
+                const response = await fetch(`${API_BASE}/visitors/today`, { headers: getHeaders() });
+                const data = await response.json();
+
+                const tbody = document.getElementById('recent-visitors');
+                const visitors = (data.visitors || []).slice(0, 5);
+
+                if (visitors.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">لا يوجد زوار اليوم</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = visitors.map(v => {
+                    const time = new Date(v.entry_time);
+                    return `
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-gray-900">${v.full_name}</td>
+                            <td class="px-6 py-4 text-gray-600">${v.company || '-'}</td>
+                            <td class="px-6 py-4 text-gray-600 font-mono">${time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${v.status === 'inside' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+                                    ${v.status === 'inside' ? 'داخل' : 'غادر'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading recent visitors:', error);
+            }
+        }
+
+        function getTimeAgo(date) {
+            const mins = Math.floor((new Date() - date) / 60000);
+            if (mins < 1) return 'الآن';
+            if (mins < 60) return `منذ ${mins} دقيقة`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            return `منذ ${Math.floor(hours / 24)} يوم`;
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+
+        // Initial load
+        loadDashboard();
+
+        // Refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+
+</html>

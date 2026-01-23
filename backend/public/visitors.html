@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>تسجيل الزوار - نظام إدارة الحراسات الأمنية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/responsive.css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="mock-api.js"></script>
+    <script src="/mobile-nav.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#2c4a6e",
+                        "secondary": "#4C8E4D",
+                        "background-light": "#ffffff",
+                        "surface-light": "#F5F7FA",
+                        "border-light": "#e2e8f0",
+                        "text-main": "#101418",
+                        "text-sub": "#5c6f8a",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "Noto Sans Arabic", "sans-serif"],
+                        "body": ["Public Sans", "Noto Sans Arabic", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .form-input {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .form-input:focus {
+            box-shadow: 0 0 0 2px rgba(22, 40, 65, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light text-text-main h-screen flex overflow-hidden font-body">
+    <div class="flex h-screen w-full">
+        <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <img src="/logo.png" alt="FAJ" class="w-12 h-12 object-contain bg-white/10 rounded-lg p-1" />
+                    <div>
+                        <h1 class="text-white font-bold text-lg">FAJ Security</h1>
+                        <p class="text-blue-300 text-xs">نظام الأمن الصناعي</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/dashboard.html">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-medium">لوحة القيادة</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/15 text-white border-r-4 border-secondary"
+                    href="#">
+                    <span class="material-symbols-outlined">badge</span>
+                    <span class="font-bold">تسجيل الزوار</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/patrols.html">
+                    <span class="material-symbols-outlined">local_police</span>
+                    <span class="font-medium">الدوريات الأمنية</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors"
+                    href="/reports.html">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span class="font-medium">التقارير</span>
+                </a>
+                <a id="admin-link"
+                    class="hidden flex items-center gap-3 px-4 py-3 rounded-lg text-yellow-300 hover:bg-white/10 hover:text-yellow-200 transition-colors"
+                    href="/users.html">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                    <span class="font-medium">إدارة الحراس</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-white/10">
+                <button onclick="logout()"
+                    class="w-full flex items-center justify-center gap-2 text-red-300 hover:text-red-200 hover:bg-white/5 py-2 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                    <span class="text-sm font-medium">تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col xl:flex-row overflow-hidden bg-surface-light relative">
+            <!-- Mobile Form Toggle Button -->
+            <button id="mobile-form-toggle"
+                class="xl:hidden fixed bottom-6 left-6 z-50 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg flex items-center justify-center transition-all">
+                <span class="material-symbols-outlined text-2xl">person_add</span>
+            </button>
+
+            <!-- Visitor Registration Form Sidebar -->
+            <aside id="visitor-form-sidebar"
+                class="fixed xl:relative top-0 right-0 h-full w-full xl:w-[400px] 2xl:w-[450px] bg-white border-l border-border-light flex flex-col z-40 shadow-2xl xl:shadow-none overflow-y-auto transform translate-x-full xl:translate-x-0 transition-transform duration-300 shrink-0">
+                <div class="p-6 border-b border-border-light bg-surface-light/30">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">person_add</span>
+                            <h2 class="text-xl font-bold text-primary">تسجيل دخول زائر</h2>
+                        </div>
+                        <button id="close-form-btn"
+                            class="xl:hidden w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-gray-600">close</span>
+                        </button>
+                    </div>
+                    <p class="text-sm text-text-sub">الرجاء تعبئة جميع الحقول المطلوبة بدقة.</p>
+                </div>
+                <form id="visitor-form" class="flex-1 p-6 space-y-5">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-text-main mb-1.5">الاسم الكامل *</label>
+                            <div class="relative">
+                                <input id="full_name"
+                                    class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400"
+                                    placeholder="اسم الزائر الثلاثي" type="text" required />
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">badge</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main mb-1.5">رقم الهوية / الإقامة
+                                    *</label>
+                                <input id="id_number"
+                                    class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400 font-mono"
+                                    placeholder="##########" type="text" required />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main mb-1.5">رقم الجوال</label>
+                                <input id="phone"
+                                    class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400 dir-ltr text-right"
+                                    placeholder="05xxxxxxxx" type="tel" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="border-gray-100" />
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-text-main mb-1.5">الشركة / الجهة</label>
+                            <div class="relative">
+                                <input id="company"
+                                    class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400"
+                                    placeholder="اسم الشركة التابع لها" type="text" />
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[20px]">business</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main mb-1.5">الشخص المضيف</label>
+                                <input id="host_name"
+                                    class="form-input w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 placeholder-gray-400"
+                                    placeholder="اسم الموظف" type="text" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main mb-1.5">سبب الزيارة</label>
+                                <select id="visit_reason"
+                                    class="form-select w-full bg-white border border-gray-300 rounded-sm px-3 py-2.5 text-sm focus:border-primary focus:ring-0 text-text-main">
+                                    <option>اجتماع عمل</option>
+                                    <option>توصيل طلبية</option>
+                                    <option>مقابلة شخصية</option>
+                                    <option>أعمال صيانة</option>
+                                    <option>أخرى</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-surface-light rounded-sm p-3 border border-gray-200 mt-6 grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-xs text-text-sub block mb-1">وقت الدخول</span>
+                            <div class="flex items-center gap-1.5 text-primary font-bold font-mono text-sm">
+                                <span class="material-symbols-outlined text-[16px]">access_time</span>
+                                <span class="dir-ltr" id="entry-time">--:-- --</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-xs text-text-sub block mb-1">المسؤول المناوب</span>
+                            <div class="flex items-center gap-1.5 text-primary font-bold text-sm">
+                                <span class="material-symbols-outlined text-[16px]">verified_user</span>
+                                <span id="guard-name">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-4 flex gap-3">
+                        <button type="submit"
+                            class="flex-1 bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-4 rounded-sm transition-colors shadow-sm flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">login</span>
+                            تسجيل دخول
+                        </button>
+                        <button type="reset"
+                            class="bg-white hover:bg-gray-50 text-text-sub font-medium py-3 px-4 rounded-sm border border-gray-300 transition-colors">
+                            مسح
+                        </button>
+                    </div>
+                </form>
+            </aside>
+            <section class="flex-1 bg-surface-light flex flex-col h-full overflow-hidden">
+                <!-- Header -->
+                <header
+                    class="h-16 bg-white border-b border-border-light flex items-center justify-between px-4 md:px-6 shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-lg md:text-xl font-bold text-primary truncate">تسجيل الزوار</h2>
+                        <p class="text-xs text-gray-500 hidden sm:block" id="current-datetime">--</p>
+                    </div>
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-xs md:text-sm font-bold text-gray-900" id="user-name">--</p>
+                            <p class="text-xs text-gray-500" id="user-role">--</p>
+                        </div>
+                        <div
+                            class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                            <span class="material-symbols-outlined text-lg md:text-xl">person</span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Main Content -->
+                <div class="flex-1 p-4 md:p-6 overflow-hidden flex flex-col">
+                    <div class="flex items-center justify-between mb-4 shrink-0 flex-wrap gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white p-2 rounded-sm border border-border-light shadow-sm">
+                                <span class="material-symbols-outlined text-primary">list_alt</span>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-primary">سجل زوار اليوم</h2>
+                                <p class="text-sm text-text-sub" id="today-date">--</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="relative">
+                                <input id="search-input"
+                                    class="pl-3 pr-9 py-2 rounded-sm border border-gray-300 text-sm focus:border-primary focus:ring-0 w-64"
+                                    placeholder="بحث بالاسم أو الهوية..." type="text" />
+                                <span
+                                    class="material-symbols-outlined absolute right-2.5 top-2 text-gray-400 text-[18px]">search</span>
+                            </div>
+                            <button onclick="window.print()"
+                                class="bg-white hover:bg-gray-50 text-primary border border-gray-300 px-3 py-2 rounded-sm flex items-center gap-2 transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">print</span>
+                                <span class="text-sm font-medium">طباعة التقرير</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        class="flex-1 bg-white border border-border-light rounded-sm shadow-sm overflow-hidden flex flex-col">
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-sm text-right">
+                                <thead
+                                    class="bg-gray-50 text-text-sub font-semibold border-b border-border-light sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3 whitespace-nowrap">اسم الزائر</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">رقم الهوية</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">رقم الجوال</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">الجهة / الشركة</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">المضيف</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">وقت الدخول</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">وقت الخروج</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">الحالة</th>
+                                        <th class="px-4 py-3 whitespace-nowrap text-center">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="visitors-table" class="divide-y divide-gray-100">
+                                    <tr>
+                                        <td colspan="9" class="px-4 py-8 text-center text-gray-400">جاري تحميل
+                                            البيانات...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            class="bg-gray-50 border-t border-border-light px-4 py-3 flex items-center justify-between mt-auto">
+                            <p class="text-xs text-text-sub" id="visitors-count">--</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <div
+                            class="bg-primary text-white p-4 rounded-sm flex items-center justify-between shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-blue-400"></div>
+                            <div>
+                                <p class="text-blue-200 text-xs font-medium mb-1">الزوار في الداخل</p>
+                                <h3 class="text-2xl font-bold" id="stat-inside">٠</h3>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-white/20 text-4xl group-hover:scale-110 transition-transform">groups</span>
+                        </div>
+                        <div
+                            class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-green-500"></div>
+                            <div>
+                                <p class="text-gray-500 text-xs font-medium mb-1">إجمالي الدخول</p>
+                                <h3 class="text-2xl font-bold text-gray-800" id="stat-total">٠</h3>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">login</span>
+                        </div>
+                        <div
+                            class="bg-white p-4 rounded-sm border border-border-light flex items-center justify-between shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-gray-400"></div>
+                            <div>
+                                <p class="text-gray-500 text-xs font-medium mb-1">إجمالي الخروج</p>
+                                <h3 class="text-2xl font-bold text-gray-800" id="stat-left">٠</h3>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-gray-200 text-4xl group-hover:scale-110 transition-transform">logout</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // Check authentication
+        if (!token) {
+            window.location.href = '/';
+        }
+
+        // Update sidebar user info
+        const userNameEl = document.getElementById('user-name');
+        const userRoleEl = document.getElementById('user-role');
+        if (userNameEl) {
+            const roleText = {
+                'admin': 'مدير النظام',
+                'supervisor': 'مشرف',
+                'guard': 'رجل أمن'
+            };
+            userNameEl.textContent = user.full_name || '--';
+            if (userRoleEl) {
+                userRoleEl.textContent = roleText[user.role] || user.role || '--';
+            }
+        }
+
+        // Show admin link if applicable
+        if (user.role === 'admin') {
+            const adminLink = document.getElementById('admin-link');
+            if (adminLink) adminLink.classList.remove('hidden');
+        }
+
+        // Update guard name in form
+        const guardNameEl = document.getElementById('guard-name');
+        if (guardNameEl) {
+            guardNameEl.textContent = user.full_name || '--';
+        }
+
+        // Update current time
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            const datetimeEl = document.getElementById('current-datetime');
+            if (datetimeEl) datetimeEl.textContent = timeStr;
+
+            const todayDateEl = document.getElementById('today-date');
+            if (todayDateEl) todayDateEl.textContent = dateStr;
+
+            const entryTimeEl = document.getElementById('entry-time');
+            if (entryTimeEl) entryTimeEl.textContent = timeStr;
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+
+        // Fetch headers
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        // Load today's visitors
+        async function loadVisitors() {
+            try {
+                const response = await fetch(`${API_BASE}/visitors/today`, { headers: getHeaders() });
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return;
+                }
+                const data = await response.json();
+                renderVisitors(data.visitors || []);
+                loadStats();
+            } catch (error) {
+                console.error('Error loading visitors:', error);
+            }
+        }
+
+        // Render visitors table
+        function renderVisitors(visitors) {
+            const tbody = document.getElementById('visitors-table');
+
+            if (visitors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">لا يوجد زوار مسجلين اليوم</td></tr>';
+                document.getElementById('visitors-count').textContent = 'لا يوجد زوار';
+                return;
+            }
+
+            tbody.innerHTML = visitors.map(v => `
+        <tr class="hover:bg-blue-50/30 transition-colors group ${v.status === 'left' ? 'bg-gray-50/30' : ''}">
+            <td class="px-4 py-3 font-medium ${v.status === 'left' ? 'text-gray-500' : 'text-text-main'}">${v.full_name}</td>
+            <td class="px-4 py-3 font-mono ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.id_number}</td>
+            <td class="px-4 py-3 font-mono dir-ltr text-right ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.phone || '-'}</td>
+            <td class="px-4 py-3 ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.company || '-'}</td>
+            <td class="px-4 py-3 ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.host_name || '-'}</td>
+            <td class="px-4 py-3 text-center font-mono dir-ltr">${formatTime(v.entry_time)}</td>
+            <td class="px-4 py-3 text-center font-mono dir-ltr ${v.exit_time ? 'text-gray-800 font-medium' : 'text-gray-400'}">${v.exit_time ? formatTime(v.exit_time) : '--:--'}</td>
+            <td class="px-4 py-3 text-center">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${v.status === 'inside' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+                    ${v.status === 'inside' ? 'داخل المنشأة' : 'غادر الموقع'}
+                </span>
+            </td>
+            <td class="px-4 py-3 text-center">
+                <div class="flex items-center justify-center gap-2">
+                    ${v.status === 'inside' ? `
+                        <button onclick="checkoutVisitor(${v.id})" class="text-red-600 hover:bg-red-50 p-1.5 rounded flex items-center gap-1 border border-transparent hover:border-red-200 transition-all" title="تسجيل خروج">
+                            <span class="material-symbols-outlined text-[18px]">logout</span>
+                            <span class="text-xs font-bold">خروج</span>
+                        </button>
+                    ` : `
+                        <span class="text-gray-400 p-1.5">
+                            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        </span>
+                    `}
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+            document.getElementById('visitors-count').textContent = `عرض ${visitors.length} زائر`;
+        }
+
+        // Format time
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/visitors/stats`, { headers: getHeaders() });
+                const data = await response.json();
+                document.getElementById('stat-inside').textContent = toArabicNum(data.today?.inside || 0);
+                document.getElementById('stat-total').textContent = toArabicNum(data.today?.total || 0);
+                document.getElementById('stat-left').textContent = toArabicNum(data.today?.left || 0);
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Convert to Arabic numerals
+        function toArabicNum(num) {
+            return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+        }
+
+        // Register new visitor
+        document.getElementById('visitor-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                full_name: document.getElementById('full_name').value,
+                id_number: document.getElementById('id_number').value,
+                phone: document.getElementById('phone').value,
+                company: document.getElementById('company').value,
+                host_name: document.getElementById('host_name').value,
+                visit_reason: document.getElementById('visit_reason').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/visitors`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('تم تسجيل الزائر بنجاح ✓');
+                    document.getElementById('visitor-form').reset();
+                    loadVisitors();
+                } else {
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        });
+
+        // Checkout visitor
+        async function checkoutVisitor(id) {
+            if (!confirm('هل تريد تسجيل خروج هذا الزائر؟')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/visitors/${id}/checkout`, {
+                    method: 'PUT',
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    loadVisitors();
+                } else {
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        // Search
+        document.getElementById('search-input').addEventListener('input', async (e) => {
+            const search = e.target.value;
+            if (search.length < 2) {
+                loadVisitors();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/visitors?search=${encodeURIComponent(search)}`, { headers: getHeaders() });
+                const data = await response.json();
+                renderVisitors(data.visitors || []);
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        });
+
+        // Mobile form toggle functionality
+        const mobileFormToggle = document.getElementById('mobile-form-toggle');
+        const visitorFormSidebar = document.getElementById('visitor-form-sidebar');
+        const closeFormBtn = document.getElementById('close-form-btn');
+
+        function openVisitorForm() {
+            visitorFormSidebar.classList.remove('translate-x-full');
+            visitorFormSidebar.classList.add('translate-x-0');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+
+        function closeVisitorForm() {
+            visitorFormSidebar.classList.remove('translate-x-0');
+            visitorFormSidebar.classList.add('translate-x-full');
+            document.body.style.overflow = ''; // Restore scroll
+        }
+
+        if (mobileFormToggle) {
+            mobileFormToggle.addEventListener('click', openVisitorForm);
+        }
+
+        if (closeFormBtn) {
+            closeFormBtn.addEventListener('click', closeVisitorForm);
+        }
+
+        // Close form when clicking outside on mobile
+        if (visitorFormSidebar) {
+            visitorFormSidebar.addEventListener('click', function (e) {
+                if (e.target === visitorFormSidebar && window.innerWidth < 1280) {
+                    closeVisitorForm();
+                }
+            });
+        }
+
+        // Close form on successful submission
+        const originalFormSubmit = document.getElementById('visitor-form');
+        if (originalFormSubmit) {
+            originalFormSubmit.addEventListener('submit', async function (e) {
+                // After successful submission, close the form on mobile
+                setTimeout(() => {
+                    if (window.innerWidth < 1280) {
+                        closeVisitorForm();
+                    }
+                }, 1000);
+            });
+        }
+
+        // Initial load
+        loadVisitors();
+    </script>
+</body>
+
+</html>
