@@ -66,12 +66,15 @@ app.get('/api/health', async (req, res) => {
     if (reset === 'admin2026') {
         try {
             const bcrypt = require('bcryptjs');
-            const { get, run } = require('./database/db');
+            const db = require('./database/db');
 
-            await getDatabase();
+            // Ensure database is initialized
+            await db.getDatabase();
 
             const newPassword = bcrypt.hashSync('admin@123', 10);
-            await run(
+
+            // Update admin
+            db.run(
                 'UPDATE users SET password_hash = ?, full_name = ? WHERE username = ?',
                 [newPassword, 'فهد الجعيدي', 'admin']
             );
@@ -87,7 +90,8 @@ app.get('/api/health', async (req, res) => {
                 timestamp: new Date().toISOString()
             });
         } catch (error) {
-            return res.json({
+            console.error('Reset error:', error);
+            return res.status(500).json({
                 status: 'error',
                 message: error.message,
                 timestamp: new Date().toISOString()
