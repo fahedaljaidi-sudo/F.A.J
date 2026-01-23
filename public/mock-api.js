@@ -1,16 +1,14 @@
 // API Configuration - Production Mode
-const API_BASE_URL = 'https://faj-backend.onrender.com';
-const MOCK_MODE = false;
+// All /api requests are automatically proxied to Railway backend via vercel.json
+const API_BASE_URL = '/api'; // Vercel will proxy to Railway
+const PRODUCTION_MODE = true;
 
-// Override fetch to use Railway backend
-if (!MOCK_MODE) {
-    window.originalFetch = window.fetch;
-    window.fetch = async (url, options = {}) => {
-        // If URL starts with /api, redirect to Railway backend
-        if (url.startsWith('/api')) {
-            url = API_BASE_URL + url;
-        }
-        return window.originalFetch(url, options);
-    };
-    console.log('🚀 Production Mode - Connected to:', API_BASE_URL);
+// Log production mode
+if (PRODUCTION_MODE) {
+    console.log('🚀 Production Mode Activated');
+    console.log('📡 API requests will be proxied to Railway backend');
+    console.log('💾 Data is stored permanently in SQLite database');
 }
+
+// Note: No need to override fetch - vercel.json handles the proxying
+// See vercel.json for API routing configuration

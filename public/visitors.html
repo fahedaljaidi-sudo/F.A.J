@@ -283,6 +283,7 @@
                                     <tr>
                                         <th class="px-4 py-3 whitespace-nowrap">اسم الزائر</th>
                                         <th class="px-4 py-3 whitespace-nowrap">رقم الهوية</th>
+                                        <th class="px-4 py-3 whitespace-nowrap">رقم الجوال</th>
                                         <th class="px-4 py-3 whitespace-nowrap">الجهة / الشركة</th>
                                         <th class="px-4 py-3 whitespace-nowrap">المضيف</th>
                                         <th class="px-4 py-3 whitespace-nowrap text-center">وقت الدخول</th>
@@ -293,7 +294,7 @@
                                 </thead>
                                 <tbody id="visitors-table" class="divide-y divide-gray-100">
                                     <tr>
-                                        <td colspan="8" class="px-4 py-8 text-center text-gray-400">جاري تحميل
+                                        <td colspan="9" class="px-4 py-8 text-center text-gray-400">جاري تحميل
                                             البيانات...
                                         </td>
                                     </tr>
@@ -426,7 +427,7 @@
             const tbody = document.getElementById('visitors-table');
 
             if (visitors.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">لا يوجد زوار مسجلين اليوم</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">لا يوجد زوار مسجلين اليوم</td></tr>';
                 document.getElementById('visitors-count').textContent = 'لا يوجد زوار';
                 return;
             }
@@ -435,6 +436,7 @@
         <tr class="hover:bg-blue-50/30 transition-colors group ${v.status === 'left' ? 'bg-gray-50/30' : ''}">
             <td class="px-4 py-3 font-medium ${v.status === 'left' ? 'text-gray-500' : 'text-text-main'}">${v.full_name}</td>
             <td class="px-4 py-3 font-mono ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.id_number}</td>
+            <td class="px-4 py-3 font-mono dir-ltr text-right ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.phone || '-'}</td>
             <td class="px-4 py-3 ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.company || '-'}</td>
             <td class="px-4 py-3 ${v.status === 'left' ? 'text-gray-500' : 'text-gray-600'}">${v.host_name || '-'}</td>
             <td class="px-4 py-3 text-center font-mono dir-ltr">${formatTime(v.entry_time)}</td>
