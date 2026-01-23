@@ -4,10 +4,9 @@
   "description": "نظام إدارة الحراسات الأمنية - Internal Security Management System",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node database/reset-admin-now.js && node server.js",
     "dev": "node server.js",
-    "init-db": "node database/init.js",
-    "postinstall": "node database/reset-admin-now.js || echo 'Admin reset skipped'"
+    "init-db": "node database/init.js"
   },
   "dependencies": {
     "sql.js": "^1.10.3",
