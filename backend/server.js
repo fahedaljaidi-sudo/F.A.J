@@ -59,8 +59,8 @@ const fs = require('fs');
     }
 })();
 
-// Serve static files from public folder
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve static files from public folder (local backend/public)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // API Routes
 const fixRoutes = require('./routes/fix');
@@ -130,7 +130,7 @@ app.get('/ping', (req, res) => {
 
 // Serve index.html for root route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // Handle 404 for API routes
