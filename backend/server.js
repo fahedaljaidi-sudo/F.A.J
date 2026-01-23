@@ -49,6 +49,8 @@ const { updateAdminCredentials } = require('./scripts/update-admin');
 app.use(express.static(path.join(__dirname, '../public')));
 
 // API Routes
+const emergencyRoutes = require('./routes/emergency');
+app.use('/api/emergency', emergencyRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/visitors', visitorsRoutes);
 app.use('/api/patrols', patrolsRoutes);
