@@ -119,12 +119,12 @@ function initializeSchema(db) {
 function seedData(db) {
     console.log('📦 Seeding default data...');
 
-    // Create default admin user
-    const adminPassword = bcrypt.hashSync('admin123', 10);
+    // Create default admin user (فهد الجعيدي)
+    const adminPassword = bcrypt.hashSync('admin@123', 10);
     db.run(`
         INSERT INTO users (username, password_hash, full_name, email, role, unit_number)
         VALUES (?, ?, ?, ?, ?, ?)
-    `, ['admin', adminPassword, 'مدير النظام', 'admin@company.local', 'admin', 'ADM-001']);
+    `, ['admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
 
     // Create sample guard user
     const guardPassword = bcrypt.hashSync('guard123', 10);
