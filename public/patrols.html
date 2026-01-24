@@ -468,12 +468,29 @@
                     </div>
                     ` : ''}
 
-                    ${patrol.attachments ? `
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                        <p class="text-xs text-gray-500 mb-2">الصورة المرفقة</p>
-                        <img src="${patrol.attachments}" alt="صورة مرفقة" class="w-full rounded-lg shadow-sm">
-                    </div>
-                    ` : ''}
+
+                    ${(() => {
+                    let imgSrc = '';
+                    if (patrol.attachments) {
+                        try {
+                            if (patrol.attachments.startsWith('"') || patrol.attachments.startsWith('{')) {
+                                const parsed = JSON.parse(patrol.attachments);
+                                imgSrc = typeof parsed === 'string' ? parsed : (parsed.url || parsed.image || '');
+                            } else {
+                                imgSrc = patrol.attachments;
+                            }
+                        } catch (e) {
+                            imgSrc = patrol.attachments;
+                        }
+                    }
+
+                    return imgSrc ? `
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="text-xs text-gray-500 mb-2">الصورة المرفقة</p>
+                            <img src="${imgSrc}" alt="صورة مرفقة" class="w-full rounded-lg shadow-sm">
+                        </div>
+                        ` : '';
+                })()}
                 </div>
             `;
             openModal();
