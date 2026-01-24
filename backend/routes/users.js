@@ -159,7 +159,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
     }
 });
 
-// DELETE /api/users/:id - Deactivate user (admin only)
+// DELETE /api/users/:id - Delete user permanently (admin only)
 router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         await getDatabase();
@@ -174,14 +174,19 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
             return res.status(404).json({ error: 'المستخدم غير موجود' });
         }
 
-        prepare('UPDATE users SET is_active = 0 WHERE id = ?').run(parseInt(id));
+        // 1. Unlink related records (preserve history but remove link to deleted user)
+        prepare('UPDATE visitors SET registered_by = NULL WHERE registered_by = ?').run(parseInt(id));
+        prepare('UPDATE patrol_rounds SET guard_id = NULL WHERE guard_id = ?').run(parseInt(id));
+
+        // 2. Hard delete the user
+        prepare('DELETE FROM users WHERE id = ?').run(parseInt(id));
 
         prepare(`
             INSERT INTO activity_log (event_type, description, user_id, status)
             VALUES (?, ?, ?, ?)
-        `).run('system', `تعطيل حساب: ${user.full_name}`, req.user.id, 'success');
+        `).run('system', `حذف مستخدم نهائياً: ${user.full_name}`, req.user.id, 'success');
 
-        res.json({ message: 'تم تعطيل الحساب بنجاح' });
+        res.json({ message: 'تم حذف الحساب نهائياً من قاعدة البيانات' });
 
     } catch (error) {
         console.error('Delete user error:', error);
