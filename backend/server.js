@@ -54,6 +54,25 @@ const fs = require('fs');
         } catch (e) {
             // Column already exists, ignore
         }
+
+        // Migration for users is_active
+        try {
+            prepare('ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1').run();
+            console.log('✓ Migration: is_active column added to users');
+        } catch (e) {
+            // Column already exists
+        }
+
+        // Ensure all users have is_active set (fix for older records)
+        try {
+            prepare('UPDATE users SET is_active = 1 WHERE is_active IS NULL').run();
+        } catch (e) { }
+
+        // Force admin to be active
+        try {
+            prepare('UPDATE users SET is_active = 1 WHERE username = "admin"').run();
+        } catch (e) { }
+
     } catch (e) {
         console.log('Migration check failed:', e.message);
     }
