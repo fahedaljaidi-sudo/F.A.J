@@ -249,7 +249,7 @@ router.get('/locations', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
-        const { location, security_status, notes, attachments } = req.body;
+        const { location, security_status, notes, attachments, image } = req.body;
 
         if (!location) {
             return res.status(400).json({ error: 'الموقع مطلوب' });
@@ -260,7 +260,8 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         const patrol_time = new Date().toISOString();
-        const attachmentsJson = attachments ? JSON.stringify(attachments) : '';
+        // Use image directly if provided (frontend sends 'image'), otherwise try attachments
+        const attachmentsJson = image || (attachments ? JSON.stringify(attachments) : '');
 
         const result = prepare(`
             INSERT INTO patrol_rounds (guard_id, location, security_status, notes, attachments, patrol_time)
