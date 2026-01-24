@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const router = express.Router();
+const { getDatabase, saveDatabase } = require('../database/db');
+
 
 // Force recreate database - accessible via browser
 router.get('/recreate-database', async (req, res) => {
@@ -165,5 +167,84 @@ router.get('/recreate-database', async (req, res) => {
         `);
     }
 });
+
+// Clear activity data (Keep users) - Safe Remote Cleanup
+router.get('/clear-activity', async (req, res) => {
+    const { confirm } = req.query;
+
+    if (confirm !== 'yes') {
+        return res.send(`
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>مسح بيانات النشاط</title></head>
+            <body style="font-family: Arial; padding: 40px; max-width: 600px; margin: 0 auto;">
+                <h1>⚠️ تأكيد المسح</h1>
+                <p>سقوم هذا الإجراء بمسح البيانات التالية فقط:</p>
+                <ul>
+                    <li>سجل الزوار</li>
+                    <li>جولات الحراسة</li>
+                    <li>سجل النشاطات</li>
+                </ul>
+                <p style="color: green; font-weight: bold;">لن يتم حذف المستخدمين أو الإعدادات الأساسية.</p>
+                
+                <a href="/api/fix/clear-activity?confirm=yes" style="display: inline-block; background: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 20px;">
+                    نعم، امسح بيانات النشاط
+                </a>
+            </body>
+            </html>
+        `);
+    }
+
+    try {
+        // Get the SHARED database instance (connects to running memory)
+        const db = await getDatabase();
+
+        console.log('🧹 Clearing activity data...');
+
+        // Clear Visitors
+        db.run('DELETE FROM visitors');
+        db.run("DELETE FROM sqlite_sequence WHERE name='visitors'");
+
+        // Clear Patrol Rounds
+        db.run('DELETE FROM patrol_rounds');
+        db.run("DELETE FROM sqlite_sequence WHERE name='patrol_rounds'");
+
+        // Clear Activity Log
+        db.run('DELETE FROM activity_log');
+        db.run("DELETE FROM sqlite_sequence WHERE name='activity_log'");
+
+        // Save changes to disk immediately
+        saveDatabase();
+        console.log('✅ Activity data cleared and saved to disk');
+
+        res.send(`
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>تم المسح</title></head>
+            <body style="font-family: Arial; padding: 40px; max-width: 600px; margin: 0 auto;">
+                <h1 style="color: #10b981;">✅ تم مسح البيانات بنجاح</h1>
+                <p>تم تنظيف سجلات الزوار والدوريات والنشاطات.</p>
+                <p>قاعدة البيانات الآن نظيفة مع الحفاظ على المستخدمين.</p>
+                <p style="margin-top: 30px;">
+                    <a href="/" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+                        العودة للرئيسية
+                    </a>
+                </p>
+            </body>
+            </html>
+        `);
+
+    } catch (error) {
+        console.error('Error clearing data:', error);
+        res.status(500).send(`
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>خطأ</title></head>
+            <body style="font-family: Arial; padding: 40px;">
+                <h1 style="color: #ef4444;">❌ حدث خطأ</h1>
+                <pre>${error.message}</pre>
+            </body>
+            </html>
+        `);
+    }
+});
+
 
 module.exports = router;
