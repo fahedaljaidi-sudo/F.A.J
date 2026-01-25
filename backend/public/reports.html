@@ -366,6 +366,17 @@
                 document.getElementById('pagination-info').textContent = `عرض ${data.logs?.length || 0} من أصل ${data.pagination?.total || 0} سجل`;
             } catch (error) {
                 console.error('Error loading reports:', error);
+                document.getElementById('reports-table').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-red-500">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="material-symbols-outlined text-[32px]">error</span>
+                                <span>حدث خطأ في تحميل البيانات. يرجى المحاولة مرة أخرى.</span>
+                                <span class="text-xs text-red-400 mt-1" dir="ltr">${error.message || 'Unknown Error'}</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
         }
 
