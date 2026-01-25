@@ -48,10 +48,14 @@
                 display: none !important;
             }
 
-            aside {
+            /* Hide all buttons and inputs in print */
+            button,
+            input,
+            select {
                 display: none !important;
             }
 
+            aside,
             nav {
                 display: none !important;
             }
@@ -61,14 +65,21 @@
                 height: auto !important;
                 overflow: visible !important;
                 background: white !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
+                font-size: 12pt;
             }
 
-            .flex.h-screen {
-                height: auto !important;
+            /* Reset layout modifiers */
+            .flex,
+            .h-screen,
+            .w-screen,
+            .fixed,
+            .absolute,
+            .sticky {
+                position: static !important;
                 display: block !important;
+                height: auto !important;
+                width: auto !important;
+                overflow: visible !important;
             }
 
             main {
@@ -76,68 +87,103 @@
                 margin: 0 !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                height: auto !important;
-                overflow: visible !important;
                 display: block !important;
             }
 
+            /* Custom Print Header */
             .print-header {
                 display: flex !important;
                 flex-direction: column;
                 align-items: center;
-                padding: 15px;
+                padding-bottom: 20px;
                 border-bottom: 2px solid #162841;
-                margin-bottom: 25px;
+                margin-bottom: 20px;
             }
 
             .print-header img {
-                width: 80px;
-                height: 80px;
+                width: 70px;
+                height: 70px;
+                object-fit: contain;
                 margin-bottom: 10px;
             }
 
-            /* Unroll scrollable areas */
-            .overflow-y-auto,
-            .overflow-x-auto,
-            .overflow-hidden {
-                overflow: visible !important;
-                height: auto !important;
+            .print-header h1 {
+                font-size: 24px !important;
+                color: #162841 !important;
+                margin: 5px 0 !important;
             }
 
+            .print-header p {
+                font-size: 14px !important;
+                color: #666 !important;
+                margin: 2px 0 !important;
+            }
+
+            /* Content adjustments */
+            h1,
+            h2,
+            h3,
+            h4 {
+                color: black !important;
+            }
+
+            /* Table Styles */
             table {
                 width: 100% !important;
-                font-size: 12px !important;
                 border-collapse: collapse !important;
+                margin-top: 10px !important;
+            }
+
+            thead {
+                display: table-header-group !important;
+            }
+
+            tbody {
+                display: table-row-group !important;
+            }
+
+            tr {
+                page-break-inside: avoid !important;
             }
 
             th,
             td {
-                padding: 8px 6px !important;
                 border: 1px solid #ddd !important;
-                page-break-inside: avoid;
-            }
-
-            tr {
-                page-break-inside: avoid;
-                page-break-after: auto;
+                padding: 8px !important;
+                text-align: right !important;
+                font-size: 11px !important;
+                color: black !important;
             }
 
             th {
-                background: #f3f4f6 !important;
-                color: #000 !important;
-                font-weight: bold !important;
+                background-color: #f3f4f6 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
-            div[class*="rounded"],
-            div[class*="shadow"] {
-                box-shadow: none !important;
-                border: none !important;
-                border-radius: 0 !important;
-            }
-
-            /* Hide URL printing in some browsers */
+            /* Hide URL printing */
             a[href]:after {
                 content: none !important;
+            }
+
+            /* Specific override for the results count header to show visible text but hide button */
+            #results-count {
+                display: block !important;
+                margin-bottom: 10px !important;
+                font-size: 14px !important;
+            }
+
+            /* Clean up container styling for print */
+            div[class*="rounded"] {
+                border-radius: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+
+            /* Ensure full width for containers */
+            .max-w-\[1400px\] {
+                max-width: none !important;
             }
         }
     </style>
