@@ -56,11 +56,29 @@
                 display: none !important;
             }
 
+            html,
+            body {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .flex.h-screen {
+                height: auto !important;
+                display: block !important;
+            }
+
             main {
                 padding: 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
                 max-width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                display: block !important;
             }
 
             .print-header {
@@ -69,50 +87,57 @@
                 align-items: center;
                 padding: 15px;
                 border-bottom: 2px solid #162841;
-                margin-bottom: 15px;
+                margin-bottom: 25px;
             }
 
             .print-header img {
-                width: 60px;
-                height: 60px;
+                width: 80px;
+                height: 80px;
+                margin-bottom: 10px;
             }
 
-            body {
-                background: white !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
+            /* Unroll scrollable areas */
+            .overflow-y-auto,
+            .overflow-x-auto,
+            .overflow-hidden {
+                overflow: visible !important;
+                height: auto !important;
             }
 
             table {
                 width: 100% !important;
-                font-size: 11px !important;
+                font-size: 12px !important;
                 border-collapse: collapse !important;
             }
 
             th,
             td {
-                padding: 6px 4px !important;
+                padding: 8px 6px !important;
                 border: 1px solid #ddd !important;
+                page-break-inside: avoid;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
             }
 
             th {
                 background: #f3f4f6 !important;
-            }
-
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .overflow-x-auto {
-                overflow: visible !important;
+                color: #000 !important;
+                font-weight: bold !important;
             }
 
             div[class*="rounded"],
             div[class*="shadow"] {
                 box-shadow: none !important;
                 border: none !important;
+                border-radius: 0 !important;
+            }
+
+            /* Hide URL printing in some browsers */
+            a[href]:after {
+                content: none !important;
             }
         }
     </style>
