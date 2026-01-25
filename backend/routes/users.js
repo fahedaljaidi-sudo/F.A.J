@@ -176,7 +176,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
 
         // 1. Unlink related records (preserve history but remove link to deleted user)
         prepare('UPDATE visitors SET registered_by = NULL WHERE registered_by = ?').run(parseInt(id));
-        prepare('UPDATE patrol_rounds SET guard_id = NULL WHERE guard_id = ?').run(parseInt(id));
+        prepare('DELETE FROM patrol_rounds WHERE guard_id = ?').run(parseInt(id));
 
         // 2. Hard delete the user
         prepare('DELETE FROM users WHERE id = ?').run(parseInt(id));
