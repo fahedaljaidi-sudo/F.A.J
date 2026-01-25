@@ -234,9 +234,10 @@
                                         class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary outline-none"
                                         type="date" />
                                 </label>
-                                <button onclick="applyFilter()"
-                                    class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-11 shadow-sm transition-all">تطبيق
-                                    التصفية</button>
+                                <button id="filter-btn" onclick="applyFilter()"
+                                    class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-11 shadow-sm transition-all flex items-center gap-2 justify-center">
+                                    تطبيق التصفية
+                                </button>
                             </div>
                         </div>
                         <div
@@ -346,18 +347,29 @@
             return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
         }
 
-        async function loadReports() {
+        async function loadReports(isFilter = false) {
             const fromDate = document.getElementById('from-date').value;
             const toDate = document.getElementById('to-date').value;
+            const filterBtn = document.getElementById('filter-btn');
+            const originalBtnText = filterBtn ? filterBtn.innerHTML : '';
+
+            if (isFilter && filterBtn) {
+                filterBtn.innerHTML = '<span class="animate-spin material-symbols-outlined text-[18px]">progress_activity</span> جاري التصفية...';
+                filterBtn.disabled = true;
+                filterBtn.classList.add('opacity-75');
+            }
+
+            // Show loading in table if it's a fresh load or filter
+            const tbody = document.getElementById('reports-table');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><div class="flex flex-col items-center gap-3"><span class="animate-spin material-symbols-outlined text-[32px] text-primary">progress_activity</span><span>جاري تحميل البيانات...</span></div></td></tr>';
+            }
 
             let url = `${API_BASE}/reports?limit=50`;
             if (fromDate) url += `&from_date=${fromDate}`;
             if (toDate) url += `&to_date=${toDate}`;
 
             try {
-                // Status update for debugging
-                const tbody = document.getElementById('reports-table');
-
                 // Set timeout for 10 seconds
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -386,18 +398,26 @@
             } catch (error) {
                 console.error('Error loading reports:', error);
                 const isTimeout = error.name === 'AbortError';
-                document.getElementById('reports-table').innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-8 text-center text-red-500">
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="material-symbols-outlined text-[32px]">error</span>
-                                <span>${isTimeout ? 'انتهت مهلة الاتصال بالخادم (Timeout)' : 'حدث خطأ في تحميل البيانات'}</span>
-                                <span class="text-xs text-red-400 mt-1" dir="ltr">${error.message}</span>
-                                <button onclick="loadReports()" class="mt-2 text-sm bg-red-100 px-3 py-1 rounded hover:bg-red-200">إعادة المحاولة</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-red-500">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="material-symbols-outlined text-[32px]">error</span>
+                                    <span>${isTimeout ? 'انتهت مهلة الاتصال بالخادم (Timeout)' : 'حدث خطأ في تحميل البيانات'}</span>
+                                    <span class="text-xs text-red-400 mt-1" dir="ltr">${error.message}</span>
+                                    <button onclick="loadReports()" class="mt-2 text-sm bg-red-100 px-3 py-1 rounded hover:bg-red-200">إعادة المحاولة</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } finally {
+                if (isFilter && filterBtn) {
+                    filterBtn.innerHTML = originalBtnText;
+                    filterBtn.disabled = false;
+                    filterBtn.classList.remove('opacity-75');
+                }
             }
         }
 
