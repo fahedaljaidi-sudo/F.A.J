@@ -114,6 +114,24 @@
                 box-shadow: none !important;
                 border: none !important;
             }
+
+            /* تحسين طباعة الجداول الطويلة */
+            table {
+                page-break-inside: auto !important;
+            }
+
+            tr {
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
+            }
+
+            thead {
+                display: table-header-group !important;
+            }
+
+            tfoot {
+                display: table-footer-group !important;
+            }
         }
     </style>
 </head>
@@ -208,7 +226,7 @@
                                     التقارير الرسمية للإدارة.</p>
                             </div>
                             <div class="flex gap-3 no-print">
-                                <button onclick="window.print()"
+                                <button onclick="printReport()"
                                     class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 border border-border-color bg-white hover:bg-gray-50 text-[#101418] text-sm font-bold transition-all shadow-sm group">
                                     <span
                                         class="material-symbols-outlined text-[20px] ml-2 text-secondary-text group-hover:text-primary">print</span>
@@ -297,6 +315,7 @@
         const API_BASE = '/api';
         let token = localStorage.getItem('token');
         let user = JSON.parse(localStorage.getItem('user') || '{}');
+        let allReportsForPrint = [];
 
         if (!token) window.location.href = '/';
 
@@ -431,6 +450,54 @@
 
         function applyFilter() {
             loadReports();
+        }
+
+        async function loadAllReportsForPrint() {
+            const fromDate = document.getElementById('from-date').value;
+            const toDate = document.getElementById('to-date').value;
+
+            let url = `${API_BASE}/reports?limit=10000`;
+            if (fromDate) url += `&from_date=${fromDate}`;
+            if (toDate) url += `&to_date=${toDate}`;
+
+            try {
+                const response = await fetch(url, { headers: getHeaders() });
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return [];
+                }
+                const data = await response.json();
+                return data.logs || [];
+            } catch (error) {
+                console.error('Error loading all reports:', error);
+                return [];
+            }
+        }
+
+        async function printReport() {
+            // حفظ السجلات الحالية المعروضة
+            const currentTableContent = document.getElementById('reports-table').innerHTML;
+
+            // تحميل جميع السجلات للطباعة
+            allReportsForPrint = await loadAllReportsForPrint();
+
+            // عرض جميع السجلات في الجدول
+            renderReports(allReportsForPrint);
+
+            // تحديث تاريخ الطباعة
+            const printDateEl = document.getElementById('print-date');
+            if (printDateEl) {
+                const now = new Date();
+                printDateEl.textContent = `تاريخ الطباعة: ${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`;
+            }
+
+            // انتظار قليلاً لضمان تحديث DOM
+            setTimeout(() => {
+                window.print();
+
+                // إعادة العرض المحدود بعد الطباعة
+                document.getElementById('reports-table').innerHTML = currentTableContent;
+            }, 300);
         }
 
         function logout() {
