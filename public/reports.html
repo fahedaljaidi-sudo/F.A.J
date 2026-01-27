@@ -56,6 +56,28 @@
                 display: none !important;
             }
 
+            /* إزالة جميع المساحات الفارغة */
+            html,
+            body {
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            body>div,
+            main,
+            main>div,
+            main>div>div,
+            main>div>div>div {
+                display: block !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
             main {
                 padding: 0 !important;
                 margin: 0 !important;
@@ -67,9 +89,9 @@
                 display: flex !important;
                 flex-direction: column;
                 align-items: center;
-                padding: 15px;
+                padding: 15px 0 10px 0 !important;
+                margin: 0 0 10px 0 !important;
                 border-bottom: 2px solid #162841;
-                margin-bottom: 15px;
             }
 
             .print-header img {
@@ -88,6 +110,8 @@
                 width: 100% !important;
                 font-size: 11px !important;
                 border-collapse: collapse !important;
+                margin: 0 !important;
+                page-break-inside: auto !important;
             }
 
             th,
@@ -116,10 +140,6 @@
             }
 
             /* تحسين طباعة الجداول الطويلة */
-            table {
-                page-break-inside: auto !important;
-            }
-
             tr {
                 page-break-inside: avoid !important;
                 page-break-after: auto !important;
@@ -131,6 +151,14 @@
 
             tfoot {
                 display: table-footer-group !important;
+            }
+
+            /* إزالة أي padding أو margin من الحاويات */
+            .flex,
+            .flex-col,
+            .flex-1 {
+                padding: 0 !important;
+                margin: 0 !important;
             }
         }
     </style>

@@ -56,7 +56,7 @@
                 display: none !important;
             }
 
-            /* Layout Resets */
+            /* Layout Resets - إزالة جميع المساحات الفارغة */
             html,
             body {
                 height: auto !important;
@@ -75,27 +75,18 @@
                 width: 100% !important;
             }
 
-            main {
-                display: block !important;
-                height: auto !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                overflow: visible !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            /* Reset inner containers to remove spacing/centering */
+            body>div,
+            main,
             main>div,
-            main>div>div {
+            main>div>div,
+            main>div>div>div {
                 display: block !important;
                 height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
                 width: 100% !important;
-                max-width: none !important;
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
-                margin-top: 0 !important;
-                margin-bottom: 0 !important;
+                overflow: visible !important;
             }
 
             /* Custom Print Header */
@@ -104,9 +95,9 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                padding-bottom: 10px;
+                padding: 10px 0 !important;
+                margin: 0 0 10px 0 !important;
                 border-bottom: 2px solid #162841;
-                margin-bottom: 15px;
                 width: 100% !important;
             }
 
@@ -144,8 +135,9 @@
             table {
                 width: 100% !important;
                 border-collapse: collapse !important;
-                margin-top: 10px !important;
+                margin: 0 !important;
                 font-family: Arial, sans-serif !important;
+                page-break-inside: auto !important;
             }
 
             thead {
@@ -205,22 +197,12 @@
                 color: #000 !important;
             }
 
-            /* تحسين طباعة الجداول الطويلة */
-            table {
-                page-break-inside: auto !important;
-            }
-
-            tr {
-                page-break-inside: avoid !important;
-                page-break-after: auto !important;
-            }
-
-            thead {
-                display: table-header-group !important;
-            }
-
-            tfoot {
-                display: table-footer-group !important;
+            /* إزالة أي padding أو margin من الحاويات */
+            .flex,
+            .flex-col,
+            .flex-1 {
+                padding: 0 !important;
+                margin: 0 !important;
             }
         }
     </style>
