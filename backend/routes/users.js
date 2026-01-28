@@ -82,7 +82,8 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
         }
 
         const password_hash = bcrypt.hashSync(password, 10);
-        const validRole = ['admin', 'supervisor', 'guard'].includes(role) ? role : 'guard';
+        const validRoles = ['admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer'];
+        const validRole = validRoles.includes(role) ? role : 'guard';
 
         const result = prepare(`
             INSERT INTO users (username, password_hash, full_name, email, role, unit_number)
@@ -129,7 +130,8 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
         if (email !== undefined) {
             prepare('UPDATE users SET email = ? WHERE id = ?').run(email, parseInt(id));
         }
-        if (role && ['admin', 'supervisor', 'guard'].includes(role)) {
+        const validRoles = ['admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer'];
+        if (role && validRoles.includes(role)) {
             prepare('UPDATE users SET role = ? WHERE id = ?').run(role, parseInt(id));
         }
         if (unit_number !== undefined) {
