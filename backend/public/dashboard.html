@@ -338,7 +338,10 @@
             const roleText = {
                 'admin': 'مدير النظام',
                 'supervisor': 'مشرف',
-                'guard': 'رجل أمن'
+                'guard': 'رجل أمن',
+                'operations_manager': 'مدير العمليات',
+                'hr_manager': 'مدير الموارد البشرية',
+                'safety_officer': 'مسؤول السلامة'
             };
             userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
         }

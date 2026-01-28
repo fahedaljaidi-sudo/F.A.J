@@ -122,6 +122,9 @@
                                 <option value="guard">حارس الأمن</option>
                                 <option value="supervisor">مشرف الأمن</option>
                                 <option value="admin">مدير الأمن</option>
+                                <option value="operations_manager">مدير العمليات والتشغيل</option>
+                                <option value="hr_manager">مدير الموارد البشرية</option>
+                                <option value="safety_officer">مسؤول السلامة</option>
                             </select>
                         </div>
                         <div>
@@ -198,6 +201,9 @@
                         <option value="guard">حارس الأمن</option>
                         <option value="supervisor">مشرف الأمن</option>
                         <option value="admin">مدير الأمن</option>
+                        <option value="operations_manager">مدير العمليات والتشغيل</option>
+                        <option value="hr_manager">مدير الموارد البشرية</option>
+                        <option value="safety_officer">مسؤول السلامة</option>
                     </select>
                 </div>
                 <div>
@@ -281,8 +287,22 @@
                 return;
             }
 
-            const roleText = { 'admin': 'مدير', 'supervisor': 'مشرف', 'guard': 'حارس' };
-            const roleColor = { 'admin': 'bg-purple-100 text-purple-700', 'supervisor': 'bg-blue-100 text-blue-700', 'guard': 'bg-gray-100 text-gray-700' };
+            const roleText = {
+                'admin': 'مدير',
+                'supervisor': 'مشرف',
+                'guard': 'حارس',
+                'operations_manager': 'مدير العمليات',
+                'hr_manager': 'مدير الموارد البشرية',
+                'safety_officer': 'مسؤول السلامة'
+            };
+            const roleColor = {
+                'admin': 'bg-purple-100 text-purple-700',
+                'supervisor': 'bg-blue-100 text-blue-700',
+                'guard': 'bg-gray-100 text-gray-700',
+                'operations_manager': 'bg-indigo-100 text-indigo-700',
+                'hr_manager': 'bg-pink-100 text-pink-700',
+                'safety_officer': 'bg-orange-100 text-orange-700'
+            };
 
             tbody.innerHTML = users.map(u => `
                 <tr class="hover:bg-gray-50/50 transition-colors">

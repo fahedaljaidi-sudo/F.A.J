@@ -41,38 +41,28 @@
         @media print {
             @page {
                 size: A4;
-                margin: 5mm;
+                margin: 10mm;
             }
 
-            /* Critical Hiding Rules - High Specificity */
-            html body header,
-            html body aside,
-            html body nav,
-            html body .no-print,
-            html body .mobile-menu-btn,
-            html body button,
-            html body input,
-            html body select {
+            .no-print {
                 display: none !important;
             }
 
-            /* Layout Resets - إزالة جميع المساحات الفارغة */
+            aside {
+                display: none !important;
+            }
+
+            nav {
+                display: none !important;
+            }
+
+            /* إزالة جميع المساحات الفارغة */
             html,
             body {
                 height: auto !important;
-                overflow: visible !important;
-                background: white !important;
-                font-size: 11pt !important;
-                width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
-            }
-
-            /* Unwrap the main layout containers */
-            body>div.flex {
-                display: block !important;
-                height: auto !important;
-                width: 100% !important;
+                overflow: visible !important;
             }
 
             body>div,
@@ -86,115 +76,81 @@
                 padding: 0 !important;
                 max-width: 100% !important;
                 width: 100% !important;
-                overflow: visible !important;
             }
 
-            /* Custom Print Header */
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
             .print-header {
                 display: flex !important;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
-                padding: 10px 0 !important;
+                padding: 15px 0 10px 0 !important;
                 margin: 0 0 10px 0 !important;
                 border-bottom: 2px solid #162841;
-                width: 100% !important;
             }
 
             .print-header img {
                 width: 60px;
                 height: 60px;
-                object-fit: contain;
-                margin-bottom: 5px;
             }
 
-            .print-header h1 {
-                font-size: 20px !important;
-                color: #162841 !important;
-                margin: 5px 0 !important;
-            }
-
-            .print-header p {
-                font-size: 12px !important;
-                color: #666 !important;
+            body {
+                background: white !important;
+                width: 100% !important;
                 margin: 0 !important;
+                padding: 0 !important;
             }
 
-            /* Page Title */
-            h1.text-3xl {
-                font-size: 22px !important;
-                margin-bottom: 5px !important;
-            }
-
-            p.text-secondary-text {
-                font-size: 12px !important;
-                margin-bottom: 10px !important;
-            }
-
-            /* Table Styles */
             table {
                 width: 100% !important;
+                font-size: 11px !important;
                 border-collapse: collapse !important;
                 margin: 0 !important;
-                font-family: Arial, sans-serif !important;
                 page-break-inside: auto !important;
+            }
+
+            th,
+            td {
+                padding: 6px 4px !important;
+                border: 1px solid #ddd !important;
+            }
+
+            th {
+                background: #f3f4f6 !important;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .overflow-x-auto {
+                overflow: visible !important;
+            }
+
+            div[class*="rounded"],
+            div[class*="shadow"] {
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            /* تحسين طباعة الجداول الطويلة */
+            tr {
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
             }
 
             thead {
                 display: table-header-group !important;
             }
 
-            tbody {
-                display: table-row-group !important;
-            }
-
-            tr {
-                page-break-inside: avoid !important;
-            }
-
-            th,
-            td {
-                border: 1px solid #000 !important;
-                padding: 4px 8px !important;
-                text-align: right !important;
-                font-size: 10pt !important;
-                color: #000 !important;
-            }
-
-            th {
-                background-color: #f0f0f0 !important;
-                font-weight: bold !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            /* Hide scrollbars/overflow */
-            .overflow-x-auto,
-            .overflow-y-auto,
-            .overflow-hidden {
-                overflow: visible !important;
-                height: auto !important;
-            }
-
-            /* Remove card styling */
-            div[class*="rounded"] {
-                border-radius: 0 !important;
-                border: none !important;
-                box-shadow: none !important;
-                background: transparent !important;
-            }
-
-            /* Hide URL printing */
-            a[href]:after {
-                content: none !important;
-            }
-
-            /* Ensure results count is visible but minimal */
-            #results-count {
-                display: block !important;
-                font-size: 12px !important;
-                margin-bottom: 5px !important;
-                color: #000 !important;
+            tfoot {
+                display: table-footer-group !important;
             }
 
             /* إزالة أي padding أو margin من الحاويات */
@@ -270,7 +226,7 @@
                         <p class="text-sm font-bold text-gray-900" id="user-name">--</p>
                         <p class="text-xs text-gray-500" id="user-role">--</p>
                     </div>
-                    <div id="user-avatar"
+                    <div
                         class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
                         <span class="material-symbols-outlined">person</span>
                     </div>
@@ -324,10 +280,9 @@
                                         class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary outline-none"
                                         type="date" />
                                 </label>
-                                <button id="filter-btn" onclick="applyFilter()"
-                                    class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-11 shadow-sm transition-all flex items-center gap-2 justify-center">
-                                    تطبيق التصفية
-                                </button>
+                                <button onclick="applyFilter()"
+                                    class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-11 shadow-sm transition-all">تطبيق
+                                    التصفية</button>
                             </div>
                         </div>
                         <div
@@ -402,7 +357,10 @@
             const roleText = {
                 'admin': 'مدير النظام',
                 'supervisor': 'مشرف',
-                'guard': 'رجل أمن'
+                'guard': 'رجل أمن',
+                'operations_manager': 'مدير العمليات',
+                'hr_manager': 'مدير الموارد البشرية',
+                'safety_officer': 'مسؤول السلامة'
             };
             userNameEl.textContent = user.full_name || '--';
             if (userRoleEl) {
@@ -438,77 +396,26 @@
             return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
         }
 
-        async function loadReports(isFilter = false) {
+        async function loadReports() {
             const fromDate = document.getElementById('from-date').value;
             const toDate = document.getElementById('to-date').value;
-            const filterBtn = document.getElementById('filter-btn');
-            const originalBtnText = filterBtn ? filterBtn.innerHTML : '';
-
-            if (isFilter && filterBtn) {
-                filterBtn.innerHTML = '<span class="animate-spin material-symbols-outlined text-[18px]">progress_activity</span> جاري التصفية...';
-                filterBtn.disabled = true;
-                filterBtn.classList.add('opacity-75');
-            }
-
-            // Show loading in table if it's a fresh load or filter
-            const tbody = document.getElementById('reports-table');
-            if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><div class="flex flex-col items-center gap-3"><span class="animate-spin material-symbols-outlined text-[32px] text-primary">progress_activity</span><span>جاري تحميل البيانات...</span></div></td></tr>';
-            }
 
             let url = `${API_BASE}/reports?limit=50`;
             if (fromDate) url += `&from_date=${fromDate}`;
             if (toDate) url += `&to_date=${toDate}`;
 
             try {
-                // Set timeout for 10 seconds
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-                const response = await fetch(url, {
-                    headers: getHeaders(),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-
+                const response = await fetch(url, { headers: getHeaders() });
                 if (response.status === 401 || response.status === 403) {
                     logout();
                     return;
                 }
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Server Error: ${response.status} - ${errorText.substring(0, 100)}`);
-                }
-
                 const data = await response.json();
                 renderReports(data.logs || []);
                 document.getElementById('results-count').textContent = `نتائج البحث (${data.logs?.length || 0} سجل)`;
                 document.getElementById('pagination-info').textContent = `عرض ${data.logs?.length || 0} من أصل ${data.pagination?.total || 0} سجل`;
             } catch (error) {
                 console.error('Error loading reports:', error);
-                const isTimeout = error.name === 'AbortError';
-                if (tbody) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="py-8 text-center text-red-500">
-                                <div class="flex flex-col items-center gap-2">
-                                    <span class="material-symbols-outlined text-[32px]">error</span>
-                                    <span>${isTimeout ? 'انتهت مهلة الاتصال بالخادم (Timeout)' : 'حدث خطأ في تحميل البيانات'}</span>
-                                    <span class="text-xs text-red-400 mt-1" dir="ltr">${error.message}</span>
-                                    <button onclick="loadReports()" class="mt-2 text-sm bg-red-100 px-3 py-1 rounded hover:bg-red-200">إعادة المحاولة</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }
-            } finally {
-                if (isFilter && filterBtn) {
-                    filterBtn.innerHTML = originalBtnText;
-                    filterBtn.disabled = false;
-                    filterBtn.classList.remove('opacity-75');
-                }
             }
         }
 
