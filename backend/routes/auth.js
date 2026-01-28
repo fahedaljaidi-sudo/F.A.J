@@ -3,17 +3,26 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getDatabase, prepare } = require('../database/db');
 const { JWT_SECRET, authenticateToken } = require('../middleware/auth');
+const detectMobile = require('../middleware/detectMobile');
 
 const router = express.Router();
 
 // POST /api/auth/login - User login
-router.post('/login', async (req, res) => {
+router.post('/login', detectMobile, async (req, res) => {
     try {
         await getDatabase();
         const { username, password } = req.body;
 
         if (!username || !password) {
             return res.status(400).json({ error: 'يرجى إدخال اسم المستخدم وكلمة المرور' });
+        }
+
+        // Check if mobile device and restrict access
+        if (req.isMobile && username !== 'admin') {
+            return res.status(403).json({
+                error: 'تسجيل الدخول من الأجهزة المحمولة محظور - يُسمح فقط لحساب المسؤول',
+                isMobileRestricted: true
+            });
         }
 
         // Find user
