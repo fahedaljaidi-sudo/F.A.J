@@ -22,6 +22,13 @@ const detectMobile = (req, res, next) => {
     // Check if any mobile pattern matches
     req.isMobile = mobilePatterns.some(pattern => pattern.test(userAgent));
 
+    // Log detection for debugging
+    console.log('🔍 Mobile Detection:', {
+        userAgent: userAgent.substring(0, 100),
+        isMobile: req.isMobile,
+        timestamp: new Date().toISOString()
+    });
+
     next();
 };
 

@@ -19,9 +19,22 @@ router.post('/login', detectMobile, async (req, res) => {
 
         // Check if mobile device and restrict access
         if (req.isMobile && username !== 'admin') {
+            console.log('🚫 Mobile Login BLOCKED:', {
+                username,
+                userAgent: req.headers['user-agent']?.substring(0, 100),
+                timestamp: new Date().toISOString()
+            });
+
             return res.status(403).json({
                 error: 'تسجيل الدخول من الأجهزة المحمولة محظور - يُسمح فقط لحساب المسؤول',
                 isMobileRestricted: true
+            });
+        }
+
+        // Log mobile login for admin
+        if (req.isMobile && username === 'admin') {
+            console.log('✅ Mobile Login ALLOWED for admin:', {
+                timestamp: new Date().toISOString()
             });
         }
 
