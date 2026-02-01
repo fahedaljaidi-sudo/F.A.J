@@ -56,7 +56,7 @@ function initializeSchema(db) {
             password_hash TEXT NOT NULL,
             full_name TEXT NOT NULL,
             email TEXT,
-            role TEXT CHECK(role IN ('admin', 'supervisor', 'guard')) DEFAULT 'guard',
+            role TEXT CHECK(role IN ('admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer')) DEFAULT 'guard',
             unit_number TEXT,
             is_active INTEGER DEFAULT 1,
             created_at TEXT DEFAULT (datetime('now')),

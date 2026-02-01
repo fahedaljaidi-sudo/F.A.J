@@ -25,6 +25,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Database migration - add resolution_status column if not exists
 const { getDatabase, prepare } = require('./database/db');
 const { updateAdminCredentials } = require('./scripts/update-admin');
+const migrateRoles = require('./database/migrate_roles');
 const fs = require('fs');
 
 (async () => {
@@ -46,6 +47,9 @@ const fs = require('fs');
 
         // Update admin credentials automatically
         await updateAdminCredentials();
+
+        // Run roles migration (Fix for new administrative ranks)
+        await migrateRoles();
 
         // Try to add column, ignore error if already exists
         try {

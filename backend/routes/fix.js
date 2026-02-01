@@ -55,7 +55,7 @@ router.get('/recreate-database', async (req, res) => {
                 password_hash TEXT NOT NULL,
                 full_name TEXT NOT NULL,
                 email TEXT,
-                role TEXT CHECK(role IN ('admin', 'supervisor', 'guard')) DEFAULT 'guard',
+                role TEXT CHECK(role IN ('admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer')) DEFAULT 'guard',
                 unit_number TEXT,
                 is_active INTEGER DEFAULT 1,
                 created_at TEXT DEFAULT (datetime('now')),
@@ -162,6 +162,47 @@ router.get('/recreate-database', async (req, res) => {
             <body style="font-family: Arial; padding: 40px;">
                 <h1 style="color: #ef4444;">❌ حدث خطأ</h1>
                 <pre>${error.message}</pre>
+            </body>
+            </html>
+        `);
+    }
+});
+
+// Manual trigger for role migration
+router.get('/migrate-roles', async (req, res) => {
+    try {
+        const migrateRoles = require('../database/migrate_roles');
+        await migrateRoles();
+
+        res.send(`
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>تم التحديث</title></head>
+            <body style="font-family: Arial; padding: 40px; max-width: 600px; margin: 0 auto;">
+                <h1 style="color: #10b981;">✅ تم تحديث قاعدة البيانات بنجاح!</h1>
+                <p>تم توسيع صلاحيات الرتب لتشمل:</p>
+                <ul>
+                    <li>مدير العمليات</li>
+                    <li>مدير الموارد البشرية</li>
+                    <li>مسؤول السلامة</li>
+                </ul>
+                <p><strong>يمكنك الآن إضافة المستخدمين بالرتب الجديدة.</strong></p>
+                <p style="margin-top: 30px;">
+                    <a href="/users.html" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+                        العودة لصفحة المستخدمين
+                    </a>
+                </p>
+            </body>
+            </html>
+        `);
+    } catch (error) {
+        console.error('Migration error:', error);
+        res.status(500).send(`
+            <html dir="rtl">
+            <head><meta charset="utf-8"><title>خطأ</title></head>
+            <body style="font-family: Arial; padding: 40px;">
+                <h1 style="color: #ef4444;">❌ فشل التحديث</h1>
+                <pre>${error.message}</pre>
+                <p>انظر للسجلات (Logs) للمزيد من التفاصيل.</p>
             </body>
             </html>
         `);
