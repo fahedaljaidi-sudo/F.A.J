@@ -1,42 +1,23 @@
-const initSqlJs = require('sql.js');
-const fs = require('fs');
-const path = require('path');
-
-const dbPath = (() => {
-    // Check if we are in production with a volume mounted at /app/data
-    const volumePath = '/app/data';
-    try {
-        if (fs.existsSync(volumePath)) {
-            console.log('💾 Migration: Using Persistent Volume at /app/data');
-            return path.join(volumePath, 'auth.db');
-        }
-    } catch (e) { }
-
-    console.log('💾 Migration: Using local security.db');
-    return path.join(__dirname, 'security.db');
-})();
+const { getDatabase, saveDatabase } = require('./db');
 
 async function migrateRoles() {
-    console.log('🔄 Starting Roles Migration...');
-
-    if (!fs.existsSync(dbPath)) {
-        console.log('❌ Database file not found. Skipping migration.');
-        return;
-    }
+    console.log('🔄 Starting Roles Migration (Shared Instance)...');
 
     try {
-        const SQL = await initSqlJs();
-        const filebuffer = fs.readFileSync(dbPath);
-        const db = new SQL.Database(filebuffer);
+        const db = await getDatabase();
 
         // Check if migration is needed
-        const result = db.exec("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'");
-        const currentSchema = result[0]?.values[0][0] || '';
+        // We use db.exec because we need raw access
+        try {
+            const result = db.exec("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'");
+            const currentSchema = result[0]?.values[0][0] || '';
 
-        if (currentSchema.includes('operations_manager')) {
-            console.log('✅ Users table already has new roles. Skipping migration.');
-            db.close();
-            return;
+            if (currentSchema.includes('operations_manager')) {
+                console.log('✅ Users table already has new roles. Skipping migration.');
+                return;
+            }
+        } catch (e) {
+            console.log('Checking schema failed, assuming migration might be needed or fresh DB');
         }
 
         console.log('⚠️ Schema update needed. Starting migration...');
@@ -82,19 +63,15 @@ async function migrateRoles() {
 
             db.run('COMMIT');
 
-            // Save database
-            const data = db.export();
-            const buffer = Buffer.from(data);
-            fs.writeFileSync(dbPath, buffer);
+            // Save database explicit call
+            saveDatabase();
 
             console.log('✅ Migration completed successfully!');
 
         } catch (error) {
             console.error('⚠️ Migration failed:', error);
-            db.run('ROLLBACK');
+            try { db.run('ROLLBACK'); } catch (e) { }
             throw error;
-        } finally {
-            db.close();
         }
 
     } catch (error) {
