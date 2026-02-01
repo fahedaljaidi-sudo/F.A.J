@@ -29,9 +29,23 @@ async function migrateRoles() {
         const filebuffer = fs.readFileSync(dbPath);
         const db = new SQL.Database(filebuffer);
 
-        // Check if migration is needed by trying to insert a dummy user with new role
+        // Check if migration is needed
+        const result = db.exec("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'");
+        const currentSchema = result[0]?.values[0][0] || '';
+
+        if (currentSchema.includes('operations_manager')) {
+            console.log('✅ Users table already has new roles. Skipping migration.');
+            db.close();
+            return;
+        }
+
+        console.log('⚠️ Schema update needed. Starting migration...');
+
         try {
             db.run('BEGIN TRANSACTION');
+
+            // 0. Cleanup previous failed attempts
+            db.run('DROP TABLE IF EXISTS users_old');
 
             // 1. Rename existing table
             console.log('📦 Renaming old users table...');
