@@ -96,7 +96,7 @@
     loaderDiv.id = 'faj-preloader';
     loaderDiv.innerHTML = `
         <div class="faj-loader-content">
-            <img src="logo.png" alt="FAJ Security" class="faj-logo-pulse">
+            <img src="loader-logo.png" alt="FAJ Security" class="faj-logo-pulse">
             <svg class="faj-spinner-svg" viewBox="0 0 50 50">
                 <circle class="faj-spinner-circle" cx="25" cy="25" r="20"></circle>
             </svg>
