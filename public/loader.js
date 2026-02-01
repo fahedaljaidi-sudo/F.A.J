@@ -11,7 +11,9 @@
         #faj-preloader {
             position: fixed;
             inset: 0;
-            background-color: #162841; /* Primary Brand Color */
+            background-color: rgba(255, 255, 255, 0.2); /* Transparent White */
+            backdrop-filter: blur(16px); /* Heavy Blur (Glassmorphism) */
+            -webkit-backdrop-filter: blur(16px);
             z-index: 10000;
             display: flex;
             flex-direction: column;
@@ -20,6 +22,7 @@
             transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
             opacity: 1;
             visibility: visible;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.05);
         }
 
         #faj-preloader.fade-out {
@@ -32,34 +35,58 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
         .faj-logo-pulse {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             object-fit: contain;
-            animation: pulse-logo 2s infinite ease-in-out;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
-            margin-bottom: 24px;
+            /* Ensure logo pops against glass */
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            margin-bottom: 32px;
+            animation: float-logo 3s ease-in-out infinite;
         }
 
-        .faj-loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #4C8E4D; /* Secondary Color */
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* Premium SVG Spinner */
+        .faj-spinner-svg {
+            width: 50px;
+            height: 50px;
+            animation: rotate 2s linear infinite;
+        }
+        
+        .faj-spinner-circle {
+            stroke: #162841; /* Primary Color */
+            stroke-width: 3;
+            stroke-dasharray: 1, 150; /* Start small */
+            stroke-dashoffset: 0;
+            stroke-linecap: round;
+            fill: none;
+            animation: dash 1.5s ease-in-out infinite;
         }
 
-        @keyframes pulse-logo {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
+        @keyframes float-logo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dasharray: 1, 150;
+                stroke-dashoffset: 0;
+            }
+            50% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -35;
+            }
+            100% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -124;
+            }
         }
     `;
     document.head.appendChild(style);
@@ -70,7 +97,9 @@
     loaderDiv.innerHTML = `
         <div class="faj-loader-content">
             <img src="logo.png" alt="FAJ Security" class="faj-logo-pulse">
-            <div class="faj-loader-spinner"></div>
+            <svg class="faj-spinner-svg" viewBox="0 0 50 50">
+                <circle class="faj-spinner-circle" cx="25" cy="25" r="20"></circle>
+            </svg>
         </div>
     `;
 
