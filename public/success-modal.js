@@ -139,7 +139,7 @@ document.head.appendChild(style);
 // Inject HTML
 // Inject HTML and Logic when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    const modalHTML = `
+    const successModalHTML = `
         <div id="success-modal-overlay">
             <div id="success-modal-card">
                 <div class="success-checkmark-circle">
@@ -153,59 +153,117 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>
     `;
-    const div = document.createElement('div');
-    div.innerHTML = modalHTML;
-    document.body.appendChild(div.firstElementChild);
 
-    // Logic
-    const overlay = document.getElementById('success-modal-overlay');
-    const btn = document.getElementById('success-btn');
+    const confirmModalHTML = `
+        <div id="confirm-modal-overlay" style="
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); z-index: 9999;
+            display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease-out;
+        ">
+            <div id="confirm-modal-card" style="
+                background: white; border-radius: 24px; padding: 32px; width: 90%; max-width: 400px; text-align: center;
+                transform: scale(0.8) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            ">
+                <div style="margin-bottom: 20px;">
+                    <span class="material-symbols-outlined" style="font-size: 48px; color: #F59E0B;">help</span>
+                </div>
+                <h2 id="confirm-title" style="font-family: inherit; font-weight: 800; font-size: 22px; color: #162841; margin-bottom: 8px;">هل أنت متأكد؟</h2>
+                <p id="confirm-message" style="font-family: inherit; color: #64748b; font-size: 15px; line-height: 1.5; margin-bottom: 32px;">لا يمكن التراجع عن هذا الإجراء.</p>
+                <div style="display: flex; gap: 12px;">
+                    <button id="confirm-cancel-btn" style="
+                        flex: 1; background: white; color: #64748b; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px;
+                        font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
+                    ">إلغاء</button>
+                    <button id="confirm-yes-btn" style="
+                        flex: 1; background: #162841; color: white; border: none; padding: 12px; border-radius: 12px;
+                        font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
+                    ">تأكيد</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const div = document.createElement('div');
+    div.innerHTML = successModalHTML + confirmModalHTML;
+    document.body.appendChild(div);
+
+    // --- Success Modal Logic ---
+    const successOverlay = document.getElementById('success-modal-overlay');
+    const successBtn = document.getElementById('success-btn');
     const titleEl = document.getElementById('success-title');
     const msgEl = document.getElementById('success-message');
 
-    function hideModal() {
-        overlay.classList.remove('active');
+    function hideSuccessModal() {
+        successOverlay.classList.remove('active');
     }
 
-    btn.addEventListener('click', hideModal);
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) hideModal();
+    successBtn.addEventListener('click', hideSuccessModal);
+    successOverlay.addEventListener('click', (e) => {
+        if (e.target === successOverlay) hideSuccessModal();
     });
 
-    // Export Global Function (or update existing one if defined elsewhere, but here we define logic)
-    // We attach it to window inside here to ensure closures have access to elements
     window.showSuccessModal = function (title, message) {
         if (titleEl) titleEl.textContent = title;
         if (msgEl) msgEl.textContent = message;
-        if (overlay) overlay.classList.add('active');
+        if (successOverlay) successOverlay.classList.add('active');
 
-        // Fire Confetti
         if (window.confetti) {
-            // Center burst
-            window.confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#162841', '#4C8E4D', '#FBBF24', '#ffffff']
-            });
-
-            // Side cannons after delay
+            window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#162841', '#4C8E4D', '#FBBF24', '#ffffff'] });
             setTimeout(() => {
-                window.confetti({
-                    particleCount: 50,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#162841', '#4C8E4D']
-                });
-                window.confetti({
-                    particleCount: 50,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#162841', '#4C8E4D']
-                });
+                window.confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#162841', '#4C8E4D'] });
+                window.confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#162841', '#4C8E4D'] });
             }, 300);
         }
+    };
+
+    // --- Confirm Modal Logic ---
+    const confirmOverlay = document.getElementById('confirm-modal-overlay');
+    const confirmCard = document.getElementById('confirm-modal-card');
+    const confirmTitle = document.getElementById('confirm-title');
+    const confirmMessage = document.getElementById('confirm-message');
+    const confirmYesBtn = document.getElementById('confirm-yes-btn');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
+    let confirmResolve = null;
+
+    function hideConfirmModal() {
+        confirmOverlay.style.opacity = '0';
+        confirmOverlay.style.visibility = 'hidden';
+        confirmCard.style.opacity = '0';
+        confirmCard.style.transform = 'scale(0.8) translateY(20px)';
+        if (confirmResolve) confirmResolve(false);
+    }
+
+    confirmCancelBtn.addEventListener('click', () => {
+        hideConfirmModal();
+    });
+
+    confirmYesBtn.addEventListener('click', () => {
+        confirmOverlay.style.opacity = '0';
+        confirmOverlay.style.visibility = 'hidden';
+        confirmCard.style.opacity = '0';
+        confirmCard.style.transform = 'scale(0.8) translateY(20px)';
+        if (confirmResolve) confirmResolve(true);
+    });
+
+    window.showConfirmModal = function (title, message, isDestructive = false) {
+        return new Promise((resolve) => {
+            confirmResolve = resolve;
+            confirmTitle.textContent = title;
+            confirmMessage.textContent = message;
+
+            if (isDestructive) {
+                confirmYesBtn.style.background = '#ef4444'; // Red
+                confirmYesBtn.textContent = 'حذف';
+            } else {
+                confirmYesBtn.style.background = '#162841'; // Primary
+                confirmYesBtn.textContent = 'تأكيد';
+            }
+
+            confirmOverlay.style.visibility = 'visible';
+            confirmOverlay.style.opacity = '1';
+            confirmCard.style.opacity = '1';
+            confirmCard.style.transform = 'scale(1) translateY(0)';
+        });
     };
 });

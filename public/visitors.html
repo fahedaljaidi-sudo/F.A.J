@@ -530,7 +530,8 @@
 
         // Checkout visitor
         async function checkoutVisitor(id) {
-            if (!confirm('هل تريد تسجيل خروج هذا الزائر؟')) return;
+            const confirmed = await showConfirmModal('تسجيل خروج', 'هل أنت متأكد من تسجيل خروج هذا الزائر؟');
+            if (!confirmed) return;
 
             try {
                 const response = await fetch(`${API_BASE}/visitors/${id}/checkout`, {

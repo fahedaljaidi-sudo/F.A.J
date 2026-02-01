@@ -379,7 +379,8 @@
 
         // Delete guard
         async function deleteGuard(id, name) {
-            if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return;
+            const confirmed = await showConfirmModal('حذف الموظف', `هل أنت متأكد من حذف حساب "${name}"؟`, true);
+            if (!confirmed) return;
 
             try {
                 const response = await fetch(`${API_BASE}/users/${id}`, {
