@@ -59,6 +59,14 @@ const fs = require('fs');
             // Column already exists, ignore
         }
 
+        // Ensure patrol_rounds has notes column
+        try {
+            prepare('ALTER TABLE patrol_rounds ADD COLUMN notes TEXT').run();
+            console.log('✓ Migration: notes column added to patrol_rounds');
+        } catch (e) {
+            // Column already exists, ignore
+        }
+
         // Migration for users is_active
         try {
             prepare('ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1').run();
