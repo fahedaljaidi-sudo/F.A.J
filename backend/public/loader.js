@@ -39,13 +39,13 @@
         }
 
         .faj-logo-pulse {
-            width: 90px;
-            height: 90px;
+            width: 120px;
+            height: 120px;
             object-fit: contain;
             /* Ensure logo pops against glass */
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
             margin-bottom: 32px;
-            animation: float-logo 3s ease-in-out infinite;
+            animation: scale-out-pulse 2s ease-in-out infinite;
         }
 
         /* Premium SVG Spinner */
@@ -65,9 +65,10 @@
             animation: dash 1.5s ease-in-out infinite;
         }
 
-        @keyframes float-logo {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        @keyframes scale-out-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
 
         @keyframes rotate {
