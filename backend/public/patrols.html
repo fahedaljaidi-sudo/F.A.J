@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/responsive.css" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="mock-api.js"></script>
+    <script src="success-modal.js"></script>
     <script src="/mobile-nav.js"></script>
     <script>
         tailwind.config = {
@@ -553,7 +554,7 @@
                         body: JSON.stringify({ location, security_status: status, notes })
                     });
                     if (response.ok) {
-                        alert('تم حفظ التعديلات بنجاح ✓');
+                        showSuccessModal('تم تحديث الجولة', 'تم حفظ تعديلات الجولة الميدانية بنجاح');
                         closeModal();
                         loadRecentPatrols();
                     } else {
@@ -670,7 +671,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('تم تسجيل الجولة بنجاح ✓');
+                    showSuccessModal('تم تسجيل الجولة بنجاح', 'تم حفظ بيانات الجولة الميدانية في السجل');
                     document.getElementById('patrol-form').reset();
                     document.querySelector('input[value="normal"]').checked = true;
                     removeImage();
