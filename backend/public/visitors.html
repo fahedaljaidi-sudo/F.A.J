@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/responsive.css" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="mock-api.js"></script>
+    <script src="success-modal.js"></script>
     <script src="/mobile-nav.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -516,7 +517,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('تم تسجيل الزائر بنجاح ✓');
+                    showSuccessModal('تم تسجيل الزائر بنجاح', 'أهلاً وسهلاً بك في نظام الأمن الصناعي');
                     document.getElementById('visitor-form').reset();
                     loadVisitors();
                 } else {
