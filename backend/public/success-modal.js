@@ -137,71 +137,75 @@ style.textContent = `
 document.head.appendChild(style);
 
 // Inject HTML
-const modalHTML = `
-    <div id="success-modal-overlay">
-        <div id="success-modal-card">
-            <div class="success-checkmark-circle">
-                <svg class="success-checkmark" viewBox="0 0 24 24">
-                    <path d="M20 6L9 17l-5-5"></path>
-                </svg>
+// Inject HTML and Logic when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    const modalHTML = `
+        <div id="success-modal-overlay">
+            <div id="success-modal-card">
+                <div class="success-checkmark-circle">
+                    <svg class="success-checkmark" viewBox="0 0 24 24">
+                        <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                </div>
+                <h2 id="success-title">Success!</h2>
+                <p id="success-message">Operation completed successfully.</p>
+                <button id="success-btn">موافق</button>
             </div>
-            <h2 id="success-title">Success!</h2>
-            <p id="success-message">Operation completed successfully.</p>
-            <button id="success-btn">موافق</button>
         </div>
-    </div>
-`;
-const div = document.createElement('div');
-div.innerHTML = modalHTML;
-document.body.appendChild(div.firstElementChild);
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div.firstElementChild);
 
-// Logic
-const overlay = document.getElementById('success-modal-overlay');
-const btn = document.getElementById('success-btn');
-const titleEl = document.getElementById('success-title');
-const msgEl = document.getElementById('success-message');
+    // Logic
+    const overlay = document.getElementById('success-modal-overlay');
+    const btn = document.getElementById('success-btn');
+    const titleEl = document.getElementById('success-title');
+    const msgEl = document.getElementById('success-message');
 
-function hideModal() {
-    overlay.classList.remove('active');
-}
-
-btn.addEventListener('click', hideModal);
-overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) hideModal();
-});
-
-// Export Global Function
-window.showSuccessModal = function (title, message) {
-    titleEl.textContent = title;
-    msgEl.textContent = message;
-    overlay.classList.add('active');
-
-    // Fire Confetti
-    if (window.confetti) {
-        // Center burst
-        window.confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#162841', '#4C8E4D', '#FBBF24', '#ffffff']
-        });
-
-        // Side cannons after delay
-        setTimeout(() => {
-            window.confetti({
-                particleCount: 50,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#162841', '#4C8E4D']
-            });
-            window.confetti({
-                particleCount: 50,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#162841', '#4C8E4D']
-            });
-        }, 300);
+    function hideModal() {
+        overlay.classList.remove('active');
     }
-};
+
+    btn.addEventListener('click', hideModal);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) hideModal();
+    });
+
+    // Export Global Function (or update existing one if defined elsewhere, but here we define logic)
+    // We attach it to window inside here to ensure closures have access to elements
+    window.showSuccessModal = function (title, message) {
+        if (titleEl) titleEl.textContent = title;
+        if (msgEl) msgEl.textContent = message;
+        if (overlay) overlay.classList.add('active');
+
+        // Fire Confetti
+        if (window.confetti) {
+            // Center burst
+            window.confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#162841', '#4C8E4D', '#FBBF24', '#ffffff']
+            });
+
+            // Side cannons after delay
+            setTimeout(() => {
+                window.confetti({
+                    particleCount: 50,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#162841', '#4C8E4D']
+                });
+                window.confetti({
+                    particleCount: 50,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#162841', '#4C8E4D']
+                });
+            }, 300);
+        }
+    };
+});
