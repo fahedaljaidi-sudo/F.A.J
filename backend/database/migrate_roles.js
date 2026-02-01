@@ -49,13 +49,32 @@ async function migrateRoles() {
                 )
             `);
 
-            // 3. Copy data
-            console.log('🚚 Copying data...');
-            db.run(`
-                INSERT INTO users (id, username, password_hash, full_name, email, role, unit_number, is_active, created_at, updated_at)
-                SELECT id, username, password_hash, full_name, email, role, unit_number, is_active, created_at, updated_at
+            // 3. Copy data with dynamic column detection
+            console.log('🚚 Copying data with schema check...');
+
+            // Get columns from users_old
+            const oldTableInfo = db.exec("PRAGMA table_info(users_old)");
+            const oldColumns = oldTableInfo[0].values.map(col => col[1]);
+
+            // Define expected new columns
+            const newColumns = ['id', 'username', 'password_hash', 'full_name', 'email', 'role', 'unit_number', 'is_active', 'created_at', 'updated_at'];
+
+            // intersection of columns that exist in both
+            const commonColumns = newColumns.filter(col => oldColumns.includes(col));
+
+            const columnsStr = commonColumns.join(', ');
+
+            // If is_active is missing in old data, we let the default value (1) handle it in the new table
+            // We only insert what we have
+
+            const copyQuery = `
+                INSERT INTO users (${columnsStr})
+                SELECT ${columnsStr}
                 FROM users_old
-            `);
+            `;
+
+            console.log(`📝 Executing copy: ${copyQuery}`);
+            db.run(copyQuery);
 
             // 4. Drop old table
             console.log('🗑️ Dropping old table...');

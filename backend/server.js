@@ -175,3 +175,13 @@ app.listen(PORT, '0.0.0.0', () => {
 });
 
 module.exports = app;
+
+// Global Error Handlers
+process.on('uncaughtException', (err) => {
+    console.error('🔥 Uncaught Exception:', err);
+    // Keep running if possible, or graceful shutdown
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
+});
