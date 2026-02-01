@@ -155,6 +155,7 @@
         </div>
     </main>
 
+    <script src="success-modal.js"></script>
     <script>
         // Check if already logged in
         const token = localStorage.getItem('token');
@@ -201,17 +202,26 @@
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
 
-                    // Redirect to visitors page
-                    window.location.href = '/visitors.html';
+                    // Show Success Modal
+                    showSuccessModal('تم تسجيل الدخول بنجاح', 'مرحباً بك في نظام الأمن الصناعي');
+
+                    // Redirect after delay
+                    setTimeout(() => {
+                        window.location.href = '/visitors.html';
+                    }, 1500);
                 } else {
                     // Show error
                     errorBox.classList.remove('hidden');
                     errorMessage.textContent = data.error || 'حدث خطأ في تسجيل الدخول';
+                    // Reset button
+                    loginBtn.classList.remove('loading');
+                    btnText.textContent = 'تسجيل الدخول';
+                    btnIcon.classList.remove('hidden');
+                    btnLoading.classList.add('hidden');
                 }
             } catch (error) {
                 errorBox.classList.remove('hidden');
                 errorMessage.textContent = 'خطأ في الاتصال بالخادم';
-            } finally {
                 // Reset button
                 loginBtn.classList.remove('loading');
                 btnText.textContent = 'تسجيل الدخول';

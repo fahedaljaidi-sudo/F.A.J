@@ -541,6 +541,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    showSuccessModal('تم تسجيل الخروج', 'تم تسجيل مغادرة الزائر بنجاح');
                     loadVisitors();
                 } else {
                     alert(data.error || 'حدث خطأ');

@@ -388,7 +388,7 @@
                 });
 
                 if (response.ok) {
-                    alert('تم تعطيل الحساب بنجاح');
+                    showSuccessModal('تم الحذف بنجاح', `تم تعطيل حساب ${name} وإزالته من القائمة`);
                     loadGuards();
                 } else {
                     const data = await response.json();
