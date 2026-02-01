@@ -107,7 +107,8 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 
     } catch (error) {
         console.error('Create user error:', error);
-        res.status(500).json({ error: 'خطأ في إنشاء المستخدم' });
+        console.error('Create user error:', error);
+        res.status(500).json({ error: 'خطأ في إنشاء المستخدم: ' + error.message });
     }
 });
 
