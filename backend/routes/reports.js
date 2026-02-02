@@ -17,6 +17,10 @@ router.get('/', authenticateToken, async (req, res) => {
         if (isAdmin) {
             // Admins see all activities
             if (from_date && to_date) {
+                // Append time to ensure full day coverage
+                const startDateTime = `${from_date} 00:00:00`;
+                const endDateTime = `${to_date} 23:59:59`;
+
                 logs = prepare(`
                     SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
                            p.notes as patrol_notes
@@ -24,10 +28,10 @@ router.get('/', authenticateToken, async (req, res) => {
                     LEFT JOIN users u ON a.user_id = u.id
                     LEFT JOIN visitors v ON a.visitor_id = v.id
                     LEFT JOIN patrol_rounds p ON a.patrol_id = p.id
-                    WHERE DATE(a.event_time) BETWEEN ? AND ?
+                    WHERE a.event_time >= ? AND a.event_time <= ?
                     ORDER BY a.event_time DESC
                     LIMIT ? OFFSET ?
-                `).all(from_date, to_date, parseInt(limit), parseInt(offset));
+                `).all(startDateTime, endDateTime, parseInt(limit), parseInt(offset));
             } else {
                 logs = prepare(`
                     SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
@@ -44,6 +48,10 @@ router.get('/', authenticateToken, async (req, res) => {
         } else {
             // Guards see only their own activities
             if (from_date && to_date) {
+                // Append time to ensure full day coverage
+                const startDateTime = `${from_date} 00:00:00`;
+                const endDateTime = `${to_date} 23:59:59`;
+
                 logs = prepare(`
                     SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
                            p.notes as patrol_notes
@@ -51,10 +59,10 @@ router.get('/', authenticateToken, async (req, res) => {
                     LEFT JOIN users u ON a.user_id = u.id
                     LEFT JOIN visitors v ON a.visitor_id = v.id
                     LEFT JOIN patrol_rounds p ON a.patrol_id = p.id
-                    WHERE DATE(a.event_time) BETWEEN ? AND ? AND a.user_id = ?
+                    WHERE a.event_time >= ? AND a.event_time <= ? AND a.user_id = ?
                     ORDER BY a.event_time DESC
                     LIMIT ? OFFSET ?
-                `).all(from_date, to_date, req.user.id, parseInt(limit), parseInt(offset));
+                `).all(startDateTime, endDateTime, req.user.id, parseInt(limit), parseInt(offset));
             } else {
                 logs = prepare(`
                     SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
@@ -82,8 +90,14 @@ router.get('/', authenticateToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get reports error:', error);
-        res.status(500).json({ error: 'خطأ في جلب التقارير' });
+        console.error('❌ Get reports error:', error);
+        if (error.code === 'SqliteError') {
+            console.error('SQL Query Error Details:', error.message);
+        }
+        res.status(500).json({
+            error: 'خطأ في جلب التقارير',
+            details: error.message
+        });
     }
 });
 

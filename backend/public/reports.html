@@ -227,7 +227,7 @@
                         <p class="text-sm font-bold text-gray-900" id="user-name">--</p>
                         <p class="text-xs text-gray-500" id="user-role">--</p>
                     </div>
-                    <div
+                    <div id="user-avatar"
                         class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
                         <span class="material-symbols-outlined">person</span>
                     </div>
@@ -349,7 +349,10 @@
         if (!token) window.location.href = '/';
 
         // Update header
-        document.getElementById('user-avatar').textContent = (user.full_name || '--').slice(0, 2);
+        const avatarEl = document.getElementById('user-avatar');
+        if (avatarEl) {
+            avatarEl.textContent = (user.full_name || '--').slice(0, 2);
+        }
 
         // Update sidebar user info
         const userNameEl = document.getElementById('user-name');
@@ -405,18 +408,61 @@
             if (fromDate) url += `&from_date=${fromDate}`;
             if (toDate) url += `&to_date=${toDate}`;
 
+            const tbody = document.getElementById('reports-table');
+
+            // Show loading state
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="py-8 text-center text-gray-500">
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="material-symbols-outlined animate-spin text-3xl">progress_activity</span>
+                            <p>جاري تحميل البيانات...</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
             try {
                 const response = await fetch(url, { headers: getHeaders() });
+
                 if (response.status === 401 || response.status === 403) {
                     logout();
                     return;
                 }
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`Server returned ${response.status}: ${errText}`);
+                }
+
                 const data = await response.json();
                 renderReports(data.logs || []);
                 document.getElementById('results-count').textContent = `نتائج البحث (${data.logs?.length || 0} سجل)`;
                 document.getElementById('pagination-info').textContent = `عرض ${data.logs?.length || 0} من أصل ${data.pagination?.total || 0} سجل`;
             } catch (error) {
                 console.error('Error loading reports:', error);
+
+                // Show error message in the table
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <span class="material-symbols-outlined text-4xl text-red-500">error</span>
+                                <h3 class="text-lg font-bold text-red-600">فشل تحميل التقارير</h3>
+                                <p class="text-gray-600 max-w-md mx-auto text-sm">
+                                    حدث خطأ أثناء الاتصال بالخادم. يرجى التأكد من اتصالك بالإنترنت أو المحاولة مرة أخرى لاحقاً.
+                                </p>
+                                <div class="p-3 bg-red-50 rounded text-red-800 text-xs font-mono text-left w-full max-w-lg overflow-auto mt-2" dir="ltr">
+                                    ${error.message}
+                                </div>
+                                <button onclick="loadReports()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">refresh</span>
+                                    <span>نحديث الصفحة</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
         }
 
