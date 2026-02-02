@@ -402,6 +402,7 @@
                             ${p.notes ? `<p class="text-xs text-gray-600 mt-1 truncate">${p.notes}</p>` : ''}
                         </div>
                     </div>
+                    </div>
                     <div class="flex items-center gap-2 mr-11">
                         <button onclick="viewPatrol(${p.id})" class="text-xs px-2 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center gap-1" title="معاينة">
                             <span class="material-symbols-outlined text-sm">visibility</span>
@@ -418,6 +419,11 @@
                         <button onclick="editPatrol(${p.id})" class="text-xs px-2 py-1 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center gap-1" title="تعديل">
                             <span class="material-symbols-outlined text-sm">edit</span>
                         </button>
+                        ${user.role === 'admin' ? `
+                        <button onclick="deletePatrol(${p.id})" class="text-xs px-2 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 flex items-center gap-1" title="حذف">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -583,6 +589,30 @@
                 }
             } catch (error) {
                 console.error('Error changing status:', error);
+            }
+        }
+
+        // Delete patrol
+        async function deletePatrol(id) {
+            const confirmed = await showConfirmModal('حذف الجولة', 'هل أنت متأكد من حذف هذا السجل نهائياً؟', true);
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/patrols/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+
+                if (response.ok) {
+                    showSuccessModal('تم الحذف', 'تم حذف الجولة بنجاح');
+                    loadRecentPatrols();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                console.error('Error deleting patrol:', error);
+                alert('خطأ في الاتصال بالخادم');
             }
         }
 

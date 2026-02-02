@@ -362,4 +362,34 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
     }
 });
 
+// DELETE /api/patrols/:id - Delete patrol
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        await getDatabase();
+        const { id } = req.params;
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'غير مصرح لك بحذف الجولات' });
+        }
+
+        const patrol = prepare('SELECT * FROM patrol_rounds WHERE id = ?').get(id);
+
+        if (!patrol) {
+            return res.status(404).json({ error: 'الجولة غير موجودة' });
+        }
+
+        prepare('DELETE FROM patrol_rounds WHERE id = ?').run(id);
+
+        // Also delete associated activity log
+        prepare('DELETE FROM activity_log WHERE patrol_id = ?').run(id);
+
+        res.json({ message: 'تم حذف الجولة بنجاح' });
+
+    } catch (error) {
+        console.error('Delete patrol error:', error);
+        res.status(500).json({ error: 'خطأ في حذف الجولة' });
+    }
+});
+
 module.exports = router;
