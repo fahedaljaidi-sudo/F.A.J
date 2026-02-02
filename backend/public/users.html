@@ -437,8 +437,8 @@
                 });
 
                 if (response.ok) {
-                    alert('تم تحديث البيانات بنجاح ✓');
                     closeEditModal();
+                    showSuccessModal('تم التحديث', 'تم تحديث بيانات الموظف بنجاح');
                     loadGuards();
                 } else {
                     const data = await response.json();
