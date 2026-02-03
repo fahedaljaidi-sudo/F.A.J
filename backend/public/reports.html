@@ -35,8 +35,59 @@
             font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
         }
 
-        .print-header {
+        #print-container {
             display: none;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            body * {
+                visibility: hidden;
+            }
+
+            #print-container,
+            #print-container * {
+                visibility: visible;
+            }
+
+            #print-container {
+                display: block;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                font-size: 12px;
+            }
+
+            .print-table th,
+            .print-table td {
+                border-bottom: 1px solid #eee;
+                padding: 12px 8px;
+                text-align: right;
+            }
+
+            .print-table th {
+                color: #5c6f8a;
+                font-weight: 500;
+            }
+
+            .print-status-badge {
+                padding: 4px 12px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: bold;
+                display: inline-block;
+            }
         }
 
         @media print {
@@ -166,6 +217,89 @@
 </head>
 
 <body class="bg-gray-50 text-[#101418] min-h-screen flex overflow-hidden">
+    <!-- Print Template (Hidden on Screen) -->
+    <div id="print-container" dir="rtl">
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-12">
+            <div class="text-right">
+                <div class="flex items-center gap-3 mb-2">
+                    <img src="/logo.png" alt="Logo" class="w-12 h-12">
+                    <div>
+                        <h1 class="font-bold text-xl text-[#162841]">شركة الحماية الأمنية</h1>
+                        <p class="text-[10px] text-gray-500 tracking-widest uppercase">SECURITY FIRM INC</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left text-xs text-gray-500 space-y-1" dir="ltr">
+                <p><span class="font-semibold text-gray-900">Ref No:</span> <span id="print-ref">--</span></p>
+                <p><span class="font-semibold text-gray-900">Date:</span> <span id="print-date-top">--</span></p>
+                <p><span class="font-semibold text-gray-900">By:</span> <span id="print-user">--</span></p>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="text-center mb-8 relative">
+            <h2 class="text-2xl font-bold text-[#162841] inline-block pb-2 border-b-4 border-blue-600">تقرير الزيارات
+                والجولات الميدانية</h2>
+        </div>
+
+        <!-- Filters -->
+        <div class="mb-6 flex gap-8 text-xs text-gray-600 border p-3 rounded-lg bg-gray-50">
+            <p><strong>الفترة من:</strong> <span id="print-from">--</span></p>
+            <p><strong>إلى:</strong> <span id="print-to">--</span></p>
+            <p><strong>الموظف:</strong> <span id="print-filter-user">الكل</span></p>
+        </div>
+
+        <!-- Table -->
+        <table class="print-table w-full">
+            <thead>
+                <tr>
+                    <th class="w-12">م.</th>
+                    <th>الوقت</th>
+                    <th>الجهة / اسم الزائر</th>
+                    <th>الموقع</th>
+                    <th>الحالة</th>
+                    <th>ملاحظات تفصيلية</th>
+                </tr>
+            </thead>
+            <tbody id="print-table-body">
+                <!-- Rows will be injected here -->
+            </tbody>
+        </table>
+
+        <!-- Footer -->
+        <div class="mt-20 pt-8 border-t border-gray-100">
+            <h3 class="font-bold text-lg mb-8 text-right">الاعتمادات والتواقيع</h3>
+            <div class="flex justify-around items-end text-center px-12">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="h-24 flex items-end pb-2 border-b border-gray-300 w-64 justify-center">
+                        <!-- Empty Signature Line -->
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm">توقيع حارس الأمن</p>
+                        <p class="text-[10px] text-gray-500 uppercase">Security Guard Signature</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center gap-4">
+                    <div class="h-24 flex items-end pb-2 border-b border-gray-300 w-64 justify-center">
+                        <!-- Empty Signature Line -->
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm">اعتماد المشرف</p>
+                        <p class="text-[10px] text-gray-500 uppercase">Supervisor Approval</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="mt-12 text-center text-[8px] text-gray-400">
+            <p>هذا المستند سري ويخص شركة الحماية الأمنية فقط. أي تداول غير مصرح به يعرض للمساءلة القانونية.</p>
+            <p class="mt-1" dir="ltr">This document is confidential. Generated by Security Management System v2.4</p>
+        </div>
+    </div>
+
     <div class="flex h-screen w-full">
         <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
             <div class="p-6 border-b border-white/10">
@@ -234,14 +368,7 @@
                 </div>
             </header>
 
-            <!-- Print Header -->
-            <div class="print-header">
-                <img src="/logo.png" alt="FAJ Security">
-                <h1 style="font-size: 24px; font-weight: bold; margin-top: 10px; color: #162841;">FAJ For Security
-                    Guards</h1>
-                <p style="font-size: 14px; color: #666; margin-top: 5px;">تقرير السجلات الأمنية</p>
-                <p style="font-size: 12px; color: #888; margin-top: 5px;" id="print-date"></p>
-            </div>
+
             <div class="flex flex-col w-full h-full">
                 <div class="flex flex-1 justify-center py-6 px-4 md:px-8">
                     <div class="w-full max-w-[1400px] flex flex-col">
@@ -565,13 +692,13 @@
         }
 
         async function loadAllReportsForPrint() {
-            const fromDate = document.getElementById('from-date').value;
-            const toDate = document.getElementById('to-date').value;
+            const fromDateVal = document.getElementById('from-date').value;
+            const toDateVal = document.getElementById('to-date').value;
             const userId = document.getElementById('user-filter')?.value;
 
             let url = `${API_BASE}/reports?limit=10000`;
-            if (fromDate) url += `&from_date=${fromDate}`;
-            if (toDate) url += `&to_date=${toDate}`;
+            if (fromDateVal) url += `&from_date=${fromDateVal}`;
+            if (toDateVal) url += `&to_date=${toDateVal}`;
             if (userId) url += `&user_id=${userId}`;
 
             try {
@@ -581,7 +708,23 @@
                     return [];
                 }
                 const data = await response.json();
-                return data.logs || [];
+                let logs = data.logs || [];
+
+                // Client-side fallback filtering (Ensures data is correct even if backend is cached/old)
+                if (userId) {
+                    logs = logs.filter(log => log.user_id == userId);
+                }
+
+                if (fromDateVal && toDateVal) {
+                    const start = new Date(fromDateVal + 'T00:00:00').getTime();
+                    const end = new Date(toDateVal + 'T23:59:59').getTime();
+                    logs = logs.filter(log => {
+                        const time = new Date(log.event_time).getTime();
+                        return time >= start && time <= end;
+                    });
+                }
+
+                return logs;
             } catch (error) {
                 console.error('Error loading all reports:', error);
                 return [];
@@ -589,29 +732,75 @@
         }
 
         async function printReport() {
-            // حفظ السجلات الحالية المعروضة
-            const currentTableContent = document.getElementById('reports-table').innerHTML;
-
-            // تحميل جميع السجلات للطباعة
+            // 1. Prepare Data
             allReportsForPrint = await loadAllReportsForPrint();
+            const fromDateProp = document.getElementById('from-date').value;
+            const toDateProp = document.getElementById('to-date').value;
+            const userFilterSelect = document.getElementById('user-filter');
+            const selectedUserName = userFilterSelect && userFilterSelect.value ? userFilterSelect.options[userFilterSelect.selectedIndex].text : "الكل";
 
-            // عرض جميع السجلات في الجدول
-            renderReports(allReportsForPrint);
+            // 2. Populate Header Info
+            const now = new Date();
+            const refNo = `SEC-${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}-${Math.floor(Math.random() * 1000).toString().padStart(4, '0')}`;
 
-            // تحديث تاريخ الطباعة
-            const printDateEl = document.getElementById('print-date');
-            if (printDateEl) {
-                const now = new Date();
-                printDateEl.textContent = `تاريخ الطباعة: ${now.toLocaleDateString('ar-SA')} - ${now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`;
+            document.getElementById('print-ref').textContent = refNo;
+            document.getElementById('print-date-top').textContent = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            document.getElementById('print-user').textContent = user.username || "System";
+            // Removed signer name population per request
+
+            // 3. Populate Filters
+            document.getElementById('print-from').textContent = fromDateProp || "غير محدد";
+            document.getElementById('print-to').textContent = toDateProp || "غير محدد";
+            document.getElementById('print-filter-user').textContent = selectedUserName;
+
+            // 4. Populate Table
+            const printTbody = document.getElementById('print-table-body');
+
+            if (allReportsForPrint.length === 0) {
+                printTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">لا توجد بيانات للعرض</td></tr>';
+            } else {
+                const statusBadges = {
+                    'completed': { text: 'مكتمل', bg: '#dcfce7', color: '#166534' },
+                    'success': { text: 'ناجح', bg: '#dcfce7', color: '#166534' },
+                    'review': { text: 'قيد المراجعة', bg: '#fef3c7', color: '#92400e' },
+                    'pending': { text: 'قيد الانتظار', bg: '#ffedd5', color: '#9a3412' }
+                };
+
+                printTbody.innerHTML = allReportsForPrint.map((log, index) => {
+                    const date = new Date(log.event_time);
+                    const timeStr = date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+
+                    // Determine main entity name based on event type
+                    let entityName = log.visitor_name || log.visitor_company || log.user_name || "النظام";
+                    if (log.event_type === 'patrol') entityName = "دورية موقع";
+
+                    // Determine Badge
+                    const status = statusBadges[log.status] || { text: log.status, bg: '#f3f4f6', color: '#4b5563' };
+
+                    return `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td class="font-bold font-mono" dir="ltr">${timeStr}</td>
+                            <td>${entityName}</td>
+                            <td>${log.location || '-'}</td>
+                            <td>
+                                <span class="print-status-badge" style="background-color: ${status.bg}; color: ${status.color}">
+                                    ${status.text}
+                                </span>
+                            </td>
+                            <td>
+                                <div>${log.description || '-'}</div>
+                                ${log.patrol_notes ? `<div class="text-[10px] text-gray-500 mt-1">${log.patrol_notes}</div>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
 
-            // انتظار قليلاً لضمان تحديث DOM
+            // 5. Print
             setTimeout(() => {
                 window.print();
-
-                // إعادة العرض المحدود بعد الطباعة
-                document.getElementById('reports-table').innerHTML = currentTableContent;
-            }, 300);
+            }, 500);
         }
 
         function logout() {
