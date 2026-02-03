@@ -268,7 +268,7 @@
                                 <span class="material-symbols-outlined text-primary">filter_alt</span>
                                 <h3 class="text-[#101418] text-base font-bold">تصفية البيانات</h3>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                                 <label class="flex flex-col gap-1.5 flex-1">
                                     <span class="text-[#101418] text-sm font-semibold">من تاريخ</span>
                                     <input id="from-date"
@@ -281,8 +281,15 @@
                                         class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary outline-none"
                                         type="date" />
                                 </label>
+                                <label class="flex flex-col gap-1.5 flex-1 hidden" id="user-filter-container">
+                                    <span class="text-[#101418] text-sm font-semibold">الموظف</span>
+                                    <select id="user-filter"
+                                        class="w-full h-11 rounded-lg border border-border-color bg-gray-50 px-3 text-[#101418] text-sm focus:border-primary outline-none">
+                                        <option value="">جميع الموظفين</option>
+                                    </select>
+                                </label>
                                 <button onclick="applyFilter()"
-                                    class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-11 shadow-sm transition-all">تطبيق
+                                    class="bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg px-6 h-11 shadow-sm transition-all text-nowrap">تطبيق
                                     التصفية</button>
                             </div>
                         </div>
@@ -384,10 +391,17 @@
             });
         }
 
-        // Show admin link if applicable
-        if (user.role === 'admin') {
+        // Show admin elements
+        if (user.role === 'admin' || user.role === 'supervisor') {
             const adminLink = document.getElementById('admin-link');
             if (adminLink) adminLink.classList.remove('hidden');
+
+            // Show user filter for admins/supervisors
+            const userFilterContainer = document.getElementById('user-filter-container');
+            if (userFilterContainer) {
+                userFilterContainer.classList.remove('hidden');
+                loadUsers();
+            }
         }
 
         // Set default dates
@@ -400,13 +414,33 @@
             return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
         }
 
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users?limit=100`, { headers: getHeaders() });
+                if (response.ok) {
+                    const data = await response.json();
+                    const select = document.getElementById('user-filter');
+                    (data.users || []).forEach(u => {
+                        const option = document.createElement('option');
+                        option.value = u.id;
+                        option.textContent = u.full_name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading users for filter:', error);
+            }
+        }
+
         async function loadReports() {
             const fromDate = document.getElementById('from-date').value;
             const toDate = document.getElementById('to-date').value;
+            const userId = document.getElementById('user-filter')?.value;
 
             let url = `${API_BASE}/reports?limit=50`;
             if (fromDate) url += `&from_date=${fromDate}`;
             if (toDate) url += `&to_date=${toDate}`;
+            if (userId) url += `&user_id=${userId}`;
 
             const tbody = document.getElementById('reports-table');
 
@@ -533,10 +567,12 @@
         async function loadAllReportsForPrint() {
             const fromDate = document.getElementById('from-date').value;
             const toDate = document.getElementById('to-date').value;
+            const userId = document.getElementById('user-filter')?.value;
 
             let url = `${API_BASE}/reports?limit=10000`;
             if (fromDate) url += `&from_date=${fromDate}`;
             if (toDate) url += `&to_date=${toDate}`;
+            if (userId) url += `&user_id=${userId}`;
 
             try {
                 const response = await fetch(url, { headers: getHeaders() });

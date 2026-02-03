@@ -1,12 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { getDatabase, prepare } = require('../database/db');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { authenticateToken, requireAdmin, requireSupervisor } = require('../middleware/auth');
 
 const router = express.Router();
 
-// GET /api/users - List all users (admin only)
-router.get('/', authenticateToken, requireAdmin, async (req, res) => {
+// GET /api/users - List all users (admin & supervisor)
+router.get('/', authenticateToken, requireSupervisor, async (req, res) => {
     try {
         await getDatabase();
         const { page = 1, limit = 20 } = req.query;

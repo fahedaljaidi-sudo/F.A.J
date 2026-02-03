@@ -15,36 +15,54 @@ router.get('/', authenticateToken, async (req, res) => {
         let logs, totalResult;
 
         if (isAdmin) {
-            // Admins see all activities
+            // Admins see all activities (with optional filters)
+            let query = `
+                SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
+                       p.notes as patrol_notes
+                FROM activity_log a
+                LEFT JOIN users u ON a.user_id = u.id
+                LEFT JOIN visitors v ON a.visitor_id = v.id
+                LEFT JOIN patrol_rounds p ON a.patrol_id = p.id
+                WHERE 1=1
+            `;
+            const params = [];
+
             if (from_date && to_date) {
-                // Append time to ensure full day coverage
                 const startDateTime = `${from_date} 00:00:00`;
                 const endDateTime = `${to_date} 23:59:59`;
-
-                logs = prepare(`
-                    SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
-                           p.notes as patrol_notes
-                    FROM activity_log a
-                    LEFT JOIN users u ON a.user_id = u.id
-                    LEFT JOIN visitors v ON a.visitor_id = v.id
-                    LEFT JOIN patrol_rounds p ON a.patrol_id = p.id
-                    WHERE a.event_time >= ? AND a.event_time <= ?
-                    ORDER BY a.event_time DESC
-                    LIMIT ? OFFSET ?
-                `).all(startDateTime, endDateTime, parseInt(limit), parseInt(offset));
-            } else {
-                logs = prepare(`
-                    SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
-                           p.notes as patrol_notes
-                    FROM activity_log a
-                    LEFT JOIN users u ON a.user_id = u.id
-                    LEFT JOIN visitors v ON a.visitor_id = v.id
-                    LEFT JOIN patrol_rounds p ON a.patrol_id = p.id
-                    ORDER BY a.event_time DESC
-                    LIMIT ? OFFSET ?
-                `).all(parseInt(limit), parseInt(offset));
+                query += ` AND a.event_time >= ? AND a.event_time <= ?`;
+                params.push(startDateTime, endDateTime);
             }
-            totalResult = prepare('SELECT COUNT(*) as total FROM activity_log').get();
+
+            if (req.query.user_id) {
+                query += ` AND a.user_id = ?`;
+                params.push(req.query.user_id);
+            }
+
+            // Get total count for pagination before limit/offset
+            // We need a separate query for count that matches the filters
+            let countQuery = `SELECT COUNT(*) as total FROM activity_log a WHERE 1=1`;
+            const countParams = [];
+
+            if (from_date && to_date) {
+                const startDateTime = `${from_date} 00:00:00`;
+                const endDateTime = `${to_date} 23:59:59`;
+                countQuery += ` AND a.event_time >= ? AND a.event_time <= ?`;
+                countParams.push(startDateTime, endDateTime);
+            }
+
+            if (req.query.user_id) {
+                countQuery += ` AND a.user_id = ?`;
+                countParams.push(req.query.user_id);
+            }
+
+            totalResult = prepare(countQuery).get(...countParams);
+
+            // Add ordering and pagination
+            query += ` ORDER BY a.event_time DESC LIMIT ? OFFSET ?`;
+            params.push(parseInt(limit), parseInt(offset));
+
+            logs = prepare(query).all(...params);
         } else {
             // Guards see only their own activities
             if (from_date && to_date) {
