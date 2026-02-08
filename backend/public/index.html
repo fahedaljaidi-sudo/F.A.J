@@ -7,182 +7,110 @@
     <title>تسجيل الدخول - نظام إدارة الحراسات الأمنية</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Noto+Sans+Arabic:wght@400;500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/responsive.css" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="loader.js"></script>
     <script src="mock-api.js"></script>
     <script src="/mobile-nav.js"></script>
-    <script id="tailwind-config">
+    <script>
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
                         "primary": "#162841",
-                        "primary-hover": "#0f1c2e",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#0f172a",
-                        "surface": "#ffffff",
-                        "surface-dark": "#1e293b",
+                        "primary-hover": "#2c4a6e",
+                        "accent": "#3b82f6",
                     },
                     fontFamily: {
-                        "display": ["Noto Sans Arabic", "Public Sans", "sans-serif"],
-                        "sans": ["Noto Sans Arabic", "Public Sans", "sans-serif"],
-                    },
+                        "sans": ["Public Sans", "Noto Sans Arabic", "sans-serif"],
+                    }
                 },
             },
         }
     </script>
-    <style>
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover,
-        input:-webkit-autofill:focus,
-        input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #f8fafc inset !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
-
-        .loading {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-    </style>
 </head>
 
-<body
-    class="bg-background-light dark:bg-background-dark font-sans text-primary dark:text-slate-100 min-h-screen flex flex-col relative overflow-hidden">
-    <div class="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-        style="background-image: radial-gradient(#162841 1px, transparent 1px); background-size: 24px 24px;"></div>
-    <div class="absolute top-0 left-0 w-full h-1.5 bg-primary z-20 shadow-sm"></div>
-    <main class="flex-grow flex flex-col items-center justify-center p-4 w-full relative z-10">
-        <div class="w-full max-w-[420px] flex flex-col gap-6">
-            <div
-                class="bg-surface dark:bg-surface-dark rounded-xl shadow-card border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="pt-10 pb-6 px-8 flex flex-col items-center justify-center text-center">
-                    <div
-                        class="w-24 h-24 flex items-center justify-center mb-5 transform transition-transform hover:scale-105 duration-300">
-                        <img src="/logo.png" alt="FAJ Security" class="w-full h-full object-contain" />
-                    </div>
-                    <h1 class="text-primary dark:text-white text-[22px] font-bold leading-tight mb-2 tracking-tight">
-                        نظام إدارة الحراسات الأمنية
-                    </h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                        بوابة الدخول الموحدة للموظفين
-                    </p>
-                </div>
-                <div class="px-8 pb-10 bg-surface dark:bg-surface-dark">
-                    <!-- Error Message (hidden by default) -->
-                    <div id="error-box"
-                        class="mb-6 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg p-3 hidden">
-                        <div class="flex items-start gap-3">
-                            <span
-                                class="material-symbols-outlined text-red-600 dark:text-red-400 text-[20px] shrink-0 mt-0.5">error_circle_rounded</span>
-                            <div class="flex flex-col">
-                                <span class="text-red-800 dark:text-red-300 text-sm font-bold">خطأ في تسجيل
-                                    الدخول</span>
-                                <span id="error-message" class="text-red-600 dark:text-red-400 text-xs mt-0.5"></span>
-                            </div>
-                        </div>
-                    </div>
+<body class="bg-[#f0f4f8] min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    
+    <!-- Background Decor -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-[10%] right-[10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-400/20 blur-3xl animate-pulse delay-1000"></div>
+    </div>
 
-
-
-                    <form id="login-form" class="flex flex-col gap-5">
-                        <div class="flex flex-col gap-1.5 group/input">
-                            <label class="text-slate-700 dark:text-slate-300 text-sm font-bold" for="username">
-                                اسم المستخدم
-                            </label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] z-10 pointer-events-none">badge</span>
-                                <input
-                                    class="form-input flex w-full rounded-lg text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 h-12 pr-11 pl-4 text-base font-medium placeholder:text-slate-400 focus:outline-0 focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
-                                    dir="rtl" id="username" placeholder="أدخل اسم المستخدم" type="text" required />
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1.5 group/input">
-                            <label class="text-slate-700 dark:text-slate-300 text-sm font-bold" for="password">
-                                كلمة المرور
-                            </label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] z-10 pointer-events-none">lock</span>
-                                <input
-                                    class="form-input flex w-full rounded-lg text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 h-12 pr-11 pl-4 text-base font-medium placeholder:text-slate-400 focus:outline-0 focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
-                                    dir="rtl" id="password" placeholder="••••••••" type="password" required />
-                            </div>
-                        </div>
-                        <button id="login-btn"
-                            class="mt-4 bg-primary hover:bg-primary-hover active:bg-[#0b1421] text-white h-12 rounded-lg font-bold text-base shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group"
-                            type="submit">
-                            <span id="btn-text">تسجيل الدخول</span>
-                            <span id="btn-icon"
-                                class="material-symbols-outlined text-[20px] rtl:-scale-x-100">login</span>
-                            <span id="btn-loading" class="hidden">
-                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                            </span>
-                        </button>
-                    </form>
-                </div>
+    <!-- Login Card -->
+    <div class="glass-card w-full max-w-[420px] p-8 md:p-10 relative z-10 animate-fade-in">
+        <div class="flex flex-col items-center mb-8">
+            <div class="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mb-4 p-2 relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <img src="/logo.png" alt="FAJ Security" class="w-full h-full object-contain relative z-10" />
             </div>
-            <div class="text-center flex flex-col gap-3 items-center opacity-80">
-                <div
-                    class="flex items-center gap-2 text-slate-500 text-xs font-semibold bg-white py-1.5 px-3 rounded-full border border-slate-200 shadow-sm">
-                    <span class="material-symbols-outlined text-[16px] text-emerald-600">verified_user</span>
-                    <span>نظام داخلي - للاستخدام المحلي فقط</span>
-                </div>
-                <p class="text-slate-400 text-[11px] font-medium leading-relaxed">
-                    نسخة النظام 1.0.0 <br /> للاستخدام الداخلي فقط © 2024
-                </p>
-            </div>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">نظام إدارة الحراسات</h1>
+            <p class="text-sm text-slate-500 mt-1">تسجيل الدخول للمتابعة</p>
         </div>
-    </main>
+
+        <!-- Error Message (hidden by default) -->
+        <div id="error-box" class="hidden mb-6 bg-red-50 border border-red-100 rounded-lg p-3 flex items-start gap-3 animate-fade-in">
+            <span class="material-symbols-outlined text-red-600 text-[20px] shrink-0 mt-0.5">error</span>
+            <span id="error-message" class="text-red-700 text-sm font-medium leading-snug"></span>
+        </div>
+
+        <form id="login-form" class="space-y-5">
+            <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">اسم المستخدم</label>
+                <div class="relative group">
+                    <input type="text" id="username" 
+                        class="w-full pl-4 pr-10 py-3 bg-white/50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-800 placeholder:text-slate-400 font-medium"
+                        placeholder="أدخل اسم المستخدم" required />
+                    <span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 group-focus-within:text-blue-500 transition-colors">person</span>
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">كلمة المرور</label>
+                <div class="relative group">
+                    <input type="password" id="password" 
+                        class="w-full pl-4 pr-10 py-3 bg-white/50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-800 placeholder:text-slate-400 font-medium"
+                        placeholder="••••••••" required />
+                    <span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 group-focus-within:text-blue-500 transition-colors">lock</span>
+                </div>
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-[#162841] hover:bg-[#2c4a6e] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-900/20 hover:shadow-blue-900/30 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group">
+                <span>تسجيل الدخول</span>
+                <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_back</span>
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <p class="text-xs text-slate-400">FAJ Security Systems &copy; 2026</p>
+        </div>
+    </div>
 
     <script src="success-modal.js"></script>
     <script>
-        // Check if already logged in
-        const token = localStorage.getItem('token');
-        if (token) {
-            window.location.href = '/visitors.html';
-        }
+        const loginForm = document.getElementById('login-form');
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
 
-        // Login form handler
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
+            // Hide error initially
+            errorBox.classList.add('hidden');
+            
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('login-btn');
-            const btnText = document.getElementById('btn-text');
-            const btnIcon = document.getElementById('btn-icon');
-            const btnLoading = document.getElementById('btn-loading');
-            const errorBox = document.getElementById('error-box');
-            const errorMessage = document.getElementById('error-message');
+            const submitBtn = loginForm.querySelector('button');
+            const originalBtnText = submitBtn.innerHTML;
 
-            // Show loading
-            loginBtn.classList.add('loading');
-            btnText.textContent = 'جاري تسجيل الدخول...';
-            btnIcon.classList.add('hidden');
-            btnLoading.classList.remove('hidden');
-            errorBox.classList.add('hidden');
+            // Loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> جاري التحقق...';
 
             try {
                 const response = await fetch('/api/auth/login', {
@@ -196,40 +124,52 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Clear old data first
-                    localStorage.clear();
-
-                    // Save token and user info
+                    // Success
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
-
-                    // Show Success Modal
-                    showSuccessModal('تم تسجيل الدخول بنجاح', 'مرحباً بك في نظام الأمن الصناعي');
-
-                    // Redirect after delay
+                    
+                    // Show success feedback
+                    submitBtn.classList.remove('bg-[#162841]', 'hover:bg-[#2c4a6e]');
+                    submitBtn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                    submitBtn.innerHTML = '<span class="material-symbols-outlined">check</span> تم الدخول بنجاح';
+                    
                     setTimeout(() => {
-                        window.location.href = '/visitors.html';
-                    }, 1500);
+                        window.location.href = '/dashboard.html';
+                    }, 500);
                 } else {
                     // Show error
                     errorBox.classList.remove('hidden');
                     errorMessage.textContent = data.error || 'حدث خطأ في تسجيل الدخول';
-                    // Reset button
-                    loginBtn.classList.remove('loading');
-                    btnText.textContent = 'تسجيل الدخول';
-                    btnIcon.classList.remove('hidden');
-                    btnLoading.classList.add('hidden');
+                    
+                    // Shake animation for error
+                    const card = document.querySelector('.glass-card');
+                    card.classList.add('animate-shake');
+                    setTimeout(() => card.classList.remove('animate-shake'), 500);
                 }
             } catch (error) {
                 errorBox.classList.remove('hidden');
                 errorMessage.textContent = 'خطأ في الاتصال بالخادم';
-                // Reset button
-                loginBtn.classList.remove('loading');
-                btnText.textContent = 'تسجيل الدخول';
-                btnIcon.classList.remove('hidden');
-                btnLoading.classList.add('hidden');
+            } finally {
+                if (!localStorage.getItem('token')) {
+                    submitBtn.disabled = false;
+                    if (!submitBtn.classList.contains('bg-emerald-500')) {
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                }
             }
         });
+
+        // Add shake animation style dynamically
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            .animate-shake { animation: shake 0.3s ease-in-out; }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 
