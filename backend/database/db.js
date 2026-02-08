@@ -3,46 +3,19 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-// Helper to sanitize connection string for logging
-const getSafeUrl = (url) => {
-    if (!url) return 'NOT FOUND';
-    try {
-        const parts = url.split('@');
-        if (parts.length > 1) {
-            return 'postgres://****:****@' + parts[1];
-        }
-        return 'EXISTS (HIDDEN)';
-    } catch (e) { return 'EXISTS'; }
-};
-
+// Log database configuration
 console.log('--- 🛠️ Database Environment Check ---');
-console.log('DATABASE_URL:', getSafeUrl(process.env.DATABASE_URL));
-console.log('NODE_ENV:', process.env.NODE_ENV || 'production');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'EXISTS' : 'NOT FOUND');
 
-// Define connection config
-let poolConfig = {};
-
-if (process.env.DATABASE_URL) {
-    console.log('✅ Using DATABASE_URL connection (Railway Mode)');
-    poolConfig = {
-        connectionString: process.env.DATABASE_URL,
-        ssl: {
-            rejectUnauthorized: false
-        }
-    };
-} else {
-    console.log('⚠️ No DATABASE_URL found. Falling back to local defaults.');
-    poolConfig = {
-        user: process.env.DB_USER || 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        database: process.env.DB_NAME || 'faj_security',
-        password: process.env.DB_PASSWORD || 'password',
-        port: process.env.DB_PORT || 5432,
-        ssl: false
-    };
-}
-
-const pool = new Pool(poolConfig);
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'faj_security',
+    password: process.env.DB_PASSWORD || 'password',
+    port: process.env.DB_PORT || 5432,
+    ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
 let dbInitialized = false;
 let initializationPromise = null;
@@ -54,17 +27,16 @@ async function getDatabase() {
     initializationPromise = (async () => {
         try {
             console.log('🐘 Attempting to connect to PostgreSQL...');
-            const res = await pool.query('SELECT 1 as connected');
-            console.log('✅ PostgreSQL Connection Verified:', res.rows[0].connected);
+            await pool.query('SELECT 1');
+            console.log('✅ Connected to PostgreSQL');
             
             await initializeSchema();
+            await runMigrations(); // Add missing columns
             
             dbInitialized = true;
             return pool;
         } catch (error) {
-            console.error('❌ PostgreSQL Connection Error Details:');
-            console.error('Code:', error.code);
-            console.error('Message:', error.message);
+            console.error('❌ PostgreSQL Initialization Error:', error);
             initializationPromise = null;
             throw error;
         }
@@ -78,7 +50,7 @@ async function initializeSchema() {
     try {
         await client.query('BEGIN');
         
-        console.log('📋 Validating PostgreSQL Tables...');
+        console.log('📋 Initializing PostgreSQL Schema...');
 
         await client.query(`
             CREATE TABLE IF NOT EXISTS users (
@@ -110,7 +82,8 @@ async function initializeSchema() {
                 registered_by INTEGER REFERENCES users(id),
                 gate_number TEXT DEFAULT '1',
                 notes TEXT,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
@@ -124,7 +97,8 @@ async function initializeSchema() {
                 notes TEXT,
                 attachments TEXT,
                 patrol_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
@@ -151,6 +125,7 @@ async function initializeSchema() {
             )
         `);
 
+        // Seed admin
         const adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin'");
         if (adminCheck.rows.length === 0) {
             const adminPassword = bcrypt.hashSync('admin@123', 10);
@@ -160,24 +135,42 @@ async function initializeSchema() {
             `, ['admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
         }
 
-        const locCheck = await client.query("SELECT id FROM locations LIMIT 1");
-        if (locCheck.rows.length === 0) {
-            const locations = [
-                ['حرم المصنع الشمالي', 'North Factory Perimeter', 'factory-north'],
-                ['حرم المصنع الشرقي', 'East Factory Perimeter', 'factory-east'],
-                ['البوابة الرئيسية', 'Main Gate', 'main-gate'],
-                ['مستودع أ', 'Warehouse A', 'warehouse-a'],
-                ['المبنى الإداري', 'Admin Building', 'admin-building']
-            ];
-            for (const loc of locations) {
-                await client.query('INSERT INTO locations (name_ar, name_en, location_code) VALUES ($1, $2, $3)', loc);
-            }
-        }
-
         await client.query('COMMIT');
     } catch (error) {
         await client.query('ROLLBACK');
         throw error;
+    } finally {
+        client.release();
+    }
+}
+
+async function runMigrations() {
+    console.log('🔄 Checking for missing columns...');
+    const client = await pool.connect();
+    try {
+        // Add updated_at to patrol_rounds if missing
+        await client.query(`
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='patrol_rounds' AND column_name='updated_at') THEN
+                    ALTER TABLE patrol_rounds ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+                END IF;
+            END $$;
+        `);
+
+        // Add updated_at to visitors if missing
+        await client.query(`
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='visitors' AND column_name='updated_at') THEN
+                    ALTER TABLE visitors ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+                END IF;
+            END $$;
+        `);
+        
+        console.log('✅ Migrations complete');
+    } catch (e) {
+        console.error('⚠️ Migration warning:', e.message);
     } finally {
         client.release();
     }
