@@ -48,7 +48,7 @@ const fixRoutes = require('./routes/fix');
 const emergencyRoutes = require('./routes/emergency');
 app.use('/api/fix', fixRoutes);
 app.use('/api/emergency', emergencyRoutes);
-app.use('/api/auth/login', loginLimiter);
+app.post('/api/auth/login', loginLimiter); // Use .post specifically
 app.use('/api/auth', authRoutes);
 app.use('/api/visitors', visitorsRoutes);
 app.use('/api/patrols', patrolsRoutes);
