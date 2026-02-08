@@ -69,7 +69,8 @@ router.get('/', authenticateToken, async (req, res) => {
         console.error('❌ Get reports error:', error);
         res.status(500).json({
             error: 'خطأ في جلب التقارير',
-            details: error.message
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });

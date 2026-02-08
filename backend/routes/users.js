@@ -36,7 +36,10 @@ router.get('/', authenticateToken, requireSupervisor, async (req, res) => {
 
     } catch (error) {
         console.error('Get users error:', error);
-        res.status(500).json({ error: 'خطأ في جلب بيانات المستخدمين' });
+        res.status(500).json({ 
+            error: 'خطأ في جلب بيانات المستخدمين',
+            message: error.message 
+        });
     }
 });
 
