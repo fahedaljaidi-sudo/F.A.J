@@ -176,12 +176,12 @@ router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, 
         await getDatabase();
         const { location, security_status, notes, attachments, image } = req.body;
 
-        // Handle Image: Save to disk if provided
+        // Handle Image: Save to disk or Cloudinary if provided
         let savedImagePath = '';
         const rawImage = image || attachments; 
         
         if (rawImage && (rawImage.startsWith('data:image') || rawImage.length > 200)) {
-            const savedPath = saveBase64Image(rawImage);
+            const savedPath = await saveBase64Image(rawImage);
             if (savedPath) savedImagePath = savedPath;
         } else if (attachments) {
             savedImagePath = attachments;
