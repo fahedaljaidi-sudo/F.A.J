@@ -121,7 +121,8 @@ async function initializeSchema() {
                 visitor_id INTEGER REFERENCES visitors(id),
                 patrol_id INTEGER REFERENCES patrol_rounds(id),
                 location TEXT,
-                status TEXT
+                status TEXT,
+                attachments TEXT
             )
         `);
 
@@ -164,6 +165,16 @@ async function runMigrations() {
             BEGIN 
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='visitors' AND column_name='updated_at') THEN
                     ALTER TABLE visitors ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+                END IF;
+            END $$;
+        `);
+        
+        // Add attachments to activity_log if missing
+        await client.query(`
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activity_log' AND column_name='attachments') THEN
+                    ALTER TABLE activity_log ADD COLUMN attachments TEXT;
                 END IF;
             END $$;
         `);

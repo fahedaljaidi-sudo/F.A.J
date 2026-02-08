@@ -442,22 +442,27 @@
                     ${(() => {
                     let imgSrc = '';
                     if (patrol.attachments) {
-                        try {
-                            if (patrol.attachments.startsWith('"') || patrol.attachments.startsWith('{')) {
+                        if (patrol.attachments.startsWith('/uploads/')) {
+                            // New file path format
+                            imgSrc = patrol.attachments;
+                        } else if (patrol.attachments.startsWith('data:image')) {
+                            // Direct Base64 format
+                            imgSrc = patrol.attachments;
+                        } else {
+                            // Try to parse as JSON (legacy format)
+                            try {
                                 const parsed = JSON.parse(patrol.attachments);
                                 imgSrc = typeof parsed === 'string' ? parsed : (parsed.url || parsed.image || '');
-                            } else {
+                            } catch (e) {
                                 imgSrc = patrol.attachments;
                             }
-                        } catch (e) {
-                            imgSrc = patrol.attachments;
                         }
                     }
 
                     return imgSrc ? `
                         <div class="p-3 bg-gray-50 rounded-lg">
                             <p class="text-xs text-gray-500 mb-2">الصورة المرفقة</p>
-                            <img src="${imgSrc}" alt="صورة مرفقة" class="w-full rounded-lg shadow-sm">
+                            <img src="${imgSrc}" alt="صورة مرفقة" class="w-full rounded-lg shadow-sm cursor-zoom-in" onclick="window.open(this.src)">
                         </div>
                         ` : '';
                 })()}

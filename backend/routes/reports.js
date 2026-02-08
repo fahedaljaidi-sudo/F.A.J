@@ -16,7 +16,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
         let query = `
             SELECT a.*, u.full_name as user_name, v.full_name as visitor_name, v.company as visitor_company,
-                   p.notes as patrol_notes
+                   p.notes as patrol_notes, p.attachments as patrol_attachments
             FROM activity_log a
             LEFT JOIN users u ON a.user_id = u.id
             LEFT JOIN visitors v ON a.visitor_id = v.id

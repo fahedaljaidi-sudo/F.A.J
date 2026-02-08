@@ -199,9 +199,9 @@ router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, 
             : `جولة أمنية: ${location} - ${statusText[security_status]}`;
 
         await prepare(`
-            INSERT INTO activity_log (event_type, description, user_id, patrol_id, location, status)
-            VALUES ($1, $2, $3, $4, $5, $6)
-        `).run('patrol', description, req.user.id, result.lastInsertRowid, location, security_status === 'normal' ? 'completed' : 'review');
+            INSERT INTO activity_log (event_type, description, user_id, patrol_id, location, status, attachments)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `).run('patrol', description, req.user.id, result.lastInsertRowid, location, security_status === 'normal' ? 'completed' : 'review', savedImagePath);
 
         const newPatrol = await prepare(`
             SELECT p.*, u.full_name as guard_name
