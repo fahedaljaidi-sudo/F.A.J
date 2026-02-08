@@ -1,0 +1,20 @@
+{
+  "name": "FAJ Security Management System",
+  "short_name": "FAJ Security",
+  "start_url": "/dashboard.html",
+  "display": "standalone",
+  "background_color": "#162841",
+  "theme_color": "#162841",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

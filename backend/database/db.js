@@ -167,14 +167,43 @@ function seedData(db) {
     console.log('✅ Default data seeded successfully');
 }
 
-// Save database to file
+// Save database to file with debounce
+let saveTimeout = null;
+
 function saveDatabase() {
-    if (db) {
-        const data = db.export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(dbPath, buffer);
+    if (saveTimeout) clearTimeout(saveTimeout);
+    
+    saveTimeout = setTimeout(() => {
+        try {
+            if (db) {
+                const data = db.export();
+                const buffer = Buffer.from(data);
+                fs.writeFileSync(dbPath, buffer);
+                // console.log('💾 Database persisted to disk'); // Optional: Reduce noise
+            }
+        } catch (error) {
+            console.error('❌ Failed to save database:', error);
+        }
+    }, 1000); // Debounce for 1 second
+}
+
+// Ensure save on exit
+function forceSave() {
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        if (db) {
+            console.log('💾 Force saving database before exit...');
+            const data = db.export();
+            const buffer = Buffer.from(data);
+            fs.writeFileSync(dbPath, buffer);
+        }
     }
 }
+
+// Handle termination signals
+process.on('SIGINT', () => { forceSave(); process.exit(); });
+process.on('SIGTERM', () => { forceSave(); process.exit(); });
+process.on('exit', () => { forceSave(); });
 
 // Helper to run queries that modify data
 function run(sql, params = []) {

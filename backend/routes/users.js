@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { getDatabase, prepare } = require('../database/db');
 const { authenticateToken, requireAdmin, requireSupervisor } = require('../middleware/auth');
+const { schemas, validate } = require('../middleware/validation');
 
 const router = express.Router();
 
@@ -63,18 +64,10 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // POST /api/users - Create new user (admin only)
-router.post('/', authenticateToken, requireAdmin, async (req, res) => {
+router.post('/', authenticateToken, requireAdmin, validate(schemas.createUser), async (req, res) => {
     try {
         await getDatabase();
         const { username, password, full_name, email, role, unit_number } = req.body;
-
-        if (!username || !password || !full_name) {
-            return res.status(400).json({ error: 'اسم المستخدم وكلمة المرور والاسم الكامل مطلوبة' });
-        }
-
-        if (password.length < 6) {
-            return res.status(400).json({ error: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' });
-        }
 
         const existingUser = prepare('SELECT id FROM users WHERE username = ?').get(username);
         if (existingUser) {

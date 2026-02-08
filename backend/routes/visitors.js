@@ -1,6 +1,7 @@
 const express = require('express');
 const { getDatabase, prepare } = require('../database/db');
 const { authenticateToken } = require('../middleware/auth');
+const { schemas, validate } = require('../middleware/validation');
 
 const router = express.Router();
 
@@ -149,7 +150,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
 });
 
 // POST /api/visitors - Register new visitor entry
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, validate(schemas.createVisitor), async (req, res) => {
     try {
         await getDatabase();
         const {
@@ -162,10 +163,6 @@ router.post('/', authenticateToken, async (req, res) => {
             gate_number = '1',
             notes
         } = req.body;
-
-        if (!full_name || !id_number) {
-            return res.status(400).json({ error: 'الاسم ورقم الهوية مطلوبان' });
-        }
 
         const entry_time = new Date().toISOString();
 

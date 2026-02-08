@@ -1,6 +1,8 @@
 const express = require('express');
 const { getDatabase, prepare } = require('../database/db');
 const { authenticateToken } = require('../middleware/auth');
+const { saveBase64Image } = require('../utils/fileHandler');
+const { schemas, validate } = require('../middleware/validation');
 
 const router = express.Router();
 
@@ -246,27 +248,38 @@ router.get('/locations', authenticateToken, async (req, res) => {
 });
 
 // POST /api/patrols - Log new patrol round
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, res) => {
     try {
         await getDatabase();
         const { location, security_status, notes, attachments, image } = req.body;
 
-        if (!location) {
-            return res.status(400).json({ error: 'الموقع مطلوب' });
-        }
-
-        if (!['normal', 'observation', 'danger'].includes(security_status)) {
-            return res.status(400).json({ error: 'حالة أمنية غير صالحة' });
-        }
-
         const patrol_time = new Date().toISOString();
-        // Use image directly if provided (frontend sends 'image'), otherwise try attachments
-        const attachmentsJson = image || (attachments ? JSON.stringify(attachments) : '');
+        
+        // Handle Image: Save to disk if provided
+        let savedImagePath = '';
+        const rawImage = image || attachments; // Frontend might send either
+        
+        if (rawImage && (rawImage.startsWith('data:image') || rawImage.length > 200)) {
+             // Basic check for base64
+            const savedPath = saveBase64Image(rawImage);
+            if (savedPath) {
+                savedImagePath = savedPath;
+            }
+        } else if (attachments) {
+             // If it's not a base64 string, maybe it's already a JSON or text
+             try {
+                 // Try to see if it is a JSON string of attachments, if so, keep it (legacy support)
+                 JSON.parse(attachments);
+                 savedImagePath = attachments;
+             } catch(e) {
+                 savedImagePath = attachments;
+             }
+        }
 
         const result = prepare(`
             INSERT INTO patrol_rounds (guard_id, location, security_status, notes, attachments, patrol_time)
             VALUES (?, ?, ?, ?, ?, ?)
-        `).run(req.user.id, location, security_status, notes || '', attachmentsJson, patrol_time);
+        `).run(req.user.id, location, security_status, notes || '', savedImagePath, patrol_time);
 
         const statusText = { 'normal': 'طبيعي', 'observation': 'ملاحظة', 'danger': 'خطر' };
         const description = notes

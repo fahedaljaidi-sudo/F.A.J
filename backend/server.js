@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -11,6 +12,13 @@ const usersRoutes = require('./routes/users');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Rate Limiter for Login
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit each IP to 10 login requests per windowMs
+    message: { error: 'تم تجاوز عدد محاولات تسجيل الدخول المسموحة، يرجى المحاولة لاحقاً' }
+});
 
 // Middleware
 app.use(cors({
@@ -92,12 +100,14 @@ const fs = require('fs');
 
 // Serve static files from public folder (local backend/public)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // API Routes
 const fixRoutes = require('./routes/fix');
 const emergencyRoutes = require('./routes/emergency');
 app.use('/api/fix', fixRoutes);
 app.use('/api/emergency', emergencyRoutes);
+app.use('/api/auth/login', loginLimiter); // Apply rate limit specifically to login
 app.use('/api/auth', authRoutes);
 app.use('/api/visitors', visitorsRoutes);
 app.use('/api/patrols', patrolsRoutes);
