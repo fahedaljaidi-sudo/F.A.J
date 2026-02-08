@@ -1,44 +1,33 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { get, run } = require('../database/db');
+const { getDatabase, prepare } = require('../database/db');
 
 const router = express.Router();
 
-// Emergency admin password reset endpoint
-// Access: GET /api/emergency/reset-admin?secret=FAJ2026RESET
+// GET /api/emergency/reset-admin?secret=FAJ2026RESET
 router.get('/reset-admin', async (req, res) => {
     try {
         const { secret } = req.query;
 
-        // Simple security check
         if (secret !== 'FAJ2026RESET') {
             return res.status(403).json({ error: 'غير مصرح' });
         }
 
-        // Check if admin exists
-        const admin = await get('SELECT id, username FROM users WHERE username = ?', 'admin');
+        await getDatabase();
+        const admin = await prepare('SELECT id FROM users WHERE username = $1').get('admin');
 
         if (!admin) {
             return res.status(404).json({ error: 'المدير غير موجود' });
         }
 
-        // Update admin credentials
         const newPassword = bcrypt.hashSync('admin@123', 10);
-        const newFullName = 'فهد الجعيدي';
-
-        await run(
-            'UPDATE users SET password_hash = ?, full_name = ?, updated_at = datetime(?) WHERE username = ?',
-            [newPassword, newFullName, new Date().toISOString(), 'admin']
-        );
+        await prepare('UPDATE users SET password_hash = $1, full_name = $2, updated_at = CURRENT_TIMESTAMP WHERE username = $3')
+            .run(newPassword, 'فهد الجعيدي', 'admin');
 
         res.json({
             success: true,
-            message: 'تم تحديث معلومات المدير بنجاح',
-            credentials: {
-                username: 'admin',
-                password: 'admin@123',
-                full_name: 'فهد الجعيدي'
-            }
+            message: 'تم تحديث معلومات المدير بنجاح في PostgreSQL',
+            credentials: { username: 'admin', password: 'admin@123' }
         });
 
     } catch (error) {
@@ -47,24 +36,14 @@ router.get('/reset-admin', async (req, res) => {
     }
 });
 
-// Check admin credentials endpoint
 router.get('/check-admin', async (req, res) => {
     try {
-        const admin = await get('SELECT id, username, full_name, role FROM users WHERE username = ?', 'admin');
+        await getDatabase();
+        const admin = await prepare('SELECT id, username, full_name, role FROM users WHERE username = $1').get('admin');
 
-        if (!admin) {
-            return res.status(404).json({ error: 'المدير غير موجود' });
-        }
+        if (!admin) return res.status(404).json({ error: 'المدير غير موجود' });
 
-        res.json({
-            success: true,
-            admin: {
-                id: admin.id,
-                username: admin.username,
-                full_name: admin.full_name,
-                role: admin.role
-            }
-        });
+        res.json({ success: true, admin });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

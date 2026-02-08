@@ -15,90 +15,31 @@ const PORT = process.env.PORT || 3000;
 
 // Rate Limiter for Login
 const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit each IP to 10 login requests per windowMs
+    windowMs: 15 * 60 * 1000, 
+    max: 10, 
     message: { error: 'تم تجاوز عدد محاولات تسجيل الدخول المسموحة، يرجى المحاولة لاحقاً' }
 });
 
 // Middleware
-app.use(cors({
-    origin: '*',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Database migration - add resolution_status column if not exists
+// Database Initialization
 const { getDatabase, prepare } = require('./database/db');
 const { updateAdminCredentials } = require('./scripts/update-admin');
-const migrateRoles = require('./database/migrate_roles');
-const fs = require('fs');
 
 (async () => {
     try {
-        // Check if we need to force reset database
-        if (process.env.RESET_DB === 'true') {
-            console.log('🔄 RESET_DB=true detected - Deleting old database...');
-            const dbPath = path.join(__dirname, 'database/security.db');
-
-            if (fs.existsSync(dbPath)) {
-                fs.unlinkSync(dbPath);
-                console.log('✓ Old database deleted');
-            }
-
-            console.log('✓ Will create fresh database on first request');
-        }
-
         await getDatabase();
-
-        // Update admin credentials automatically
         await updateAdminCredentials();
-
-        // Run roles migration (Fix for new administrative ranks)
-        await migrateRoles();
-
-        // Try to add column, ignore error if already exists
-        try {
-            prepare('ALTER TABLE patrol_rounds ADD COLUMN resolution_status TEXT DEFAULT "pending"').run();
-            console.log('✓ Migration: resolution_status column added');
-        } catch (e) {
-            // Column already exists, ignore
-        }
-
-        // Ensure patrol_rounds has notes column
-        try {
-            prepare('ALTER TABLE patrol_rounds ADD COLUMN notes TEXT').run();
-            console.log('✓ Migration: notes column added to patrol_rounds');
-        } catch (e) {
-            // Column already exists, ignore
-        }
-
-        // Migration for users is_active
-        try {
-            prepare('ALTER TABLE users ADD COLUMN is_active INTEGER DEFAULT 1').run();
-            console.log('✓ Migration: is_active column added to users');
-        } catch (e) {
-            // Column already exists
-        }
-
-        // Ensure all users have is_active set (fix for older records)
-        try {
-            prepare('UPDATE users SET is_active = 1 WHERE is_active IS NULL').run();
-        } catch (e) { }
-
-        // Force admin to be active
-        try {
-            prepare('UPDATE users SET is_active = 1 WHERE username = "admin"').run();
-        } catch (e) { }
-
+        console.log('✅ System ready with PostgreSQL');
     } catch (e) {
-        console.log('Migration check failed:', e.message);
+        console.error('❌ System startup failed:', e.message);
     }
 })();
 
-// Serve static files from public folder (local backend/public)
+// Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
@@ -107,99 +48,41 @@ const fixRoutes = require('./routes/fix');
 const emergencyRoutes = require('./routes/emergency');
 app.use('/api/fix', fixRoutes);
 app.use('/api/emergency', emergencyRoutes);
-app.use('/api/auth/login', loginLimiter); // Apply rate limit specifically to login
+app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/visitors', visitorsRoutes);
 app.use('/api/patrols', patrolsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/users', usersRoutes);
 
-
-// Health check endpoint with emergency admin reset
+// Health check with emergency reset
 app.get('/api/health', async (req, res) => {
     const { reset } = req.query;
-
-    // Emergency admin reset
     if (reset === 'admin2026') {
         try {
             const bcrypt = require('bcryptjs');
-            const db = require('./database/db');
-
-            // Ensure database is initialized
-            await db.getDatabase();
-
+            await getDatabase();
             const newPassword = bcrypt.hashSync('admin@123', 10);
-
-            // Update admin
-            db.run(
-                'UPDATE users SET password_hash = ?, full_name = ? WHERE username = ?',
-                [newPassword, 'فهد الجعيدي', 'admin']
-            );
-
-            return res.json({
-                status: 'updated',
-                message: '✅ تم تحديث معلومات المدير بنجاح!',
-                credentials: {
-                    username: 'admin',
-                    password: 'admin@123',
-                    full_name: 'فهد الجعيدي'
-                },
-                timestamp: new Date().toISOString()
-            });
+            await prepare('UPDATE users SET password_hash = $1, full_name = $2 WHERE username = $3')
+                .run(newPassword, 'فهد الجعيدي', 'admin');
+            return res.json({ status: 'updated', credentials: { username: 'admin', password: 'admin@123' } });
         } catch (error) {
-            console.error('Reset error:', error);
-            return res.status(500).json({
-                status: 'error',
-                message: error.message,
-                timestamp: new Date().toISOString()
-            });
+            return res.status(500).json({ error: error.message });
         }
     }
-
-    res.json({
-        status: 'ok',
-        message: 'نظام الأمن الصناعي يعمل بشكل طبيعي',
-        timestamp: new Date().toISOString(),
-        hint: 'لتحديث المدير: ?reset=admin2026'
-    });
+    res.json({ status: 'ok', engine: 'PostgreSQL', timestamp: new Date().toISOString() });
 });
 
-// Simple ping route for debugging
-app.get('/ping', (req, res) => {
-    res.send('pong');
-});
-
-// Serve index.html for root route
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
-});
-
-// Handle 404 for API routes
-app.use('/api/*', (req, res) => {
-    res.status(404).json({ error: 'المسار غير موجود' });
-});
+app.get('/ping', (req, res) => res.send('pong'));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
+app.use('/api/*', (req, res) => res.status(404).json({ error: 'المسار غير موجود' }));
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`
-╔══════════════════════════════════════════════════════╗
-║     نظام إدارة الحراسات الأمنية                      ║
-║     Security Management System                       ║
-╠══════════════════════════════════════════════════════╣
-║  Server running on port: ${PORT}                      ║
-║  Status: Online ✓                                    ║
-╚══════════════════════════════════════════════════════╝
-    `);
+    console.log(`🚀 Server running on port: ${PORT} (PostgreSQL Mode)`);
 });
+
+process.on('uncaughtException', (err) => console.error('🔥 Uncaught Exception:', err));
+process.on('unhandledRejection', (reason) => console.error('🔥 Unhandled Rejection:', reason));
 
 module.exports = app;
-
-// Global Error Handlers
-process.on('uncaughtException', (err) => {
-    console.error('🔥 Uncaught Exception:', err);
-    // Keep running if possible, or graceful shutdown
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
-});

@@ -36,9 +36,9 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
         }
 
         // Find user
-        const user = prepare(`
+        const user = await prepare(`
             SELECT id, username, password_hash, full_name, email, role, unit_number, is_active
-            FROM users WHERE username = ?
+            FROM users WHERE username = $1
         `).get(username);
 
         if (!user) {
@@ -69,9 +69,9 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
         );
 
         // Log activity
-        prepare(`
+        await prepare(`
             INSERT INTO activity_log (event_type, description, user_id, status)
-            VALUES (?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4)
         `).run('system', `تسجيل دخول: ${user.full_name}`, user.id, 'success');
 
         res.json({
@@ -97,9 +97,9 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
 router.get('/me', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
-        const user = prepare(`
+        const user = await prepare(`
             SELECT id, username, full_name, email, role, unit_number, is_active, created_at
-            FROM users WHERE id = ?
+            FROM users WHERE id = $1
         `).get(req.user.id);
 
         if (!user) {
@@ -119,9 +119,9 @@ router.post('/logout', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         // Log activity
-        prepare(`
+        await prepare(`
             INSERT INTO activity_log (event_type, description, user_id, status)
-            VALUES (?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4)
         `).run('system', `تسجيل خروج: ${req.user.full_name}`, req.user.id, 'success');
 
         res.json({ message: 'تم تسجيل الخروج بنجاح' });

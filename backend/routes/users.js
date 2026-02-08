@@ -13,21 +13,21 @@ router.get('/', authenticateToken, requireSupervisor, async (req, res) => {
         const { page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
 
-        const users = prepare(`
+        const users = await prepare(`
             SELECT u.id, u.username, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.created_at, u.updated_at,
                    (SELECT COUNT(*) FROM patrol_rounds WHERE guard_id = u.id) as patrol_count,
-                   (SELECT COUNT(*) FROM patrol_rounds WHERE guard_id = u.id AND DATE(patrol_time) = DATE('now')) as today_patrols
+                   (SELECT COUNT(*) FROM patrol_rounds WHERE guard_id = u.id AND patrol_time::date = CURRENT_DATE) as today_patrols
             FROM users u
             ORDER BY u.created_at DESC
-            LIMIT ? OFFSET ?
+            LIMIT $1 OFFSET $2
         `).all(parseInt(limit), parseInt(offset));
 
-        const totalResult = prepare('SELECT COUNT(*) as total FROM users').get();
+        const totalResult = await prepare('SELECT COUNT(*) as total FROM users').get();
 
         res.json({
             users,
             pagination: {
-                total: totalResult ? totalResult.total : 0,
+                total: totalResult ? parseInt(totalResult.total) : 0,
                 page: parseInt(page),
                 limit: parseInt(limit),
                 totalPages: Math.ceil((totalResult?.total || 0) / limit)
@@ -46,9 +46,9 @@ router.get('/:id', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
 
-        const user = prepare(`
+        const user = await prepare(`
             SELECT id, username, full_name, email, role, unit_number, is_active, created_at, updated_at
-            FROM users WHERE id = ?
+            FROM users WHERE id = $1
         `).get(parseInt(id));
 
         if (!user) {
@@ -69,7 +69,7 @@ router.post('/', authenticateToken, requireAdmin, validate(schemas.createUser), 
         await getDatabase();
         const { username, password, full_name, email, role, unit_number } = req.body;
 
-        const existingUser = prepare('SELECT id FROM users WHERE username = ?').get(username);
+        const existingUser = await prepare('SELECT id FROM users WHERE username = $1').get(username);
         if (existingUser) {
             return res.status(400).json({ error: 'اسم المستخدم موجود مسبقاً' });
         }
@@ -78,19 +78,20 @@ router.post('/', authenticateToken, requireAdmin, validate(schemas.createUser), 
         const validRoles = ['admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer'];
         const validRole = validRoles.includes(role) ? role : 'guard';
 
-        const result = prepare(`
+        const result = await prepare(`
             INSERT INTO users (username, password_hash, full_name, email, role, unit_number)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING id
         `).run(username, password_hash, full_name, email || '', validRole, unit_number || '');
 
-        const newUser = prepare(`
+        const newUser = await prepare(`
             SELECT id, username, full_name, email, role, unit_number, is_active, created_at
-            FROM users WHERE id = ?
+            FROM users WHERE id = $1
         `).get(result.lastInsertRowid);
 
-        prepare(`
+        await prepare(`
             INSERT INTO activity_log (event_type, description, user_id, status)
-            VALUES (?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4)
         `).run('system', `إنشاء مستخدم جديد: ${full_name}`, req.user.id, 'success');
 
         res.status(201).json({
@@ -111,37 +112,38 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
         const { id } = req.params;
         const { full_name, email, role, unit_number, password, is_active } = req.body;
 
-        const existingUser = prepare('SELECT * FROM users WHERE id = ?').get(parseInt(id));
+        const userId = parseInt(id);
+        const existingUser = await prepare('SELECT id FROM users WHERE id = $1').get(userId);
         if (!existingUser) {
             return res.status(404).json({ error: 'المستخدم غير موجود' });
         }
 
         // Update fields
         if (full_name) {
-            prepare('UPDATE users SET full_name = ? WHERE id = ?').run(full_name, parseInt(id));
+            await prepare('UPDATE users SET full_name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(full_name, userId);
         }
         if (email !== undefined) {
-            prepare('UPDATE users SET email = ? WHERE id = ?').run(email, parseInt(id));
+            await prepare('UPDATE users SET email = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(email, userId);
         }
         const validRoles = ['admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer'];
         if (role && validRoles.includes(role)) {
-            prepare('UPDATE users SET role = ? WHERE id = ?').run(role, parseInt(id));
+            await prepare('UPDATE users SET role = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(role, userId);
         }
         if (unit_number !== undefined) {
-            prepare('UPDATE users SET unit_number = ? WHERE id = ?').run(unit_number, parseInt(id));
+            await prepare('UPDATE users SET unit_number = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(unit_number, userId);
         }
         if (password && password.length >= 6) {
             const hash = bcrypt.hashSync(password, 10);
-            prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hash, parseInt(id));
+            await prepare('UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(hash, userId);
         }
         if (is_active !== undefined) {
-            prepare('UPDATE users SET is_active = ? WHERE id = ?').run(is_active ? 1 : 0, parseInt(id));
+            await prepare('UPDATE users SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(is_active ? 1 : 0, userId);
         }
 
-        const updatedUser = prepare(`
+        const updatedUser = await prepare(`
             SELECT id, username, full_name, email, role, unit_number, is_active, updated_at
-            FROM users WHERE id = ?
-        `).get(parseInt(id));
+            FROM users WHERE id = $1
+        `).get(userId);
 
         res.json({
             message: 'تم تحديث المستخدم بنجاح',
@@ -159,26 +161,27 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         await getDatabase();
         const { id } = req.params;
+        const userId = parseInt(id);
 
-        if (parseInt(id) === req.user.id) {
+        if (userId === req.user.id) {
             return res.status(400).json({ error: 'لا يمكنك حذف حسابك الخاص' });
         }
 
-        const user = prepare('SELECT * FROM users WHERE id = ?').get(parseInt(id));
+        const user = await prepare('SELECT * FROM users WHERE id = $1').get(userId);
         if (!user) {
             return res.status(404).json({ error: 'المستخدم غير موجود' });
         }
 
         // 1. Unlink related records (preserve history but remove link to deleted user)
-        prepare('UPDATE visitors SET registered_by = NULL WHERE registered_by = ?').run(parseInt(id));
-        prepare('DELETE FROM patrol_rounds WHERE guard_id = ?').run(parseInt(id));
+        await prepare('UPDATE visitors SET registered_by = NULL WHERE registered_by = $1').run(userId);
+        await prepare('DELETE FROM patrol_rounds WHERE guard_id = $1').run(userId);
 
         // 2. Hard delete the user
-        prepare('DELETE FROM users WHERE id = ?').run(parseInt(id));
+        await prepare('DELETE FROM users WHERE id = $1').run(userId);
 
-        prepare(`
+        await prepare(`
             INSERT INTO activity_log (event_type, description, user_id, status)
-            VALUES (?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4)
         `).run('system', `حذف مستخدم نهائياً: ${user.full_name}`, req.user.id, 'success');
 
         res.json({ message: 'تم حذف الحساب نهائياً من قاعدة البيانات' });
