@@ -13,6 +13,9 @@ const usersRoutes = require('./routes/users');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Proxy for Railway
+app.set('trust proxy', 1);
+
 // Rate Limiter for Login
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
