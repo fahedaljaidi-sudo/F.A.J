@@ -138,7 +138,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
                 left: parseInt(left?.count || 0)
             },
             percentChange,
-            date: today = new Date().toISOString().split('T')[0]
+            date: new Date().toISOString().split('T')[0]
         });
 
     } catch (error) {

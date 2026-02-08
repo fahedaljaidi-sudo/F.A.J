@@ -18,7 +18,8 @@ const schemas = {
         full_name: Joi.string().required(),
         email: Joi.string().email().allow(null, ''),
         role: Joi.string().valid('admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer').default('guard'),
-        unit_number: Joi.string().allow(null, '')
+        unit_number: Joi.string().allow(null, ''),
+        allow_mobile_login: Joi.number().integer().valid(0, 1).default(1)
     }),
 
     createPatrol: Joi.object({

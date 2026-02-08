@@ -51,6 +51,7 @@ router.get('/recreate-database', async (req, res) => {
                 role TEXT CHECK(role IN ('admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer')) DEFAULT 'guard',
                 unit_number TEXT,
                 is_active INTEGER DEFAULT 1,
+                allow_mobile_login INTEGER DEFAULT 1,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
@@ -71,7 +72,8 @@ router.get('/recreate-database', async (req, res) => {
                 registered_by INTEGER REFERENCES users(id),
                 gate_number TEXT DEFAULT '1',
                 notes TEXT,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
@@ -85,7 +87,8 @@ router.get('/recreate-database', async (req, res) => {
                 notes TEXT,
                 attachments TEXT,
                 patrol_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
@@ -108,7 +111,8 @@ router.get('/recreate-database', async (req, res) => {
                 visitor_id INTEGER REFERENCES visitors(id),
                 patrol_id INTEGER REFERENCES patrol_rounds(id),
                 location TEXT,
-                status TEXT
+                status TEXT,
+                attachments TEXT
             )
         `);
 

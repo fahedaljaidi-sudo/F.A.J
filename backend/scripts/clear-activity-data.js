@@ -1,48 +1,28 @@
-const initSqlJs = require('sql.js');
-const fs = require('fs');
-const path = require('path');
-
-const dbPath = path.join(__dirname, '../database/security.db');
+const { getDatabase, pool } = require('../database/db');
 
 async function clearActivityData() {
-    console.log('🧹 Starting cleanup of activity data (keeping Users and Locations)...');
-
-    if (!fs.existsSync(dbPath)) {
-        console.error('❌ Database file not found at:', dbPath);
-        process.exit(1);
-    }
+    console.log('🧹 Starting cleanup of activity data in PostgreSQL (keeping Users and Locations)...');
 
     try {
-        const SQL = await initSqlJs();
-        const fileBuffer = fs.readFileSync(dbPath);
-        const db = new SQL.Database(fileBuffer);
+        await getDatabase();
+        const client = await pool.connect();
+        try {
+            console.log('📋 Clearing tables...');
 
-        console.log('📋 Clearing tables...');
+            // Clear Visitors, Patrol Rounds, Activity Log and reset sequences
+            await client.query('TRUNCATE TABLE visitors, patrol_rounds, activity_log RESTART IDENTITY CASCADE');
+            
+            console.log('  ✓ Visitors table cleared');
+            console.log('  ✓ Patrol Rounds table cleared');
+            console.log('  ✓ Activity Log table cleared');
 
-        // Clear Visitors
-        db.run('DELETE FROM visitors');
-        db.run("DELETE FROM sqlite_sequence WHERE name='visitors'");
-        console.log('  ✓ Visitors table cleared');
-
-        // Clear Patrol Rounds
-        db.run('DELETE FROM patrol_rounds');
-        db.run("DELETE FROM sqlite_sequence WHERE name='patrol_rounds'");
-        console.log('  ✓ Patrol Rounds table cleared');
-
-        // Clear Activity Log
-        db.run('DELETE FROM activity_log');
-        db.run("DELETE FROM sqlite_sequence WHERE name='activity_log'");
-        console.log('  ✓ Activity Log table cleared');
-
-        // Save changes
-        const data = db.export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(dbPath, buffer);
-        db.close();
+        } finally {
+            client.release();
+        }
 
         console.log('\n✅ Data cleanup complete!');
         console.log('🔒 Users and Locations were preserved.');
-
+        process.exit(0);
     } catch (err) {
         console.error('❌ Error during cleanup:', err);
         process.exit(1);

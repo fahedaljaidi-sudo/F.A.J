@@ -1,59 +1,33 @@
-// Simple standalone script to reset admin password
-// Run this with: node reset-admin-now.js
-
-const path = require('path');
-const fs = require('fs');
+// Auto-update admin credentials for PostgreSQL
 const bcrypt = require('bcryptjs');
+const { getDatabase, prepare } = require('./db');
 
 async function resetAdminNow() {
+    console.log('🔐 Resetting admin credentials in PostgreSQL...');
+
     try {
-        console.log('🔄 Starting admin password reset...');
+        await getDatabase();
+        const admin = await prepare("SELECT id FROM users WHERE username = 'admin'").get();
 
-        const initSqlJs = require('sql.js');
-        const dbPath = path.join(__dirname, '../database/security.db');
-
-        // Check if database exists
-        if (!fs.existsSync(dbPath)) {
-            console.error('❌ Database file not found at:', dbPath);
-            console.log('Creating new database with init.js instead...');
-            require('./init');
+        if (!admin) {
+            console.log('⚠️  Admin user not found in database. Please run init-db first.');
             return;
         }
 
-        // Load database
-        const SQL = await initSqlJs();
-        const fileBuffer = fs.readFileSync(dbPath);
-        const db = new SQL.Database(fileBuffer);
-
-        // Hash new password
         const newPassword = bcrypt.hashSync('admin@123', 10);
-        const newName = 'فهد الجعيدي';
-
-        // Update admin
-        db.run(`
+        await prepare(`
             UPDATE users 
-            SET password_hash = ?, full_name = ?, updated_at = datetime('now')
+            SET password_hash = $1, full_name = $2, updated_at = CURRENT_TIMESTAMP
             WHERE username = 'admin'
-        `, [newPassword, newName]);
+        `).run(newPassword, 'فهد الجعيدي');
 
-        // Save database
-        const data = db.export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(dbPath, buffer);
-
-        db.close();
-
-        console.log('✅ Admin password reset successful!');
-        console.log('────────────────────────────────');
+        console.log('✅ Admin credentials reset successfully!');
         console.log('Username: admin');
         console.log('Password: admin@123');
-        console.log('Name: فهد الجعيدي');
-        console.log('────────────────────────────────');
-        console.log('You can now login with these credentials!');
-
+        process.exit(0);
     } catch (error) {
-        console.error('❌ Error:', error.message);
-        console.error(error);
+        console.error('❌ Error resetting admin credentials:', error.message);
+        process.exit(1);
     }
 }
 
