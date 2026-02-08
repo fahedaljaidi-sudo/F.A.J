@@ -14,30 +14,9 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
         await getDatabase();
         const { username, password } = req.body;
 
-        // Check if mobile device and restrict access
-        if (req.isMobile && username !== 'admin') {
-            console.log('🚫 Mobile Login BLOCKED:', {
-                username,
-                userAgent: req.headers['user-agent']?.substring(0, 100),
-                timestamp: new Date().toISOString()
-            });
-
-            return res.status(403).json({
-                error: 'تسجيل الدخول من الأجهزة المحمولة محظور - يُسمح فقط لحساب المسؤول',
-                isMobileRestricted: true
-            });
-        }
-
-        // Log mobile login for admin
-        if (req.isMobile && username === 'admin') {
-            console.log('✅ Mobile Login ALLOWED for admin:', {
-                timestamp: new Date().toISOString()
-            });
-        }
-
         // Find user
         const user = await prepare(`
-            SELECT id, username, password_hash, full_name, email, role, unit_number, is_active
+            SELECT id, username, password_hash, full_name, email, role, unit_number, is_active, allow_mobile_login
             FROM users WHERE username = $1
         `).get(username);
 
@@ -47,6 +26,20 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
 
         if (!user.is_active) {
             return res.status(401).json({ error: 'الحساب معطل - يرجى التواصل مع المسؤول' });
+        }
+
+        // Check mobile login permission
+        if (req.isMobile && user.role !== 'admin' && !user.allow_mobile_login) {
+            console.log('🚫 Mobile Login BLOCKED:', {
+                username,
+                userAgent: req.headers['user-agent']?.substring(0, 100),
+                timestamp: new Date().toISOString()
+            });
+
+            return res.status(403).json({
+                error: 'تسجيل الدخول من الجوال محظور لهذا الحساب - يرجى التواصل مع المسؤول',
+                isMobileRestricted: true
+            });
         }
 
         // Verify password

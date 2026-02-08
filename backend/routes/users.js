@@ -14,7 +14,7 @@ router.get('/', authenticateToken, requireSupervisor, async (req, res) => {
         const offset = (page - 1) * limit;
 
         const users = await prepare(`
-            SELECT u.id, u.username, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.created_at, u.updated_at,
+            SELECT u.id, u.username, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.allow_mobile_login, u.created_at, u.updated_at,
                    (SELECT COUNT(*) FROM patrol_rounds WHERE guard_id = u.id) as patrol_count,
                    (SELECT COUNT(*) FROM patrol_rounds WHERE guard_id = u.id AND patrol_time::date = CURRENT_DATE) as today_patrols
             FROM users u
@@ -113,7 +113,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         await getDatabase();
         const { id } = req.params;
-        const { full_name, email, role, unit_number, password, is_active } = req.body;
+        const { full_name, email, role, unit_number, password, is_active, allow_mobile_login } = req.body;
 
         const userId = parseInt(id);
         const existingUser = await prepare('SELECT id FROM users WHERE id = $1').get(userId);
@@ -142,9 +142,12 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
         if (is_active !== undefined) {
             await prepare('UPDATE users SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(is_active ? 1 : 0, userId);
         }
+        if (allow_mobile_login !== undefined) {
+            await prepare('UPDATE users SET allow_mobile_login = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2').run(allow_mobile_login ? 1 : 0, userId);
+        }
 
         const updatedUser = await prepare(`
-            SELECT id, username, full_name, email, role, unit_number, is_active, updated_at
+            SELECT id, username, full_name, email, role, unit_number, is_active, allow_mobile_login, updated_at
             FROM users WHERE id = $1
         `).get(userId);
 

@@ -62,6 +62,7 @@ async function initializeSchema() {
                 role TEXT CHECK(role IN ('admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer')) DEFAULT 'guard',
                 unit_number TEXT,
                 is_active INTEGER DEFAULT 1,
+                allow_mobile_login INTEGER DEFAULT 1,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )
@@ -175,6 +176,16 @@ async function runMigrations() {
             BEGIN 
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activity_log' AND column_name='attachments') THEN
                     ALTER TABLE activity_log ADD COLUMN attachments TEXT;
+                END IF;
+            END $$;
+        `);
+
+        // Add allow_mobile_login to users if missing
+        await client.query(`
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='allow_mobile_login') THEN
+                    ALTER TABLE users ADD COLUMN allow_mobile_login INTEGER DEFAULT 1;
                 END IF;
             END $$;
         `);

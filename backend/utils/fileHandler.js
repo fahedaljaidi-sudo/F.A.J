@@ -4,16 +4,21 @@ const { v4: uuidv4 } = require('uuid');
 const cloudinary = require('cloudinary').v2;
 
 // Configure Cloudinary if environment variables are present
-if (process.env.CLOUDINARY_URL || (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY)) {
+if (process.env.CLOUDINARY_URL) {
+    cloudinary.config({
+        cloudinary_url: process.env.CLOUDINARY_URL
+    });
+    console.log('☁️ Cloudinary configured via URL for permanent image storage');
+} else if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
     cloudinary.config({
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key: process.env.CLOUDINARY_API_KEY,
         api_secret: process.env.CLOUDINARY_API_SECRET
     });
-    console.log('☁️ Cloudinary configured for permanent image storage');
+    console.log('☁️ Cloudinary configured via credentials for permanent image storage');
 }
 
-const uploadDir = path.resolve(process.cwd(), 'public/uploads/patrols');
+const uploadDir = path.join(__dirname, '../public/uploads/patrols');
 
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -55,11 +60,16 @@ async function saveBase64Image(base64String) {
 
         const filename = `${uuidv4()}.${extension}`;
         const filePath = path.join(uploadDir, filename);
+        
+        console.log(`💾 Saving image to: ${filePath}`);
         fs.writeFileSync(filePath, imageBuffer);
         
-        return `/uploads/patrols/${filename}`;
+        const relativeUrl = `/uploads/patrols/${filename}`;
+        console.log(`✅ Image saved successfully. URL: ${relativeUrl}`);
+        
+        return relativeUrl;
     } catch (error) {
-        console.error('❌ Error saving image:', error);
+        console.error('❌ Error saving image to disk:', error);
         return null;
     }
 }

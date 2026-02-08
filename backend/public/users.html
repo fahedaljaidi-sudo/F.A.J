@@ -117,6 +117,7 @@
                                     <th class="px-6 py-3 font-bold text-gray-600">الاسم</th>
                                     <th class="px-6 py-3 font-bold text-gray-600">اسم المستخدم</th>
                                     <th class="px-6 py-3 font-bold text-gray-600">الدور</th>
+                                    <th class="px-6 py-3 font-bold text-gray-600">دخول الجوال</th>
                                     <th class="px-6 py-3 font-bold text-gray-600">الجولات</th>
                                     <th class="px-6 py-3 font-bold text-gray-600">الحالة</th>
                                     <th class="px-6 py-3 font-bold text-gray-600 text-center">إجراء</th>
@@ -171,6 +172,14 @@
                         class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         <option value="1">نشط</option>
                         <option value="0">معطل</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">دخول الجوال</label>
+                    <select id="edit-mobile"
+                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        <option value="1">مسموح</option>
+                        <option value="0">محظور</option>
                     </select>
                 </div>
                 <div>
@@ -270,6 +279,11 @@
                     <td class="px-6 py-4">
                         <span class="px-2 py-1 rounded text-xs font-bold ${roleColor[u.role] || roleColor.guard}">${roleText[u.role] || u.role}</span>
                     </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="material-symbols-outlined ${u.allow_mobile_login || u.role === 'admin' ? 'text-green-500' : 'text-gray-300'}" title="${u.allow_mobile_login || u.role === 'admin' ? 'مسموح' : 'محظور'}">
+                            ${u.allow_mobile_login || u.role === 'admin' ? 'smartphone' : 'phonelink_erase'}
+                        </span>
+                    </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-emerald-50 text-emerald-700 text-xs font-bold">
@@ -292,7 +306,7 @@
                     </td>
                     <td class="px-6 py-4 text-center">
                         ${u.id === user.id ? '<span class="text-gray-400 text-xs">أنت</span>' : `
-                            <button onclick="editGuard(${u.id}, '${u.full_name}', '${u.role}', ${u.is_active})" 
+                            <button onclick="editGuard(${u.id}, '${u.full_name}', '${u.role}', ${u.is_active}, ${u.allow_mobile_login})" 
                                 class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-colors" title="تعديل">
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </button>
@@ -359,11 +373,12 @@
         }
 
         // Edit guard
-        function editGuard(id, name, role, isActive) {
+        function editGuard(id, name, role, isActive, allowMobile) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-name').value = name;
             document.getElementById('edit-role').value = role;
             document.getElementById('edit-active').value = isActive ? '1' : '0';
+            document.getElementById('edit-mobile').value = allowMobile ? '1' : '0';
             document.getElementById('edit-password').value = '';
             document.getElementById('edit-modal').classList.remove('hidden');
         }
@@ -379,9 +394,10 @@
             const full_name = document.getElementById('edit-name').value.trim();
             const role = document.getElementById('edit-role').value;
             const is_active = document.getElementById('edit-active').value === '1';
+            const allow_mobile_login = document.getElementById('edit-mobile').value === '1';
             const password = document.getElementById('edit-password').value;
 
-            const body = { full_name, role, is_active };
+            const body = { full_name, role, is_active, allow_mobile_login };
             if (password && password.length >= 6) {
                 body.password = password;
             }
