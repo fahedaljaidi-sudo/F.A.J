@@ -39,9 +39,11 @@ function logout() {
 // Register Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
             .then(registration => {
                 console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                // Check for updates on every load
+                registration.update();
             })
             .catch(err => {
                 console.log('ServiceWorker registration failed: ', err);

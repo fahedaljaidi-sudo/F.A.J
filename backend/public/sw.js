@@ -1,4 +1,4 @@
-const CACHE_NAME = 'faj-security-v1';
+const CACHE_NAME = 'faj-security-v2';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -13,12 +13,11 @@ const ASSETS_TO_CACHE = [
     '/mobile-nav.js',
     '/js/layout.js',
     '/components/sidebar.html',
-    'https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap',
-    'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap',
-    'https://cdn.tailwindcss.com?plugins=forms,container-queries'
+    '/mock-api.js'
 ];
 
 self.addEventListener('install', (event) => {
+    self.skipWaiting(); // Force update
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS_TO_CACHE);
@@ -26,8 +25,22 @@ self.addEventListener('install', (event) => {
     );
 });
 
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('🧹 Clearing old cache:', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+});
+
 self.addEventListener('fetch', (event) => {
-    // API requests should typically not be cached or should have specific strategies
     if (event.request.url.includes('/api/')) {
         return;
     }
