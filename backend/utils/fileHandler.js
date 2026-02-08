@@ -2,38 +2,37 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-const uploadDir = path.join(__dirname, '../public/uploads/patrols');
+// Use an absolute path that is easy to map to a volume
+const uploadDir = path.resolve(process.cwd(), 'public/uploads/patrols');
 
-// Ensure directory exists
+// Ensure directory exists at startup
 if (!fs.existsSync(uploadDir)) {
+    console.log('📁 Creating upload directory:', uploadDir);
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 /**
  * Saves a Base64 image string to disk
- * @param {string} base64String - The base64 string (data:image/png;base64,...)
- * @returns {string|null} - The relative path to the saved image or null if failed
+ * @param {string} base64String - The base64 string
+ * @returns {string|null} - The relative path for the browser
  */
 function saveBase64Image(base64String) {
     if (!base64String || typeof base64String !== 'string') return null;
 
     try {
-        // Strip metadata if present
         const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
         
         let imageBuffer;
-        let extension = 'png'; // Default
+        let extension = 'png'; 
 
         if (matches && matches.length === 3) {
-            // Found metadata
             const mimeType = matches[1];
             if (mimeType === 'image/jpeg') extension = 'jpg';
-            if (mimeType === 'image/png') extension = 'png';
-            if (mimeType === 'image/webp') extension = 'webp';
+            else if (mimeType === 'image/png') extension = 'png';
+            else if (mimeType === 'image/webp') extension = 'webp';
             
             imageBuffer = Buffer.from(matches[2], 'base64');
         } else {
-            // Assume raw base64
             imageBuffer = Buffer.from(base64String, 'base64');
         }
 
@@ -41,7 +40,9 @@ function saveBase64Image(base64String) {
         const filePath = path.join(uploadDir, filename);
 
         fs.writeFileSync(filePath, imageBuffer);
+        console.log('✅ Image saved to:', filePath);
         
+        // Return the URL path
         return `/uploads/patrols/${filename}`;
     } catch (error) {
         console.error('❌ Error saving image:', error);

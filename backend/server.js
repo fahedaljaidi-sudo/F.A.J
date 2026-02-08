@@ -41,7 +41,7 @@ const { updateAdminCredentials } = require('./scripts/update-admin');
 
 // Static Files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'public/uploads')));
 
 // API Routes
 const fixRoutes = require('./routes/fix');
