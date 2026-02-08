@@ -407,6 +407,9 @@
                                                 class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">
                                                 الموقع</th>
                                             <th
+                                                class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap text-center">
+                                                الصورة</th>
+                                            <th
                                                 class="py-3 px-5 text-xs font-bold uppercase tracking-wider text-secondary-text whitespace-nowrap">
                                                 الحالة</th>
                                             <th
@@ -629,6 +632,13 @@
                 </td>
                 <td class="py-3 px-5 text-sm text-[#101418]">${log.user_name || '--'}</td>
                 <td class="py-3 px-5 text-sm text-secondary-text">${log.location || '--'}</td>
+                <td class="py-3 px-5 text-center">
+                    ${log.patrol_attachments || log.attachments ? `
+                        <button onclick="window.open('${log.patrol_attachments || log.attachments}')" class="group/img relative inline-block">
+                            <img src="${log.patrol_attachments || log.attachments}" class="h-10 w-10 object-cover rounded-md border border-gray-200 shadow-sm transition-transform hover:scale-110" alt="Thumb">
+                        </button>
+                    ` : '<span class="text-gray-300 text-xs">-</span>'}
+                </td>
                 <td class="py-3 px-5">
                     <span class="text-xs font-bold ${statusColor} flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full ${statusColor.replace('text-', 'bg-')}"></span>
