@@ -178,9 +178,15 @@ function saveDatabase() {
 
 // Helper to run queries that modify data
 function run(sql, params = []) {
-    db.run(sql, params);
-    saveDatabase();
-    return { lastInsertRowid: db.exec("SELECT last_insert_rowid()")[0]?.values[0][0] };
+    try {
+        db.run(sql, params);
+        saveDatabase();
+        const result = db.exec("SELECT last_insert_rowid()");
+        return { lastInsertRowid: result[0]?.values[0][0] };
+    } catch (error) {
+        console.error('❌ Database run error:', error);
+        throw error;
+    }
 }
 
 // Helper to get single row
