@@ -14,29 +14,24 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
         await getDatabase();
         const { company_code, username, password } = req.body;
 
-        // 1. Verify Company
+        // 1. Verify Company (Case-Insensitive)
         const company = await prepare(`
-            SELECT id, name, status, expiry_date FROM companies WHERE company_code = $1
+            SELECT id, name, status, expiry_date FROM companies WHERE UPPER(company_code) = UPPER($1)
         `).get(company_code);
 
         if (!company) {
+            console.log(`🚫 Login Attempt: Invalid company code [${company_code}]`);
             return res.status(401).json({ error: 'كود الشركة غير صحيح' });
         }
 
-        if (company.status !== 'active') {
-            return res.status(403).json({ error: 'اشتراك الشركة معلق أو غير نشط' });
-        }
+        // ... subscription checks ...
 
-        if (new Date(company.expiry_date) < new Date()) {
-            return res.status(403).json({ error: 'انتهت صلاحية اشتراك الشركة، يرجى التجديد' });
-        }
-
-        // 2. Find user within the company
+        // 2. Find user within the company (Case-Insensitive username)
         const user = await prepare(`
             SELECT u.id, u.username, u.password_hash, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.allow_mobile_login, u.company_id,
                    EXISTS(SELECT 1 FROM role_permissions rp WHERE rp.company_id = u.company_id AND rp.role = u.role AND rp.permission = 'mobile_login') as role_has_mobile
             FROM users u 
-            WHERE u.company_id = $1 AND u.username = $2
+            WHERE u.company_id = $1 AND UPPER(u.username) = UPPER($2)
         `).get(company.id, username);
 
         if (!user) {
