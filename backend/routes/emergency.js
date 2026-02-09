@@ -39,13 +39,29 @@ router.get('/reset-admin', async (req, res) => {
 router.get('/check-admin', async (req, res) => {
     try {
         await getDatabase();
-        const admin = await prepare('SELECT id, username, full_name, role FROM users WHERE username = $1').get('admin');
+        const admin = await prepare('SELECT id, username, full_name, role, company_id FROM users WHERE username = $1').get('admin');
 
         if (!admin) return res.status(404).json({ error: 'المدير غير موجود' });
 
         res.json({ success: true, admin });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/db-status', async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const companies = await db.query("SELECT COUNT(*) FROM companies");
+        const users = await db.query("SELECT COUNT(*) FROM users");
+        res.json({
+            status: 'connected',
+            companies: companies.rows[0].count,
+            users: users.rows[0].count,
+            engine: 'PostgreSQL'
+        });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
     }
 });
 
