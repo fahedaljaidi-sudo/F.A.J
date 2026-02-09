@@ -39,9 +39,19 @@ const requireSupervisor = (req, res, next) => {
     }
 };
 
+// Middleware to check if user is super admin (GM)
+const requireSuperAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'super_admin') {
+        next();
+    } else {
+        return res.status(403).json({ error: 'غير مصرح - يتطلب صلاحية المدير العام' });
+    }
+};
+
 module.exports = {
     authenticateToken,
     requireAdmin,
     requireSupervisor,
+    requireSuperAdmin,
     JWT_SECRET
 };

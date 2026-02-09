@@ -35,6 +35,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         console.log('✅ Permissions link shown for admin');
                     }
                 }
+
+                if (user.role === 'super_admin') {
+                    const superAdminLink = document.getElementById('super-admin-link');
+                    if (superAdminLink) superAdminLink.classList.remove('hidden');
+                }
             }
         }
     } catch (error) {

@@ -10,6 +10,7 @@ const patrolsRoutes = require('./routes/patrols');
 const reportsRoutes = require('./routes/reports');
 const usersRoutes = require('./routes/users');
 const permissionsRoutes = require('./routes/permissions');
+const superAdminRoutes = require('./routes/super-admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -59,6 +60,7 @@ app.use('/api/patrols', patrolsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/permissions', permissionsRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 // Health check with emergency reset
 app.get('/api/health', async (req, res) => {

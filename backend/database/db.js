@@ -89,7 +89,7 @@ async function initializeSchema() {
                 password_hash TEXT NOT NULL,
                 full_name TEXT NOT NULL,
                 email TEXT,
-                role TEXT CHECK(role IN ('admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer')) DEFAULT 'guard',
+                role TEXT CHECK(role IN ('super_admin', 'admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer')) DEFAULT 'guard',
                 unit_number TEXT,
                 is_active INTEGER DEFAULT 1,
                 allow_mobile_login INTEGER DEFAULT 1,
@@ -98,6 +98,8 @@ async function initializeSchema() {
                 UNIQUE(company_id, username)
             )
         `);
+
+        // ... rest of tables unchanged ...
 
         // 3. Create Visitors Table
         await client.query(`
@@ -205,14 +207,14 @@ async function initializeSchema() {
             }
         }
 
-        // Seed admin
+        // Seed super_admin GM
         const adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin' AND company_id = $1", [defaultCompanyId]);
         if (adminCheck.rows.length === 0) {
             const adminPassword = bcrypt.hashSync('admin@123', 10);
             await client.query(`
                 INSERT INTO users (company_id, username, password_hash, full_name, email, role, unit_number)
                 VALUES ($1, $2, $3, $4, $5, $6, $7)
-            `, [defaultCompanyId, 'admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
+            `, [defaultCompanyId, 'admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'super_admin', 'FAJ-GM-001']);
         }
 
         await client.query('COMMIT');
