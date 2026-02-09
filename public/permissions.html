@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>إدارة الصلاحيات - نظام FAJ الأمني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/responsive.css" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="loader.js"></script>
+    <script src="/js/layout.js"></script>
+    <script src="mock-api.js"></script>
+    <script src="success-modal.js"></script>
+    <script src="/mobile-nav.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#162841",
+                        "primary-hover": "#233b5c",
+                        "secondary": "#4C8E4D",
+                        "surface": "#F5F7FA",
+                        "border-color": "#e2e8f0",
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body data-page="permissions" class="bg-surface text-[#101418] min-h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-primary flex flex-col shrink-0 h-screen sticky top-0">
+        <!-- Loaded by /js/layout.js -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="h-16 bg-white border-b border-border-color flex items-center justify-between px-8 shrink-0">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl">key</span>
+                <h2 class="text-xl font-bold text-primary">إدارة صلاحيات الأدوار</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <p class="text-sm font-bold text-gray-900" id="user-name">--</p>
+                    <p class="text-xs text-gray-500" id="user-role">--</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <!-- Info Box -->
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
+                    <span class="material-symbols-outlined text-blue-600">info</span>
+                    <div>
+                        <p class="text-blue-800 font-bold text-sm">تنبيه النظام</p>
+                        <p class="text-blue-700 text-xs">تتحكم هذه اللوحة في الصلاحيات الممنوحة لكل دور وظيفي. التغييرات تطبق فوراً على جميع المستخدمين التابعين للدور.</p>
+                    </div>
+                </div>
+
+                <!-- Permissions Matrix -->
+                <div class="bg-white rounded-xl border border-border-color overflow-hidden">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-border-color">
+                        <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">rule</span>
+                            مصفوفة الصلاحيات
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-right">
+                            <thead class="bg-gray-50 border-b border-border-color">
+                                <tr>
+                                    <th class="px-6 py-3 font-bold text-gray-600">الصلاحية / الدور</th>
+                                    <th class="px-4 py-3 font-bold text-gray-600 text-center">مدير</th>
+                                    <th class="px-4 py-3 font-bold text-gray-600 text-center">مشرف</th>
+                                    <th class="px-4 py-3 font-bold text-gray-600 text-center">حارس</th>
+                                    <th class="px-4 py-3 font-bold text-gray-600 text-center">مدير العمليات</th>
+                                    <th class="px-4 py-3 font-bold text-gray-600 text-center">الموارد البشرية</th>
+                                    <th class="px-4 py-3 font-bold text-gray-600 text-center">مسؤول السلامة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="permissions-table" class="divide-y divide-gray-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = '/api';
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token || user.role !== 'admin') {
+            window.location.href = '/dashboard.html';
+        }
+
+        document.getElementById('user-name').textContent = user.full_name || '--';
+        document.getElementById('user-role').textContent = 'مدير النظام';
+
+        const roles = ['admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer'];
+        const permissions = [
+            { id: 'manage_users', name: 'إدارة المستخدمين', icon: 'person_add' },
+            { id: 'manage_permissions', name: 'تعديل الصلاحيات', icon: 'vpn_key' },
+            { id: 'view_reports', name: 'عرض التقارير والتحليلات', icon: 'analytics' },
+            { id: 'manage_visitors', name: 'إدارة سجل الزوار', icon: 'badge' },
+            { id: 'manage_patrols', name: 'إدارة الدوريات الأمنية', icon: 'local_police' }
+        ];
+
+        async function loadPermissions() {
+            try {
+                const response = await fetch(`${API_BASE}/permissions`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                renderMatrix(data.permissions);
+            } catch (error) {
+                console.error('Error loading permissions:', error);
+            }
+        }
+
+        function renderMatrix(activePerms) {
+            const tbody = document.getElementById('permissions-table');
+            tbody.innerHTML = permissions.map(perm => `
+                <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-400 text-[20px]">${perm.icon}</span>
+                            <div>
+                                <p class="font-bold text-gray-900">${perm.name}</p>
+                                <p class="text-[10px] text-gray-500">${perm.id}</p>
+                            </div>
+                        </div>
+                    </td>
+                    ${roles.map(role => `
+                        <td class="px-4 py-4 text-center">
+                            <label class="inline-flex items-center cursor-pointer group">
+                                <input type="checkbox" 
+                                    ${activePerms[role]?.includes(perm.id) ? 'checked' : ''}
+                                    ${role === 'admin' && perm.id === 'manage_permissions' ? 'disabled' : ''}
+                                    onchange="togglePermission('${role}', '${perm.id}')"
+                                    class="hidden peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary relative transition-colors"></div>
+                            </label>
+                        </td>
+                    `).join('')}
+                </tr>
+            `).join('');
+        }
+
+        async function togglePermission(role, permission) {
+            try {
+                const response = await fetch(`${API_BASE}/permissions/toggle`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ role, permission })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // Optional: show small toast
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'حدث خطأ');
+                    loadPermissions(); // Refresh to revert UI
+                }
+            } catch (error) {
+                console.error('Error toggling permission:', error);
+                loadPermissions();
+            }
+        }
+
+        loadPermissions();
+    </script>
+    <style>
+        /* Custom styles for the toggle switch if needed */
+    </style>
+</body>
+
+</html>

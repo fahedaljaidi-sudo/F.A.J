@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const adminLink = document.getElementById('admin-link');
                     if (adminLink) adminLink.classList.remove('hidden');
                 }
+                
+                if (user.role === 'admin') {
+                    const permissionsLink = document.getElementById('admin-link-permissions');
+                    if (permissionsLink) permissionsLink.classList.remove('hidden');
+                }
             }
         }
     } catch (error) {

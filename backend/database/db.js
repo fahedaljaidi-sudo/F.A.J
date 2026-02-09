@@ -127,6 +127,38 @@ async function initializeSchema() {
             )
         `);
 
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS role_permissions (
+                id SERIAL PRIMARY KEY,
+                role TEXT NOT NULL,
+                permission TEXT NOT NULL,
+                UNIQUE(role, permission)
+            )
+        `);
+
+        // Seed default permissions
+        const permCheck = await client.query("SELECT COUNT(*) FROM role_permissions");
+        if (parseInt(permCheck.rows[0].count) === 0) {
+            const defaultPermissions = [
+                ['admin', 'manage_users'],
+                ['admin', 'manage_permissions'],
+                ['admin', 'view_reports'],
+                ['admin', 'manage_visitors'],
+                ['admin', 'manage_patrols'],
+                ['supervisor', 'view_reports'],
+                ['supervisor', 'manage_visitors'],
+                ['supervisor', 'manage_patrols'],
+                ['guard', 'manage_visitors'],
+                ['guard', 'manage_patrols'],
+                ['operations_manager', 'view_reports'],
+                ['hr_manager', 'view_reports'],
+                ['safety_officer', 'view_reports']
+            ];
+            for (const [role, perm] of defaultPermissions) {
+                await client.query('INSERT INTO role_permissions (role, permission) VALUES ($1, $2)', [role, perm]);
+            }
+        }
+
         // Seed admin
         const adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin'");
         if (adminCheck.rows.length === 0) {

@@ -9,6 +9,7 @@ const visitorsRoutes = require('./routes/visitors');
 const patrolsRoutes = require('./routes/patrols');
 const reportsRoutes = require('./routes/reports');
 const usersRoutes = require('./routes/users');
+const permissionsRoutes = require('./routes/permissions');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,6 +58,7 @@ app.use('/api/visitors', visitorsRoutes);
 app.use('/api/patrols', patrolsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/permissions', permissionsRoutes);
 
 // Health check with emergency reset
 app.get('/api/health', async (req, res) => {
