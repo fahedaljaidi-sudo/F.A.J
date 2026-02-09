@@ -14,7 +14,17 @@ async function getDatabase() {
         await pool.query('SELECT 1');
         // On SaaS, we rely on migrations or the fix script for full setup
         // But we ensure basic structures exist
-        await pool.query(`CREATE TABLE IF NOT EXISTS companies (id SERIAL PRIMARY KEY, name TEXT NOT NULL, company_code TEXT UNIQUE NOT NULL, status TEXT DEFAULT 'active', expiry_date TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'))`);
+        await pool.query(`CREATE TABLE IF NOT EXISTS companies (
+            id SERIAL PRIMARY KEY, 
+            name TEXT NOT NULL, 
+            company_code TEXT UNIQUE NOT NULL, 
+            status TEXT DEFAULT 'active', 
+            subscription_plan TEXT DEFAULT 'basic',
+            max_users INTEGER DEFAULT 10,
+            expiry_date TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        )`);
         await pool.query(`CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, company_id INTEGER REFERENCES companies(id), username TEXT NOT NULL, password_hash TEXT NOT NULL, full_name TEXT NOT NULL, role TEXT DEFAULT 'guard')`);
         
         // Ensure FAJ001 exists for default operations
