@@ -227,10 +227,65 @@ async function initializeSchema() {
 }
 
 async function runMigrations() {
-    console.log('🔄 Checking for missing columns...');
+    console.log('🔄 Checking for missing columns and tables...');
     const client = await pool.connect();
     try {
-        // Add updated_at to patrol_rounds if missing
+        // 1. Create companies table if missing
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS companies (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                company_code TEXT UNIQUE NOT NULL,
+                subscription_plan TEXT DEFAULT 'basic',
+                expiry_date TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
+                status TEXT CHECK(status IN ('active', 'suspended', 'expired')) DEFAULT 'active',
+                max_users INTEGER DEFAULT 10,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Seed default company if none
+        const companyCheck = await client.query("SELECT id FROM companies LIMIT 1");
+        let defaultId = 1;
+        if (companyCheck.rows.length === 0) {
+            const res = await client.query("INSERT INTO companies (name, company_code, subscription_plan, status) VALUES ('FAJ Security System', 'FAJ001', 'enterprise', 'active') RETURNING id");
+            defaultId = res.rows[0].id;
+        } else {
+            defaultId = companyCheck.rows[0].id;
+        }
+
+        // 2. Add company_id to all tables if missing
+        const tables = ['users', 'visitors', 'patrol_rounds', 'locations', 'activity_log', 'role_permissions'];
+        for (const table of tables) {
+            await client.query(`
+                DO $$ 
+                BEGIN 
+                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='${table}' AND column_name='company_id') THEN
+                        ALTER TABLE ${table} ADD COLUMN company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultId};
+                        UPDATE ${table} SET company_id = ${defaultId} WHERE company_id IS NULL;
+                    END IF;
+                END $$;
+            `);
+        }
+
+        // 3. Update users role check and super_admin seeding
+        await client.query(`
+            DO $$ 
+            BEGIN 
+                ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
+                ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('super_admin', 'admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer'));
+            EXCEPTION WHEN OTHERS THEN
+                -- Constraint might already be correct
+            END $$;
+        `);
+
+        // Ensure admin user is super_admin for the first company
+        await client.query(`
+            UPDATE users SET role = 'super_admin' WHERE username = 'admin' AND company_id = $1
+        `, [defaultId]);
+
+        // Existing migrations...
         await client.query(`
             DO $$ 
             BEGIN 
