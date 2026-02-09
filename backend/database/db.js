@@ -181,7 +181,13 @@ async function initializeSchema() {
         `);
 
         // Seed default permissions
-        const permCheck = await client.query("SELECT COUNT(*) FROM role_permissions");
+        let permCheck;
+        try {
+            permCheck = await client.query("SELECT COUNT(*) FROM role_permissions");
+        } catch (e) {
+            permCheck = { rows: [{ count: 0 }] };
+        }
+
         if (parseInt(permCheck.rows[0].count) === 0) {
             const defaultPermissions = [
                 ['super_admin', 'manage_users'],
@@ -209,12 +215,27 @@ async function initializeSchema() {
                 ['safety_officer', 'view_reports']
             ];
             for (const [role, perm] of defaultPermissions) {
-                await client.query('INSERT INTO role_permissions (company_id, role, permission) VALUES ($1, $2, $3)', [defaultCompanyId, role, perm]);
+                try {
+                    await client.query('INSERT INTO role_permissions (company_id, role, permission) VALUES ($1, $2, $3)', [defaultCompanyId, role, perm]);
+                } catch (err) {
+                    // Table or column might not exist yet
+                }
             }
         }
 
-        // Seed super_admin GM
-        const adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin' AND company_id = $1", [defaultCompanyId]);
+        // Seed super_admin GM (Safe check for migration)
+        let adminCheck;
+        try {
+            adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin' AND company_id = $1", [defaultCompanyId]);
+        } catch (e) {
+            // Fallback for old schema during migration
+            try {
+                adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin'");
+            } catch (err2) {
+                adminCheck = { rows: [] };
+            }
+        }
+
         if (adminCheck.rows.length === 0) {
             const adminPassword = bcrypt.hashSync('admin@123', 10);
             await client.query(`
