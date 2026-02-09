@@ -41,9 +41,10 @@ router.post('/companies', authenticateToken, requireSuperAdmin, async (req, res)
         const companyResult = await run(`
             INSERT INTO companies (name, company_code, subscription_plan, expiry_date, max_users, status)
             VALUES ($1, $2, $3, $4, $5, 'active')
+            RETURNING id
         `, [name, company_code.toUpperCase(), subscription_plan || 'basic', expiryDate.toISOString(), parseInt(max_users) || 10]);
 
-        const companyId = companyResult.lastInsertRowid;
+        const companyId = companyResult.rows[0].id;
 
         // 2. Create Company Admin
         const passwordHash = bcrypt.hashSync(admin_password, 10);

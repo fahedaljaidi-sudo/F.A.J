@@ -28,18 +28,26 @@ async function getDatabase() {
     }
 }
 
+async function run(sql, params = []) {
+    return pool.query(sql, params);
+}
+
+async function get(sql, ...params) {
+    const res = await pool.query(sql, params);
+    return res.rows[0] || null;
+}
+
+async function all(sql, ...params) {
+    const res = await pool.query(sql, params);
+    return res.rows;
+}
+
 function prepare(sql) {
     return {
-        run: (...params) => pool.query(sql, params),
-        get: async (...params) => {
-            const res = await pool.query(sql, params);
-            return res.rows[0] || null;
-        },
-        all: async (...params) => {
-            const res = await pool.query(sql, params);
-            return res.rows;
-        }
+        run: (...params) => run(sql, params),
+        get: (...params) => get(sql, ...params),
+        all: (...params) => all(sql, ...params)
     };
 }
 
-module.exports = { getDatabase, prepare, pool };
+module.exports = { getDatabase, prepare, run, get, all, pool };
