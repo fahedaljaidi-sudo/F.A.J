@@ -103,83 +103,85 @@
 
     <script src="success-modal.js"></script>
     <script>
-        const loginForm = document.getElementById('login-form');
-        const errorBox = document.getElementById('error-box');
-        const errorMessage = document.getElementById('error-message');
+        (function() {
+            const loginForm = document.getElementById('login-form');
+            const errorBox = document.getElementById('error-box');
+            const errorMessage = document.getElementById('error-message');
 
-        // Pre-fill company code if remembered
-        const rememberedCode = localStorage.getItem('last_company_code');
-        if (rememberedCode) {
-            document.getElementById('company_code').value = rememberedCode;
-        }
+            // Pre-fill company code if remembered
+            const rememberedCode = localStorage.getItem('last_company_code');
+            if (rememberedCode) {
+                document.getElementById('company_code').value = rememberedCode;
+            }
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            errorBox.classList.add('hidden');
-            
-            const company_code = document.getElementById('company_code').value.trim().toUpperCase();
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const submitBtn = loginForm.querySelector('button');
-            const originalBtnText = submitBtn.innerHTML;
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                errorBox.classList.add('hidden');
+                
+                const company_code = document.getElementById('company_code').value.trim().toUpperCase();
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const submitBtn = loginForm.querySelector('button');
+                const originalBtnText = submitBtn.innerHTML;
 
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> جاري التحقق...';
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> جاري التحقق...';
 
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ company_code, username, password })
-                });
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ company_code, username, password })
+                    });
 
-                const data = await response.json();
+                    const data = await response.json();
 
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    localStorage.setItem('last_company_code', company_code);
-                    
-                    submitBtn.classList.remove('bg-[#162841]', 'hover:bg-[#2c4a6e]');
-                    submitBtn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
-                    submitBtn.innerHTML = '<span class="material-symbols-outlined">check</span> تم الدخول بنجاح';
-                    
-                    setTimeout(() => {
-                        window.location.href = '/dashboard.html';
-                    }, 500);
-                } else {
+                    if (response.ok) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        localStorage.setItem('last_company_code', company_code);
+                        
+                        submitBtn.classList.remove('bg-[#162841]', 'hover:bg-[#2c4a6e]');
+                        submitBtn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                        submitBtn.innerHTML = '<span class="material-symbols-outlined">check</span> تم الدخول بنجاح';
+                        
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html';
+                        }, 500);
+                    } else {
+                        errorBox.classList.remove('hidden');
+                        errorMessage.textContent = data.error || 'حدث خطأ في تسجيل الدخول';
+                        
+                        const card = document.querySelector('.glass-card');
+                        card.classList.add('animate-shake');
+                        setTimeout(() => card.classList.remove('animate-shake'), 500);
+                    }
+                } catch (error) {
                     errorBox.classList.remove('hidden');
-                    errorMessage.textContent = data.error || 'حدث خطأ في تسجيل الدخول';
-                    
-                    const card = document.querySelector('.glass-card');
-                    card.classList.add('animate-shake');
-                    setTimeout(() => card.classList.remove('animate-shake'), 500);
-                }
-            } catch (error) {
-                errorBox.classList.remove('hidden');
-                errorMessage.textContent = 'خطأ في الاتصال بالخادم';
-            } finally {
-                if (!localStorage.getItem('token')) {
-                    submitBtn.disabled = false;
-                    if (!submitBtn.classList.contains('bg-emerald-500')) {
-                        submitBtn.innerHTML = originalBtnText;
+                    errorMessage.textContent = 'خطأ في الاتصال بالخادم';
+                } finally {
+                    if (!localStorage.getItem('token')) {
+                        submitBtn.disabled = false;
+                        if (!submitBtn.classList.contains('bg-emerald-500')) {
+                            submitBtn.innerHTML = originalBtnText;
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // Add shake animation style dynamically
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-5px); }
-                75% { transform: translateX(5px); }
-            }
-            .animate-shake { animation: shake 0.3s ease-in-out; }
-        `;
-        document.head.appendChild(style);
+            // Add shake animation style dynamically
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-5px); }
+                    75% { transform: translateX(5px); }
+                }
+                .animate-shake { animation: shake 0.3s ease-in-out; }
+            `;
+            document.head.appendChild(style);
+        })();
     </script>
 </body>
 
