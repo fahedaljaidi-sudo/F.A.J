@@ -105,7 +105,11 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
 
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ error: 'خطأ في النظام' });
+        res.status(500).json({ 
+            error: 'خطأ في النظام', 
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
