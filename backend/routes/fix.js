@@ -187,12 +187,12 @@ router.get('/recreate-database', async (req, res) => {
             await db.query('INSERT INTO role_permissions (company_id, role, permission) VALUES ($1, $2, $3)', [defaultCompanyId, role, perm]);
         }
 
-        // Insert admin user
+        // Insert admin user (GM)
         const adminPassword = bcrypt.hashSync('admin@123', 10);
         await db.query(`
             INSERT INTO users (company_id, username, password_hash, full_name, email, role, unit_number)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `, [defaultCompanyId, 'admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
+        `, [defaultCompanyId, 'admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'super_admin', 'FAJ-GM-001']);
 
         // Insert locations
         const locations = [
