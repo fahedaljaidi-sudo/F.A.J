@@ -14,10 +14,11 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
         await getDatabase();
         const { username, password } = req.body;
 
-        // Find user
+        // Find user with role permission check
         const user = await prepare(`
-            SELECT id, username, password_hash, full_name, email, role, unit_number, is_active, allow_mobile_login
-            FROM users WHERE username = $1
+            SELECT u.id, u.username, u.password_hash, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.allow_mobile_login,
+                   EXISTS(SELECT 1 FROM role_permissions rp WHERE rp.role = u.role AND rp.permission = 'mobile_login') as role_has_mobile
+            FROM users u WHERE u.username = $1
         `).get(username);
 
         if (!user) {
@@ -28,8 +29,13 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
             return res.status(401).json({ error: 'الحساب معطل - يرجى التواصل مع المسؤول' });
         }
 
-        // Check mobile login permission
-        if (req.isMobile && user.role !== 'admin' && !user.allow_mobile_login) {
+        // Check mobile login permission (Admin, or Role Permission, or User Override)
+        // User Override (allow_mobile_login) acts as a fallback if RBAC is disabled for the role but enabled for specific user
+        // However, if we want strict RBAC, we might want to prioritize it. 
+        // For now: Allowed if Admin OR Role has permission OR User has specific flag
+        const isMobileAllowed = user.role === 'admin' || user.role_has_mobile || user.allow_mobile_login;
+
+        if (req.isMobile && !isMobileAllowed) {
             console.log('🚫 Mobile Login BLOCKED:', {
                 username,
                 userAgent: req.headers['user-agent']?.substring(0, 100),
@@ -37,7 +43,7 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
             });
 
             return res.status(403).json({
-                error: 'تسجيل الدخول من الجوال محظور لهذا الحساب - يرجى التواصل مع المسؤول',
+                error: 'تسجيل الدخول من الجوال غير مصرح به لرتبتك الوظيفية',
                 isMobileRestricted: true
             });
         }

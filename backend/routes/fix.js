@@ -133,12 +133,16 @@ router.get('/recreate-database', async (req, res) => {
             ['admin', 'view_reports'],
             ['admin', 'manage_visitors'],
             ['admin', 'manage_patrols'],
+            ['admin', 'mobile_login'],
             ['supervisor', 'view_reports'],
             ['supervisor', 'manage_visitors'],
             ['supervisor', 'manage_patrols'],
+            ['supervisor', 'mobile_login'],
             ['guard', 'manage_visitors'],
             ['guard', 'manage_patrols'],
+            ['guard', 'mobile_login'],
             ['operations_manager', 'view_reports'],
+            ['operations_manager', 'mobile_login'],
             ['hr_manager', 'view_reports'],
             ['safety_officer', 'view_reports']
         ];
