@@ -48,9 +48,10 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
         }
 
         // Check mobile login permission
-        const isMobileAllowed = user.role === 'admin' || user.role_has_mobile || user.allow_mobile_login;
+        const isMobileAllowed = user.role === 'super_admin' || user.role === 'admin' || user.role_has_mobile || user.allow_mobile_login;
 
         if (req.isMobile && !isMobileAllowed) {
+            console.log(`🚫 Login Blocked: Mobile restricted for role ${user.role}`);
             return res.status(403).json({
                 error: 'تسجيل الدخول من الجوال غير مصرح به لرتبتك الوظيفية',
                 isMobileRestricted: true
@@ -60,8 +61,11 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
         // Verify password
         const validPassword = bcrypt.compareSync(password, user.password_hash);
         if (!validPassword) {
+            console.log(`🚫 Login Failed: Invalid password for user ${username}`);
             return res.status(401).json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
         }
+
+        console.log(`✅ Login Success: ${username} [${user.role}] for company ${company.name}`);
 
         // Generate JWT token including company_id
         const token = jwt.sign(

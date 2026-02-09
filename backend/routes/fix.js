@@ -164,6 +164,12 @@ router.get('/recreate-database', async (req, res) => {
 
         // Seed default permissions
         const defaultPermissions = [
+            ['super_admin', 'manage_users'],
+            ['super_admin', 'manage_permissions'],
+            ['super_admin', 'view_reports'],
+            ['super_admin', 'manage_visitors'],
+            ['super_admin', 'manage_patrols'],
+            ['super_admin', 'mobile_login'],
             ['admin', 'manage_users'],
             ['admin', 'manage_permissions'],
             ['admin', 'view_reports'],

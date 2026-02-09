@@ -184,6 +184,12 @@ async function initializeSchema() {
         const permCheck = await client.query("SELECT COUNT(*) FROM role_permissions");
         if (parseInt(permCheck.rows[0].count) === 0) {
             const defaultPermissions = [
+                ['super_admin', 'manage_users'],
+                ['super_admin', 'manage_permissions'],
+                ['super_admin', 'view_reports'],
+                ['super_admin', 'manage_visitors'],
+                ['super_admin', 'manage_patrols'],
+                ['super_admin', 'mobile_login'],
                 ['admin', 'manage_users'],
                 ['admin', 'manage_permissions'],
                 ['admin', 'view_reports'],
