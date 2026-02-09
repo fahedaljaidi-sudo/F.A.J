@@ -60,6 +60,16 @@
 
         <form id="login-form" class="space-y-5">
             <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">كود الشركة</label>
+                <div class="relative group">
+                    <input type="text" id="company_code" 
+                        class="w-full pl-4 pr-10 py-3 bg-white/50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-800 placeholder:text-slate-400 font-bold uppercase tracking-widest"
+                        placeholder="أدخل كود المنشأة" required />
+                    <span class="material-symbols-outlined absolute right-3 top-3 text-slate-400 group-focus-within:text-blue-500 transition-colors">domain</span>
+                </div>
+            </div>
+
+            <div class="space-y-1">
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">اسم المستخدم</label>
                 <div class="relative group">
                     <input type="text" id="username" 
@@ -97,38 +107,40 @@
         const errorBox = document.getElementById('error-box');
         const errorMessage = document.getElementById('error-message');
 
+        // Pre-fill company code if remembered
+        const rememberedCode = localStorage.getItem('last_company_code');
+        if (rememberedCode) {
+            document.getElementById('company_code').value = rememberedCode;
+        }
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Hide error initially
             errorBox.classList.add('hidden');
             
-            const username = document.getElementById('username').value;
+            const company_code = document.getElementById('company_code').value.trim().toUpperCase();
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const submitBtn = loginForm.querySelector('button');
             const originalBtnText = submitBtn.innerHTML;
 
-            // Loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> جاري التحقق...';
 
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company_code, username, password })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Success
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('last_company_code', company_code);
                     
-                    // Show success feedback
                     submitBtn.classList.remove('bg-[#162841]', 'hover:bg-[#2c4a6e]');
                     submitBtn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
                     submitBtn.innerHTML = '<span class="material-symbols-outlined">check</span> تم الدخول بنجاح';
@@ -137,11 +149,9 @@
                         window.location.href = '/dashboard.html';
                     }, 500);
                 } else {
-                    // Show error
                     errorBox.classList.remove('hidden');
                     errorMessage.textContent = data.error || 'حدث خطأ في تسجيل الدخول';
                     
-                    // Shake animation for error
                     const card = document.querySelector('.glass-card');
                     card.classList.add('animate-shake');
                     setTimeout(() => card.classList.remove('animate-shake'), 500);

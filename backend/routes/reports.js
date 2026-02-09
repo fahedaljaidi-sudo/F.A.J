@@ -11,6 +11,7 @@ router.get('/', authenticateToken, async (req, res) => {
         const { from_date, to_date, user_id, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let logs, totalResult;
 
@@ -21,11 +22,11 @@ router.get('/', authenticateToken, async (req, res) => {
             LEFT JOIN users u ON a.user_id = u.id
             LEFT JOIN visitors v ON a.visitor_id = v.id
             LEFT JOIN patrol_rounds p ON a.patrol_id = p.id
-            WHERE 1=1
+            WHERE a.company_id = $1
         `;
-        let countQuery = `SELECT COUNT(*) as total FROM activity_log a WHERE 1=1`;
-        let params = [];
-        let pIndex = 1;
+        let countQuery = `SELECT COUNT(*) as total FROM activity_log a WHERE company_id = $1`;
+        let params = [companyId];
+        let pIndex = 2;
 
         if (!isAdmin) {
             query += ` AND a.user_id = $${pIndex}`;
@@ -69,8 +70,7 @@ router.get('/', authenticateToken, async (req, res) => {
         console.error('❌ Get reports error:', error);
         res.status(500).json({
             error: 'خطأ في جلب التقارير',
-            message: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            message: error.message
         });
     }
 });
@@ -80,21 +80,22 @@ router.get('/summary', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let visitors, patrols, normalPatrols, observationPatrols, dangerPatrols;
 
         if (isAdmin) {
-            visitors = await prepare('SELECT COUNT(*) as total FROM visitors').get();
-            patrols = await prepare('SELECT COUNT(*) as total FROM patrol_rounds').get();
-            normalPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE security_status = 'normal'`).get();
-            observationPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE security_status = 'observation'`).get();
-            dangerPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE security_status = 'danger'`).get();
+            visitors = await prepare('SELECT COUNT(*) as total FROM visitors WHERE company_id = $1').get(companyId);
+            patrols = await prepare('SELECT COUNT(*) as total FROM patrol_rounds WHERE company_id = $1').get(companyId);
+            normalPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND security_status = 'normal'`).get(companyId);
+            observationPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND security_status = 'observation'`).get(companyId);
+            dangerPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND security_status = 'danger'`).get(companyId);
         } else {
-            visitors = await prepare('SELECT COUNT(*) as total FROM visitors WHERE registered_by = $1').get(req.user.id);
-            patrols = await prepare('SELECT COUNT(*) as total FROM patrol_rounds WHERE guard_id = $1').get(req.user.id);
-            normalPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE security_status = 'normal' AND guard_id = $1`).get(req.user.id);
-            observationPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE security_status = 'observation' AND guard_id = $1`).get(req.user.id);
-            dangerPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE security_status = 'danger' AND guard_id = $1`).get(req.user.id);
+            visitors = await prepare('SELECT COUNT(*) as total FROM visitors WHERE company_id = $1 AND registered_by = $2').get(companyId, req.user.id);
+            patrols = await prepare('SELECT COUNT(*) as total FROM patrol_rounds WHERE company_id = $1 AND guard_id = $2').get(companyId, req.user.id);
+            normalPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND security_status = 'normal' AND guard_id = $2`).get(companyId, req.user.id);
+            observationPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND security_status = 'observation' AND guard_id = $2`).get(companyId, req.user.id);
+            dangerPatrols = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND security_status = 'danger' AND guard_id = $2`).get(companyId, req.user.id);
         }
 
         res.json({
@@ -119,6 +120,7 @@ router.get('/recent', authenticateToken, async (req, res) => {
         await getDatabase();
         const { limit = 10 } = req.query;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let logs;
         if (isAdmin) {
@@ -127,19 +129,20 @@ router.get('/recent', authenticateToken, async (req, res) => {
                 FROM activity_log a
                 LEFT JOIN users u ON a.user_id = u.id
                 LEFT JOIN visitors v ON a.visitor_id = v.id
+                WHERE a.company_id = $1
                 ORDER BY a.event_time DESC
-                LIMIT $1
-            `).all(parseInt(limit));
+                LIMIT $2
+            `).all(companyId, parseInt(limit));
         } else {
             logs = await prepare(`
                 SELECT a.*, u.full_name as user_name, v.full_name as visitor_name
                 FROM activity_log a
                 LEFT JOIN users u ON a.user_id = u.id
                 LEFT JOIN visitors v ON a.visitor_id = v.id
-                WHERE a.user_id = $1
+                WHERE a.company_id = $1 AND a.user_id = $2
                 ORDER BY a.event_time DESC
-                LIMIT $2
-            `).all(req.user.id, parseInt(limit));
+                LIMIT $3
+            `).all(companyId, req.user.id, parseInt(limit));
         }
 
         res.json({ logs });

@@ -2,6 +2,10 @@ const Joi = require('joi');
 
 const schemas = {
     login: Joi.object({
+        company_code: Joi.string().required().messages({
+            'string.empty': 'كود الشركة مطلوب',
+            'any.required': 'كود الشركة مطلوب'
+        }),
         username: Joi.string().required().messages({
             'string.empty': 'اسم المستخدم مطلوب',
             'any.required': 'اسم المستخدم مطلوب'

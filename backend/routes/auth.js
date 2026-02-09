@@ -12,14 +12,32 @@ const router = express.Router();
 router.post('/login', detectMobile, validate(schemas.login), async (req, res) => {
     try {
         await getDatabase();
-        const { username, password } = req.body;
+        const { company_code, username, password } = req.body;
 
-        // Find user with role permission check
+        // 1. Verify Company
+        const company = await prepare(`
+            SELECT id, name, status, expiry_date FROM companies WHERE company_code = $1
+        `).get(company_code);
+
+        if (!company) {
+            return res.status(401).json({ error: 'كود الشركة غير صحيح' });
+        }
+
+        if (company.status !== 'active') {
+            return res.status(403).json({ error: 'اشتراك الشركة معلق أو غير نشط' });
+        }
+
+        if (new Date(company.expiry_date) < new Date()) {
+            return res.status(403).json({ error: 'انتهت صلاحية اشتراك الشركة، يرجى التجديد' });
+        }
+
+        // 2. Find user within the company
         const user = await prepare(`
-            SELECT u.id, u.username, u.password_hash, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.allow_mobile_login,
-                   EXISTS(SELECT 1 FROM role_permissions rp WHERE rp.role = u.role AND rp.permission = 'mobile_login') as role_has_mobile
-            FROM users u WHERE u.username = $1
-        `).get(username);
+            SELECT u.id, u.username, u.password_hash, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.allow_mobile_login, u.company_id,
+                   EXISTS(SELECT 1 FROM role_permissions rp WHERE rp.company_id = u.company_id AND rp.role = u.role AND rp.permission = 'mobile_login') as role_has_mobile
+            FROM users u 
+            WHERE u.company_id = $1 AND u.username = $2
+        `).get(company.id, username);
 
         if (!user) {
             return res.status(401).json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
@@ -29,19 +47,10 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
             return res.status(401).json({ error: 'الحساب معطل - يرجى التواصل مع المسؤول' });
         }
 
-        // Check mobile login permission (Admin, or Role Permission, or User Override)
-        // User Override (allow_mobile_login) acts as a fallback if RBAC is disabled for the role but enabled for specific user
-        // However, if we want strict RBAC, we might want to prioritize it. 
-        // For now: Allowed if Admin OR Role has permission OR User has specific flag
+        // Check mobile login permission
         const isMobileAllowed = user.role === 'admin' || user.role_has_mobile || user.allow_mobile_login;
 
         if (req.isMobile && !isMobileAllowed) {
-            console.log('🚫 Mobile Login BLOCKED:', {
-                username,
-                userAgent: req.headers['user-agent']?.substring(0, 100),
-                timestamp: new Date().toISOString()
-            });
-
             return res.status(403).json({
                 error: 'تسجيل الدخول من الجوال غير مصرح به لرتبتك الوظيفية',
                 isMobileRestricted: true
@@ -54,10 +63,11 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
             return res.status(401).json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
         }
 
-        // Generate JWT token
+        // Generate JWT token including company_id
         const token = jwt.sign(
             {
                 id: user.id,
+                company_id: user.company_id,
                 username: user.username,
                 full_name: user.full_name,
                 role: user.role,
@@ -69,20 +79,22 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
 
         // Log activity
         await prepare(`
-            INSERT INTO activity_log (event_type, description, user_id, status)
-            VALUES ($1, $2, $3, $4)
-        `).run('system', `تسجيل دخول: ${user.full_name}`, user.id, 'success');
+            INSERT INTO activity_log (company_id, event_type, description, user_id, status)
+            VALUES ($1, $2, $3, $4, $5)
+        `).run(user.company_id, 'system', `تسجيل دخول: ${user.full_name}`, user.id, 'success');
 
         res.json({
             message: 'تم تسجيل الدخول بنجاح',
             token,
             user: {
                 id: user.id,
+                company_id: user.company_id,
                 username: user.username,
                 full_name: user.full_name,
                 email: user.email,
                 role: user.role,
-                unit_number: user.unit_number
+                unit_number: user.unit_number,
+                company_name: company.name
             }
         });
 

@@ -40,12 +40,36 @@ router.get('/recreate-database', async (req, res) => {
         await db.query('DROP TABLE IF EXISTS visitors CASCADE');
         await db.query('DROP TABLE IF EXISTS locations CASCADE');
         await db.query('DROP TABLE IF EXISTS users CASCADE');
+        await db.query('DROP TABLE IF EXISTS companies CASCADE');
 
-        // Create tables (Postgres syntax)
+        // 1. Create Companies Table
+        await db.query(`
+            CREATE TABLE companies (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                company_code TEXT UNIQUE NOT NULL,
+                subscription_plan TEXT DEFAULT 'basic',
+                expiry_date TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
+                status TEXT CHECK(status IN ('active', 'suspended', 'expired')) DEFAULT 'active',
+                max_users INTEGER DEFAULT 10,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Seed default company
+        const companyResult = await db.query(`
+            INSERT INTO companies (name, company_code, subscription_plan, status)
+            VALUES ($1, $2, $3, $4) RETURNING id
+        `, ['FAJ Security System', 'FAJ001', 'enterprise', 'active']);
+        const defaultCompanyId = companyResult.rows[0].id;
+
+        // 2. Create Users Table
         await db.query(`
             CREATE TABLE users (
                 id SERIAL PRIMARY KEY,
-                username TEXT UNIQUE NOT NULL,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
+                username TEXT NOT NULL,
                 password_hash TEXT NOT NULL,
                 full_name TEXT NOT NULL,
                 email TEXT,
@@ -54,13 +78,16 @@ router.get('/recreate-database', async (req, res) => {
                 is_active INTEGER DEFAULT 1,
                 allow_mobile_login INTEGER DEFAULT 1,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(company_id, username)
             )
         `);
 
+        // 3. Create Visitors Table
         await db.query(`
             CREATE TABLE visitors (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 full_name TEXT NOT NULL,
                 id_number TEXT NOT NULL,
                 phone TEXT,
@@ -78,9 +105,11 @@ router.get('/recreate-database', async (req, res) => {
             )
         `);
 
+        // 4. Create Patrol Rounds Table
         await db.query(`
             CREATE TABLE patrol_rounds (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 guard_id INTEGER NOT NULL REFERENCES users(id),
                 location TEXT NOT NULL,
                 security_status TEXT CHECK(security_status IN ('normal', 'observation', 'danger')) DEFAULT 'normal',
@@ -93,18 +122,23 @@ router.get('/recreate-database', async (req, res) => {
             )
         `);
 
+        // 5. Create Locations Table
         await db.query(`
             CREATE TABLE locations (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 name_ar TEXT NOT NULL,
                 name_en TEXT,
-                location_code TEXT UNIQUE
+                location_code TEXT,
+                UNIQUE(company_id, location_code)
             )
         `);
 
+        // 6. Create Activity Log Table
         await db.query(`
             CREATE TABLE activity_log (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 event_type TEXT NOT NULL,
                 event_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 description TEXT,
@@ -117,12 +151,14 @@ router.get('/recreate-database', async (req, res) => {
             )
         `);
 
+        // 7. Create Role Permissions Table
         await db.query(`
             CREATE TABLE role_permissions (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 role TEXT NOT NULL,
                 permission TEXT NOT NULL,
-                UNIQUE(role, permission)
+                UNIQUE(company_id, role, permission)
             )
         `);
 
@@ -148,15 +184,15 @@ router.get('/recreate-database', async (req, res) => {
         ];
         
         for (const [role, perm] of defaultPermissions) {
-            await db.query('INSERT INTO role_permissions (role, permission) VALUES ($1, $2)', [role, perm]);
+            await db.query('INSERT INTO role_permissions (company_id, role, permission) VALUES ($1, $2, $3)', [defaultCompanyId, role, perm]);
         }
 
         // Insert admin user
         const adminPassword = bcrypt.hashSync('admin@123', 10);
         await db.query(`
-            INSERT INTO users (username, password_hash, full_name, email, role, unit_number)
-            VALUES ($1, $2, $3, $4, $5, $6)
-        `, ['admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
+            INSERT INTO users (company_id, username, password_hash, full_name, email, role, unit_number)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [defaultCompanyId, 'admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
 
         // Insert locations
         const locations = [
@@ -168,7 +204,7 @@ router.get('/recreate-database', async (req, res) => {
         ];
 
         for (const loc of locations) {
-            await db.query('INSERT INTO locations (name_ar, name_en, location_code) VALUES ($1, $2, $3)', loc);
+            await db.query('INSERT INTO locations (company_id, name_ar, name_en, location_code) VALUES ($1, $2, $3, $4)', [defaultCompanyId, ...loc]);
         }
 
         res.send(`

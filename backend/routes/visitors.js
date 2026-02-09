@@ -12,17 +12,18 @@ router.get('/', authenticateToken, async (req, res) => {
         const { date, search, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let query = `
             SELECT v.*, u.full_name as registered_by_name
             FROM visitors v
             LEFT JOIN users u ON v.registered_by = u.id
-            WHERE 1=1
+            WHERE v.company_id = $1
         `;
-        let countQuery = `SELECT COUNT(*) as total FROM visitors WHERE 1=1`;
-        let params = [];
-        let countParams = [];
-        let vIndex = 1;
+        let countQuery = `SELECT COUNT(*) as total FROM visitors WHERE company_id = $1`;
+        let params = [companyId];
+        let countParams = [companyId];
+        let vIndex = 2;
 
         // Role filter
         if (!isAdmin) {
@@ -78,17 +79,18 @@ router.get('/today', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let query = `
             SELECT v.*, u.full_name as registered_by_name
             FROM visitors v
             LEFT JOIN users u ON v.registered_by = u.id
-            WHERE v.entry_time::date = CURRENT_DATE
+            WHERE v.company_id = $1 AND v.entry_time::date = CURRENT_DATE
         `;
-        let params = [];
+        let params = [companyId];
 
         if (!isAdmin) {
-            query += ` AND v.registered_by = $1`;
+            query += ` AND v.registered_by = $2`;
             params.push(req.user.id);
         }
 
@@ -109,19 +111,20 @@ router.get('/stats', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let total, inside, left, yesterdayTotal;
 
         if (isAdmin) {
-            total = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE`).get();
-            inside = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE AND status = 'inside'`).get();
-            left = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE AND status = 'left'`).get();
-            yesterdayTotal = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE - INTERVAL '1 day'`).get();
+            total = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE`).get(companyId);
+            inside = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE AND status = 'inside'`).get(companyId);
+            left = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE AND status = 'left'`).get(companyId);
+            yesterdayTotal = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE - INTERVAL '1 day'`).get(companyId);
         } else {
-            total = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE AND registered_by = $1`).get(req.user.id);
-            inside = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE AND status = 'inside' AND registered_by = $1`).get(req.user.id);
-            left = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE AND status = 'left' AND registered_by = $1`).get(req.user.id);
-            yesterdayTotal = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE entry_time::date = CURRENT_DATE - INTERVAL '1 day' AND registered_by = $1`).get(req.user.id);
+            total = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE AND registered_by = $2`).get(companyId, req.user.id);
+            inside = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE AND status = 'inside' AND registered_by = $2`).get(companyId, req.user.id);
+            left = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE AND status = 'left' AND registered_by = $2`).get(companyId, req.user.id);
+            yesterdayTotal = await prepare(`SELECT COUNT(*) as count FROM visitors WHERE company_id = $1 AND entry_time::date = CURRENT_DATE - INTERVAL '1 day' AND registered_by = $2`).get(companyId, req.user.id);
         }
 
         const tCount = parseInt(total?.count || 0);
@@ -161,19 +164,20 @@ router.post('/', authenticateToken, validate(schemas.createVisitor), async (req,
             gate_number = '1',
             notes
         } = req.body;
+        const companyId = req.user.company_id;
 
         const result = await prepare(`
-            INSERT INTO visitors (full_name, id_number, phone, company, host_name, visit_reason, gate_number, notes, registered_by)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            INSERT INTO visitors (company_id, full_name, id_number, phone, company, host_name, visit_reason, gate_number, notes, registered_by)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING id
-        `).run(full_name, id_number, phone || '', company || '', host_name || '', visit_reason || '', gate_number, notes || '', req.user.id);
+        `).run(companyId, full_name, id_number, phone || '', company || '', host_name || '', visit_reason || '', gate_number, notes || '', req.user.id);
 
         await prepare(`
-            INSERT INTO activity_log (event_type, description, user_id, visitor_id, location, status)
-            VALUES ($1, $2, $3, $4, $5, $6)
-        `).run('visitor_entry', `دخول زائر: ${full_name} - ${company || 'زائر شخصي'}`, req.user.id, result.lastInsertRowid, `البوابة ${gate_number}`, 'completed');
+            INSERT INTO activity_log (company_id, event_type, description, user_id, visitor_id, location, status)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `).run(companyId, 'visitor_entry', `دخول زائر: ${full_name} - ${company || 'زائر شخصي'}`, req.user.id, result.lastInsertRowid, `البوابة ${gate_number}`, 'completed');
 
-        const newVisitor = await prepare('SELECT * FROM visitors WHERE id = $1').get(result.lastInsertRowid);
+        const newVisitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(result.lastInsertRowid, companyId);
 
         res.status(201).json({
             message: 'تم تسجيل دخول الزائر بنجاح',
@@ -192,8 +196,9 @@ router.put('/:id/checkout', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
-        const visitor = await prepare('SELECT * FROM visitors WHERE id = $1').get(parseInt(id));
+        const visitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(parseInt(id), companyId);
 
         if (!visitor) {
             return res.status(404).json({ error: 'الزائر غير موجود' });
@@ -207,14 +212,14 @@ router.put('/:id/checkout', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'تم تسجيل خروج هذا الزائر مسبقاً' });
         }
 
-        await prepare(`UPDATE visitors SET exit_time = CURRENT_TIMESTAMP, status = 'left' WHERE id = $1`).run(parseInt(id));
+        await prepare(`UPDATE visitors SET exit_time = CURRENT_TIMESTAMP, status = 'left' WHERE id = $1 AND company_id = $2`).run(parseInt(id), companyId);
 
         await prepare(`
-            INSERT INTO activity_log (event_type, description, user_id, visitor_id, status)
+            INSERT INTO activity_log (company_id, event_type, description, user_id, visitor_id, status)
             VALUES ($1, $2, $3, $4, $5)
-        `).run('visitor_exit', `خروج زائر: ${visitor.full_name}`, req.user.id, parseInt(id), 'completed');
+        `).run(companyId, 'visitor_exit', `خروج زائر: ${visitor.full_name}`, req.user.id, parseInt(id), 'completed');
 
-        const updatedVisitor = await prepare('SELECT * FROM visitors WHERE id = $1').get(parseInt(id));
+        const updatedVisitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(parseInt(id), companyId);
 
         res.json({
             message: 'تم تسجيل خروج الزائر بنجاح',
@@ -233,13 +238,14 @@ router.get('/:id', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         const visitor = await prepare(`
             SELECT v.*, u.full_name as registered_by_name
             FROM visitors v
             LEFT JOIN users u ON v.registered_by = u.id
-            WHERE v.id = $1
-        `).get(parseInt(id));
+            WHERE v.id = $1 AND v.company_id = $2
+        `).get(parseInt(id), companyId);
 
         if (!visitor) {
             return res.status(404).json({ error: 'الزائر غير موجود' });

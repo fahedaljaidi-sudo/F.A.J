@@ -8,7 +8,8 @@ const router = express.Router();
 router.get('/', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
-        const permissions = await all('SELECT role, permission FROM role_permissions');
+        const companyId = req.user.company_id;
+        const permissions = await prepare('SELECT role, permission FROM role_permissions WHERE company_id = $1').all(companyId);
         
         // Group by role
         const grouped = permissions.reduce((acc, curr) => {
@@ -28,18 +29,20 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/toggle', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { role, permission } = req.body;
+        const companyId = req.user.company_id;
+
         if (!role || !permission) {
             return res.status(400).json({ error: 'الدور والصلاحية مطلوبان' });
         }
 
         await getDatabase();
-        const existing = await prepare('SELECT id FROM role_permissions WHERE role = $1 AND permission = $2').get(role, permission);
+        const existing = await prepare('SELECT id FROM role_permissions WHERE company_id = $1 AND role = $2 AND permission = $3').get(companyId, role, permission);
 
         if (existing) {
-            await run('DELETE FROM role_permissions WHERE role = $1 AND permission = $2', [role, permission]);
+            await run('DELETE FROM role_permissions WHERE company_id = $1 AND role = $2 AND permission = $3', [companyId, role, permission]);
             res.json({ message: 'تم إزالة الصلاحية', active: false });
         } else {
-            await run('INSERT INTO role_permissions (role, permission) VALUES ($1, $2)', [role, permission]);
+            await run('INSERT INTO role_permissions (company_id, role, permission) VALUES ($1, $2, $3)', [companyId, role, permission]);
             res.json({ message: 'تم إضافة الصلاحية', active: true });
         }
 

@@ -13,17 +13,18 @@ router.get('/', authenticateToken, async (req, res) => {
         const { date, page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let query = `
             SELECT p.*, u.full_name as guard_name, u.unit_number
             FROM patrol_rounds p
             LEFT JOIN users u ON p.guard_id = u.id
-            WHERE 1=1
+            WHERE p.company_id = $1
         `;
-        let countQuery = `SELECT COUNT(*) as total FROM patrol_rounds WHERE 1=1`;
-        let params = [];
-        let countParams = [];
-        let pIndex = 1;
+        let countQuery = `SELECT COUNT(*) as total FROM patrol_rounds WHERE company_id = $1`;
+        let params = [companyId];
+        let countParams = [companyId];
+        let pIndex = 2;
 
         // Role filter
         if (!isAdmin) {
@@ -70,6 +71,7 @@ router.get('/recent', authenticateToken, async (req, res) => {
         await getDatabase();
         const { limit = 5 } = req.query;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let patrols;
         if (isAdmin) {
@@ -77,18 +79,19 @@ router.get('/recent', authenticateToken, async (req, res) => {
                 SELECT p.*, u.full_name as guard_name
                 FROM patrol_rounds p
                 LEFT JOIN users u ON p.guard_id = u.id
+                WHERE p.company_id = $1
                 ORDER BY p.patrol_time DESC
-                LIMIT $1
-            `).all(parseInt(limit));
+                LIMIT $2
+            `).all(companyId, parseInt(limit));
         } else {
             patrols = await prepare(`
                 SELECT p.*, u.full_name as guard_name
                 FROM patrol_rounds p
                 LEFT JOIN users u ON p.guard_id = u.id
-                WHERE p.guard_id = $1
+                WHERE p.company_id = $1 AND p.guard_id = $2
                 ORDER BY p.patrol_time DESC
-                LIMIT $2
-            `).all(req.user.id, parseInt(limit));
+                LIMIT $3
+            `).all(companyId, req.user.id, parseInt(limit));
         }
 
         res.json({ patrols });
@@ -105,15 +108,16 @@ router.get('/guard/:id', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
         const { limit = 50 } = req.query;
+        const companyId = req.user.company_id;
 
         const patrols = await prepare(`
             SELECT p.*, u.full_name as guard_name
             FROM patrol_rounds p
             LEFT JOIN users u ON p.guard_id = u.id
-            WHERE p.guard_id = $1
+            WHERE p.company_id = $1 AND p.guard_id = $2
             ORDER BY p.patrol_time DESC
-            LIMIT $2
-        `).all(parseInt(id), parseInt(limit));
+            LIMIT $3
+        `).all(companyId, parseInt(id), parseInt(limit));
 
         res.json({ patrols });
 
@@ -128,19 +132,20 @@ router.get('/shift-status', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         let completed, normal, observation, danger;
 
         if (isAdmin) {
-            completed = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE`).get();
-            normal = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE AND security_status = 'normal'`).get();
-            observation = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE AND security_status = 'observation'`).get();
-            danger = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE AND security_status = 'danger'`).get();
+            completed = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE`).get(companyId);
+            normal = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE AND security_status = 'normal'`).get(companyId);
+            observation = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE AND security_status = 'observation'`).get(companyId);
+            danger = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE AND security_status = 'danger'`).get(companyId);
         } else {
-            completed = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE AND guard_id = $1`).get(req.user.id);
-            normal = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE AND security_status = 'normal' AND guard_id = $1`).get(req.user.id);
-            observation = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE AND security_status = 'observation' AND guard_id = $1`).get(req.user.id);
-            danger = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE patrol_time::date = CURRENT_DATE AND security_status = 'danger' AND guard_id = $1`).get(req.user.id);
+            completed = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE AND guard_id = $2`).get(companyId, req.user.id);
+            normal = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE AND security_status = 'normal' AND guard_id = $2`).get(companyId, req.user.id);
+            observation = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE AND security_status = 'observation' AND guard_id = $2`).get(companyId, req.user.id);
+            danger = await prepare(`SELECT COUNT(*) as count FROM patrol_rounds WHERE company_id = $1 AND patrol_time::date = CURRENT_DATE AND security_status = 'danger' AND guard_id = $2`).get(companyId, req.user.id);
         }
 
         res.json({
@@ -162,7 +167,8 @@ router.get('/shift-status', authenticateToken, async (req, res) => {
 router.get('/locations', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
-        const locations = await prepare('SELECT * FROM locations ORDER BY name_ar').all();
+        const companyId = req.user.company_id;
+        const locations = await prepare('SELECT * FROM locations WHERE company_id = $1 ORDER BY name_ar').all(companyId);
         res.json({ locations });
     } catch (error) {
         console.error('Get locations error:', error);
@@ -175,8 +181,9 @@ router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, 
     try {
         await getDatabase();
         const { location, security_status, notes, attachments, image } = req.body;
+        const companyId = req.user.company_id;
 
-        // Handle Image: Save to disk or Cloudinary if provided
+        // Handle Image
         let savedImagePath = '';
         const rawImage = image || attachments; 
         
@@ -188,10 +195,10 @@ router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, 
         }
 
         const result = await prepare(`
-            INSERT INTO patrol_rounds (guard_id, location, security_status, notes, attachments)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO patrol_rounds (company_id, guard_id, location, security_status, notes, attachments)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id
-        `).run(req.user.id, location, security_status, notes || '', savedImagePath);
+        `).run(companyId, req.user.id, location, security_status, notes || '', savedImagePath);
 
         const statusText = { 'normal': 'طبيعي', 'observation': 'ملاحظة', 'danger': 'خطر' };
         const description = notes
@@ -199,16 +206,16 @@ router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, 
             : `جولة أمنية: ${location} - ${statusText[security_status]}`;
 
         await prepare(`
-            INSERT INTO activity_log (event_type, description, user_id, patrol_id, location, status, attachments)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `).run('patrol', description, req.user.id, result.lastInsertRowid, location, security_status === 'normal' ? 'completed' : 'review', savedImagePath);
+            INSERT INTO activity_log (company_id, event_type, description, user_id, patrol_id, location, status, attachments)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `).run(companyId, 'patrol', description, req.user.id, result.lastInsertRowid, location, security_status === 'normal' ? 'completed' : 'review', savedImagePath);
 
         const newPatrol = await prepare(`
             SELECT p.*, u.full_name as guard_name
             FROM patrol_rounds p
             LEFT JOIN users u ON p.guard_id = u.id
-            WHERE p.id = $1
-        `).get(result.lastInsertRowid);
+            WHERE p.id = $1 AND p.company_id = $2
+        `).get(result.lastInsertRowid, companyId);
 
         res.status(201).json({
             message: 'تم تسجيل الجولة بنجاح',
@@ -228,8 +235,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
         const { id } = req.params;
         const { location, security_status, notes } = req.body;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
-        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1').get(id);
+        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1 AND company_id = $2').get(id, companyId);
 
         if (!patrol) {
             return res.status(404).json({ error: 'الجولة غير موجودة' });
@@ -242,8 +250,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
         await prepare(`
             UPDATE patrol_rounds 
             SET location = $1, security_status = $2, notes = $3, updated_at = CURRENT_TIMESTAMP
-            WHERE id = $4
-        `).run(location, security_status, notes || '', id);
+            WHERE id = $4 AND company_id = $5
+        `).run(location, security_status, notes || '', id, companyId);
 
         res.json({ message: 'تم تحديث الجولة بنجاح' });
 
@@ -260,8 +268,9 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
         const { id } = req.params;
         const { resolution_status } = req.body;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
-        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1').get(id);
+        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1 AND company_id = $2').get(id, companyId);
 
         if (!patrol) {
             return res.status(404).json({ error: 'الجولة غير موجودة' });
@@ -274,8 +283,8 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
         await prepare(`
             UPDATE patrol_rounds 
             SET resolution_status = $1, updated_at = CURRENT_TIMESTAMP
-            WHERE id = $2
-        `).run(resolution_status, id);
+            WHERE id = $2 AND company_id = $3
+        `).run(resolution_status, id, companyId);
 
         res.json({ message: 'تم تحديث حالة الجولة' });
 
@@ -291,19 +300,20 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         await getDatabase();
         const { id } = req.params;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
+        const companyId = req.user.company_id;
 
         if (!isAdmin) {
             return res.status(403).json({ error: 'غير مصرح لك بحذف الجولات' });
         }
 
-        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1').get(id);
+        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1 AND company_id = $2').get(id, companyId);
 
         if (!patrol) {
             return res.status(404).json({ error: 'الجولة غير موجودة' });
         }
 
-        await prepare('DELETE FROM patrol_rounds WHERE id = $1').run(id);
-        await prepare('DELETE FROM activity_log WHERE patrol_id = $1').run(id);
+        await prepare('DELETE FROM patrol_rounds WHERE id = $1 AND company_id = $2').run(id, companyId);
+        await prepare('DELETE FROM activity_log WHERE patrol_id = $1 AND company_id = $2').run(id, companyId);
 
         res.json({ message: 'تم حذف الجولة بنجاح' });
 

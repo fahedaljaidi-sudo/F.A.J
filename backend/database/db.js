@@ -52,10 +52,40 @@ async function initializeSchema() {
         
         console.log('📋 Initializing PostgreSQL Schema...');
 
+        // 1. Create Companies Table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS companies (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                company_code TEXT UNIQUE NOT NULL,
+                subscription_plan TEXT DEFAULT 'basic',
+                expiry_date TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
+                status TEXT CHECK(status IN ('active', 'suspended', 'expired')) DEFAULT 'active',
+                max_users INTEGER DEFAULT 10,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Seed default company if none exists
+        const companyCheck = await client.query("SELECT id FROM companies LIMIT 1");
+        let defaultCompanyId = 1;
+        if (companyCheck.rows.length === 0) {
+            const result = await client.query(`
+                INSERT INTO companies (name, company_code, subscription_plan, status)
+                VALUES ($1, $2, $3, $4) RETURNING id
+            `, ['FAJ Security System', 'FAJ001', 'enterprise', 'active']);
+            defaultCompanyId = result.rows[0].id;
+        } else {
+            defaultCompanyId = companyCheck.rows[0].id;
+        }
+
+        // 2. Create Users Table
         await client.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
-                username TEXT UNIQUE NOT NULL,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
+                username TEXT NOT NULL,
                 password_hash TEXT NOT NULL,
                 full_name TEXT NOT NULL,
                 email TEXT,
@@ -64,13 +94,16 @@ async function initializeSchema() {
                 is_active INTEGER DEFAULT 1,
                 allow_mobile_login INTEGER DEFAULT 1,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(company_id, username)
             )
         `);
 
+        // 3. Create Visitors Table
         await client.query(`
             CREATE TABLE IF NOT EXISTS visitors (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 full_name TEXT NOT NULL,
                 id_number TEXT NOT NULL,
                 phone TEXT,
@@ -88,9 +121,11 @@ async function initializeSchema() {
             )
         `);
 
+        // 4. Create Patrol Rounds Table
         await client.query(`
             CREATE TABLE IF NOT EXISTS patrol_rounds (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 guard_id INTEGER NOT NULL REFERENCES users(id),
                 location TEXT NOT NULL,
                 security_status TEXT CHECK(security_status IN ('normal', 'observation', 'danger')) DEFAULT 'normal',
@@ -103,18 +138,23 @@ async function initializeSchema() {
             )
         `);
 
+        // 5. Create Locations Table
         await client.query(`
             CREATE TABLE IF NOT EXISTS locations (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 name_ar TEXT NOT NULL,
                 name_en TEXT,
-                location_code TEXT UNIQUE
+                location_code TEXT,
+                UNIQUE(company_id, location_code)
             )
         `);
 
+        // 6. Create Activity Log Table
         await client.query(`
             CREATE TABLE IF NOT EXISTS activity_log (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 event_type TEXT NOT NULL,
                 event_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 description TEXT,
@@ -127,12 +167,14 @@ async function initializeSchema() {
             )
         `);
 
+        // 7. Create Role Permissions Table
         await client.query(`
             CREATE TABLE IF NOT EXISTS role_permissions (
                 id SERIAL PRIMARY KEY,
+                company_id INTEGER REFERENCES companies(id) DEFAULT ${defaultCompanyId},
                 role TEXT NOT NULL,
                 permission TEXT NOT NULL,
-                UNIQUE(role, permission)
+                UNIQUE(company_id, role, permission)
             )
         `);
 
@@ -159,18 +201,18 @@ async function initializeSchema() {
                 ['safety_officer', 'view_reports']
             ];
             for (const [role, perm] of defaultPermissions) {
-                await client.query('INSERT INTO role_permissions (role, permission) VALUES ($1, $2)', [role, perm]);
+                await client.query('INSERT INTO role_permissions (company_id, role, permission) VALUES ($1, $2, $3)', [defaultCompanyId, role, perm]);
             }
         }
 
         // Seed admin
-        const adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin'");
+        const adminCheck = await client.query("SELECT id FROM users WHERE username = 'admin' AND company_id = $1", [defaultCompanyId]);
         if (adminCheck.rows.length === 0) {
             const adminPassword = bcrypt.hashSync('admin@123', 10);
             await client.query(`
-                INSERT INTO users (username, password_hash, full_name, email, role, unit_number)
-                VALUES ($1, $2, $3, $4, $5, $6)
-            `, ['admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
+                INSERT INTO users (company_id, username, password_hash, full_name, email, role, unit_number)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `, [defaultCompanyId, 'admin', adminPassword, 'فهد الجعيدي', 'admin@company.local', 'admin', 'ADM-001']);
         }
 
         await client.query('COMMIT');
