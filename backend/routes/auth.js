@@ -24,7 +24,13 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
             return res.status(401).json({ error: 'كود الشركة غير صحيح' });
         }
 
-        // ... subscription checks ...
+        if (company.status !== 'active') {
+            return res.status(403).json({ error: 'اشتراك الشركة معلق أو غير نشط' });
+        }
+
+        if (new Date(company.expiry_date) < new Date()) {
+            return res.status(403).json({ error: 'انتهت صلاحية اشتراك الشركة، يرجى التجديد' });
+        }
 
         // 2. Find user within the company (Case-Insensitive username)
         const user = await prepare(`
