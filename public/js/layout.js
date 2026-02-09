@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Check Admin/Supervisor Role
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
                 if (user.role === 'admin' || user.role === 'supervisor') {
                     const adminLink = document.getElementById('admin-link');
                     if (adminLink) adminLink.classList.remove('hidden');
@@ -27,7 +28,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 if (user.role === 'admin') {
                     const permissionsLink = document.getElementById('admin-link-permissions');
-                    if (permissionsLink) permissionsLink.classList.remove('hidden');
+                    if (permissionsLink) {
+                        permissionsLink.classList.remove('hidden');
+                        console.log('✅ Permissions link shown for admin');
+                    }
                 }
             }
         }

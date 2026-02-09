@@ -20,14 +20,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Check Admin/Supervisor Role
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                // Add a small delay or ensure this runs after innerHTML is fully processed
                 if (user.role === 'admin' || user.role === 'supervisor') {
                     const adminLink = document.getElementById('admin-link');
                     if (adminLink) adminLink.classList.remove('hidden');
                 }
                 
                 if (user.role === 'admin') {
+                    // Use a slightly more aggressive check to ensure it's shown
                     const permissionsLink = document.getElementById('admin-link-permissions');
-                    if (permissionsLink) permissionsLink.classList.remove('hidden');
+                    if (permissionsLink) {
+                        permissionsLink.classList.remove('hidden');
+                        console.log('✅ Permissions link shown for admin');
+                    }
                 }
             }
         }
