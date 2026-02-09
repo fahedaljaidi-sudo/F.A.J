@@ -5,11 +5,9 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>لوحة القيادة - نظام إدارة الحراسات الأمنية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/responsive.css" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="loader.js"></script>
@@ -21,45 +19,19 @@
                 extend: {
                     colors: {
                         "primary": "#162841",
-                        "primary-hover": "#233b5c",
-                        "secondary": "#4C8E4D",
-                        "surface": "#F5F7FA",
-                        "border-color": "#e2e8f0",
+                        "primary-hover": "#2c4a6e",
+                        "accent": "#3b82f6",
                     },
+                    fontFamily: {
+                        "sans": ["Public Sans", "Noto Sans Arabic", "sans-serif"],
+                    }
                 },
             },
         }
     </script>
-    <style>
-        body {
-            font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-
-        .stat-card {
-            transition: all 0.2s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-    </style>
 </head>
 
-<body class="bg-surface text-[#101418] min-h-screen flex overflow-hidden">
+<body data-page="dashboard" class="bg-gray-50 text-slate-800 min-h-screen flex overflow-hidden">
     <!-- Sidebar -->
     <aside class="w-72 bg-[#162841] flex flex-col shrink-0 h-screen sticky top-0 transition-all duration-300 z-50">
         <div class="p-6 border-b border-white/10">
@@ -113,185 +85,207 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
         <!-- Header -->
-        <header
-            class="h-16 bg-white border-b border-border-color flex items-center justify-between px-4 md:px-8 shrink-0">
-            <div class="flex-1 min-w-0">
-                <h2 class="text-lg md:text-xl font-bold text-primary truncate">لوحة القيادة الرئيسية</h2>
-                <p class="text-xs md:text-sm text-gray-500 hidden sm:block" id="current-date">--</p>
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-gray-200/50 flex items-center justify-between px-8 shrink-0 z-40 sticky top-0">
+            <div class="flex-1 min-w-0 animate-fade-in">
+                <h2 class="text-2xl font-bold text-slate-800 tracking-tight">لوحة القيادة</h2>
+                <p class="text-sm text-slate-500 font-medium mt-0.5" id="current-date">--</p>
             </div>
-            <div class="flex items-center gap-2 md:gap-4">
-                <div
-                    class="hidden md:flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-200">
-                    <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span class="text-xs font-bold">النظام متصل</span>
+            
+            <div class="flex items-center gap-6 animate-fade-in delay-100">
+                <div class="hidden md:flex items-center gap-2 bg-emerald-50/80 text-emerald-700 px-4 py-2 rounded-full border border-emerald-100/50 shadow-sm backdrop-blur-sm">
+                    <span class="relative flex h-2.5 w-2.5">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-xs font-bold tracking-wide">النظام متصل</span>
                 </div>
-                <div class="h-6 w-px bg-gray-200 hidden md:block"></div>
-                <div class="flex items-center gap-2 md:gap-3">
+                
+                <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
+                
+                <div class="flex items-center gap-3 pl-2">
                     <div class="text-right hidden sm:block">
-                        <p class="text-xs md:text-sm font-bold text-gray-900" id="user-name">--</p>
-                        <p class="text-xs text-gray-500" id="user-role">--</p>
+                        <p class="text-sm font-bold text-slate-700" id="user-name">--</p>
+                        <p class="text-xs text-slate-500 font-medium" id="user-role">--</p>
                     </div>
-                    <div
-                        class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
-                        <span class="material-symbols-outlined text-lg md:text-xl">person</span>
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#162841] to-[#2c4a6e] text-white flex items-center justify-center font-bold shadow-md ring-2 ring-white cursor-pointer hover:scale-105 transition-transform duration-200">
+                        <span class="material-symbols-outlined text-xl">person</span>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Dashboard Content -->
-        <div class="flex-1 overflow-y-auto p-8">
-            <div class="max-w-7xl mx-auto space-y-6">
+        <div class="flex-1 overflow-y-auto p-8 scroll-smooth">
+            <div class="max-w-7xl mx-auto space-y-8">
+                
                 <!-- Stats Cards Row -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Visitors Inside -->
-                    <div
-                        class="stat-card bg-gradient-to-br from-primary to-primary-hover text-white rounded-xl p-6 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-blue-400"></div>
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-blue-200 text-sm font-medium mb-1">الزوار في الداخل</p>
-                                <h3 class="text-4xl font-black" id="stat-visitors-inside">٠</h3>
-                                <p class="text-blue-300 text-xs mt-2" id="stat-visitors-today">اليوم: ٠ زائر</p>
+                    <div class="glass-card p-6 relative overflow-hidden group animate-fade-in delay-100">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                            <span class="material-symbols-outlined text-8xl text-blue-600">groups</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <span class="material-symbols-outlined text-2xl">badge</span>
+                                </div>
+                                <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">الزوار في الداخل</p>
                             </div>
-                            <div class="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-3xl text-white/80">groups</span>
+                            <h3 class="text-4xl font-black text-slate-800 tracking-tight" id="stat-visitors-inside">٠</h3>
+                            <div class="mt-4 flex items-center gap-2 text-xs font-medium text-slate-400 bg-slate-50 inline-flex px-3 py-1.5 rounded-full">
+                                <span class="material-symbols-outlined text-sm">calendar_today</span>
+                                <span id="stat-visitors-today">اليوم: ٠</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Patrols Today -->
-                    <div class="stat-card bg-white rounded-xl p-6 border border-border-color relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-medium mb-1">جولات اليوم</p>
-                                <h3 class="text-4xl font-black text-gray-900" id="stat-patrols-today">٠</h3>
-                                <p class="text-gray-400 text-xs mt-2" id="stat-patrols-expected">المطلوب: ٦ جولات</p>
+                    <div class="glass-card p-6 relative overflow-hidden group animate-fade-in delay-200">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                            <span class="material-symbols-outlined text-8xl text-emerald-600">security</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <span class="material-symbols-outlined text-2xl">local_police</span>
+                                </div>
+                                <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">جولات اليوم</p>
                             </div>
-                            <div class="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-3xl text-emerald-600">shield</span>
+                            <h3 class="text-4xl font-black text-slate-800 tracking-tight" id="stat-patrols-today">٠</h3>
+                            <div class="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 inline-flex px-3 py-1.5 rounded-full border border-emerald-100">
+                                <span class="material-symbols-outlined text-sm">target</span>
+                                <span id="stat-patrols-expected">المطلوب: ٦</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Total Entries Today -->
-                    <div class="stat-card bg-white rounded-xl p-6 border border-border-color relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-medium mb-1">دخول اليوم</p>
-                                <h3 class="text-4xl font-black text-gray-900" id="stat-entries-today">٠</h3>
-                                <p class="text-gray-400 text-xs mt-2" id="stat-exits-today">خروج: ٠</p>
+                    <!-- Total Entries -->
+                    <div class="glass-card p-6 relative overflow-hidden group animate-fade-in delay-300">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                            <span class="material-symbols-outlined text-8xl text-indigo-600">login</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <span class="material-symbols-outlined text-2xl">input</span>
+                                </div>
+                                <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">دخول اليوم</p>
                             </div>
-                            <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-3xl text-blue-600">login</span>
+                            <h3 class="text-4xl font-black text-slate-800 tracking-tight" id="stat-entries-today">٠</h3>
+                            <div class="mt-4 flex items-center gap-2 text-xs font-medium text-slate-400 bg-slate-50 inline-flex px-3 py-1.5 rounded-full">
+                                <span class="material-symbols-outlined text-sm">logout</span>
+                                <span id="stat-exits-today">خروج: ٠</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Observations/Alerts -->
-                    <div class="stat-card bg-white rounded-xl p-6 border border-border-color relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-medium mb-1">ملاحظات أمنية</p>
-                                <h3 class="text-4xl font-black text-gray-900" id="stat-observations">٠</h3>
-                                <p class="text-red-500 text-xs mt-2 font-bold" id="stat-dangers">تنبيهات: ٠</p>
+                    <!-- Alerts -->
+                    <div class="glass-card p-6 relative overflow-hidden group animate-fade-in delay-300">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                            <span class="material-symbols-outlined text-8xl text-amber-500">warning</span>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-amber-50 text-amber-600 rounded-xl shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <span class="material-symbols-outlined text-2xl">visibility</span>
+                                </div>
+                                <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">ملاحظات أمنية</p>
                             </div>
-                            <div class="w-14 h-14 rounded-xl bg-amber-50 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-3xl text-amber-600">visibility</span>
+                            <h3 class="text-4xl font-black text-slate-800 tracking-tight" id="stat-observations">٠</h3>
+                            <div class="mt-4 flex items-center gap-2 text-xs font-bold text-red-600 bg-red-50 inline-flex px-3 py-1.5 rounded-full border border-red-100">
+                                <span class="material-symbols-outlined text-sm">error</span>
+                                <span id="stat-dangers">تنبيهات: ٠</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Main Content Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Recent Activity -->
-                    <div class="lg:col-span-2 bg-white rounded-xl border border-border-color overflow-hidden">
-                        <div
-                            class="px-6 py-4 border-b border-border-color flex items-center justify-between bg-gray-50/50">
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">history</span>
-                                <h3 class="font-bold text-gray-900">آخر الأحداث</h3>
+                    <div class="lg:col-span-2 glass-card flex flex-col overflow-hidden animate-fade-in delay-200">
+                        <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-100/50 p-2 rounded-lg text-blue-700">
+                                    <span class="material-symbols-outlined text-xl">history_edu</span>
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-800">سجل النشاطات الأخير</h3>
                             </div>
-                            <a href="/reports.html" class="text-primary text-sm font-medium hover:underline">عرض الكل
-                                ←</a>
+                            <a href="/reports.html" class="text-blue-600 text-sm font-bold hover:text-blue-800 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-1 group">
+                                عرض الكل
+                                <span class="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                            </a>
                         </div>
-                        <div id="recent-activity" class="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
-                            <div class="p-6 text-center text-gray-400">جاري تحميل البيانات...</div>
+                        <div id="recent-activity" class="divide-y divide-gray-50 max-h-[450px] overflow-y-auto p-2">
+                            <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                                <span class="material-symbols-outlined text-4xl mb-2 animate-spin">progress_activity</span>
+                                <p class="text-sm font-medium">جاري تحديث البيانات...</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Quick Actions & Status -->
-                    <div class="space-y-6">
+                    <!-- Sidebar Column -->
+                    <div class="space-y-8 animate-fade-in delay-300">
                         <!-- Quick Actions -->
-                        <div class="bg-white rounded-xl border border-border-color overflow-hidden">
-                            <div class="px-6 py-4 border-b border-border-color bg-gray-50/50">
-                                <div class="flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-primary">bolt</span>
-                                    <h3 class="font-bold text-gray-900">إجراءات سريعة</h3>
-                                </div>
+                        <div class="glass-card overflow-hidden">
+                            <div class="px-6 py-5 border-b border-gray-100 bg-white/50">
+                                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-amber-500">bolt</span>
+                                    إجراءات سريعة
+                                </h3>
                             </div>
                             <div class="p-4 space-y-3">
-                                <a href="/visitors.html"
-                                    class="flex items-center gap-3 p-3 rounded-lg border border-border-color hover:border-primary hover:bg-primary/5 transition-all group">
-                                    <div
-                                        class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                                        <span class="material-symbols-outlined text-blue-600">person_add</span>
+                                <a href="/visitors.html" class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md transition-all group bg-white">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined text-2xl">person_add</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-900 text-sm">تسجيل زائر جديد</p>
-                                        <p class="text-xs text-gray-500">إضافة دخول زائر</p>
+                                        <p class="font-bold text-slate-800 text-sm">تسجيل زائر</p>
+                                        <p class="text-xs text-slate-500 mt-0.5">إضافة دخول جديد</p>
                                     </div>
                                 </a>
-                                <a href="/patrols.html"
-                                    class="flex items-center gap-3 p-3 rounded-lg border border-border-color hover:border-primary hover:bg-primary/5 transition-all group">
-                                    <div
-                                        class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                                        <span class="material-symbols-outlined text-emerald-600">add_location_alt</span>
+                                
+                                <a href="/patrols.html" class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md transition-all group bg-white">
+                                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined text-2xl">add_location_alt</span>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-900 text-sm">تسجيل جولة أمنية</p>
-                                        <p class="text-xs text-gray-500">إضافة جولة ميدانية</p>
-                                    </div>
-                                </a>
-                                <a href="/reports.html"
-                                    class="flex items-center gap-3 p-3 rounded-lg border border-border-color hover:border-primary hover:bg-primary/5 transition-all group">
-                                    <div
-                                        class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-                                        <span class="material-symbols-outlined text-purple-600">summarize</span>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-900 text-sm">عرض التقارير</p>
-                                        <p class="text-xs text-gray-500">تقارير يومية وشهرية</p>
+                                        <p class="font-bold text-slate-800 text-sm">جولة أمنية</p>
+                                        <p class="text-xs text-slate-500 mt-0.5">تسجيل نقاط التفتيش</p>
                                     </div>
                                 </a>
                             </div>
                         </div>
 
-                        <!-- Shift Status -->
-                        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-6 text-white">
-                            <div class="flex items-center gap-2 mb-4">
-                                <span class="material-symbols-outlined">schedule</span>
-                                <h3 class="font-bold">حالة الوردية</h3>
-                            </div>
-                            <div class="flex items-center gap-3 mb-3">
-                                <span
-                                    class="size-3 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.6)] animate-pulse"></span>
-                                <span class="font-bold text-xl">الوردية نشطة</span>
-                            </div>
-                            <div class="bg-white/20 rounded-lg p-3">
-                                <div class="flex justify-between text-sm mb-2">
-                                    <span>تقدم الجولات</span>
-                                    <span id="patrol-progress-text">0/6</span>
+                        <!-- Shift Status Widget -->
+                        <div class="rounded-2xl p-6 text-white relative overflow-hidden shadow-lg transform hover:-translate-y-1 transition-transform duration-300">
+                            <!-- Background Gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-emerald-600 to-teal-800"></div>
+                            
+                            <!-- Decorative Circles -->
+                            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
+                            <div class="absolute -left-4 -bottom-4 w-32 h-32 rounded-full bg-white/10 blur-xl"></div>
+
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined">schedule</span>
+                                        <h3 class="font-bold text-lg">حالة الوردية</h3>
+                                    </div>
+                                    <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm border border-white/10">نشط الآن</span>
                                 </div>
-                                <div class="w-full h-2 bg-white/30 rounded-full overflow-hidden">
-                                    <div id="patrol-progress-bar" class="h-full bg-white rounded-full transition-all"
-                                        style="width: 0%"></div>
+
+                                <div class="flex items-end gap-2 mb-2">
+                                    <span class="text-4xl font-black" id="shift-completed-num">0</span>
+                                    <span class="text-lg opacity-80 mb-1">/ 6</span>
+                                </div>
+                                <p class="text-sm text-emerald-100 mb-4">جولات تم إكمالها اليوم</p>
+
+                                <div class="w-full h-3 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
+                                    <div id="patrol-progress-bar" class="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
@@ -299,28 +293,32 @@
                 </div>
 
                 <!-- Recent Visitors Table -->
-                <div class="bg-white rounded-xl border border-border-color overflow-hidden">
-                    <div class="px-6 py-4 border-b border-border-color flex items-center justify-between bg-gray-50/50">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary">recent_actors</span>
-                            <h3 class="font-bold text-gray-900">آخر الزوار المسجلين</h3>
+                <div class="glass-card overflow-hidden animate-fade-in delay-200">
+                    <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-purple-100/50 p-2 rounded-lg text-purple-700">
+                                <span class="material-symbols-outlined text-xl">recent_actors</span>
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-800">آخر الزوار</h3>
                         </div>
-                        <a href="/visitors.html" class="text-primary text-sm font-medium hover:underline">إدارة الزوار
-                            ←</a>
+                        <a href="/visitors.html" class="text-purple-600 text-sm font-bold hover:text-purple-800 hover:bg-purple-50 px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-1 group">
+                            إدارة الزوار
+                            <span class="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        </a>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto p-2">
                         <table class="w-full text-sm text-right">
-                            <thead class="bg-gray-50 border-b border-border-color">
+                            <thead class="bg-gray-50/50 text-slate-500 font-bold uppercase tracking-wider text-xs">
                                 <tr>
-                                    <th class="px-6 py-3 font-bold text-gray-600">الاسم</th>
-                                    <th class="px-6 py-3 font-bold text-gray-600">الجهة</th>
-                                    <th class="px-6 py-3 font-bold text-gray-600">وقت الدخول</th>
-                                    <th class="px-6 py-3 font-bold text-gray-600 text-center">الحالة</th>
+                                    <th class="px-6 py-4 rounded-r-lg">الاسم</th>
+                                    <th class="px-6 py-4">الجهة</th>
+                                    <th class="px-6 py-4">وقت الدخول</th>
+                                    <th class="px-6 py-4 text-center rounded-l-lg">الحالة</th>
                                 </tr>
                             </thead>
-                            <tbody id="recent-visitors" class="divide-y divide-gray-100">
+                            <tbody id="recent-visitors" class="divide-y divide-dashed divide-gray-100">
                                 <tr>
-                                    <td colspan="4" class="px-6 py-8 text-center text-gray-400">جاري التحميل...</td>
+                                    <td colspan="4" class="px-6 py-8 text-center text-slate-400">جاري تحميل البيانات...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -348,14 +346,22 @@
                 'hr_manager': 'مدير الموارد البشرية',
                 'safety_officer': 'مسؤول السلامة'
             };
-            userNameEl.textContent = `${user.full_name} (${roleText[user.role] || user.role})`;
+            userNameEl.textContent = `${user.full_name}`;
+            document.getElementById('user-role').textContent = roleText[user.role] || user.role;
         }
 
-        // Show admin link if applicable
-        if (user.role === 'admin') {
+        // Show admin links
+        if (user.role === 'admin' || user.role === 'supervisor') {
             const adminLink = document.getElementById('admin-link');
             if (adminLink) adminLink.classList.remove('hidden');
-        } // Update date
+        }
+        
+        if (user.role === 'admin') {
+            const permissionsLink = document.getElementById('admin-link-permissions');
+            if (permissionsLink) permissionsLink.classList.remove('hidden');
+        }
+
+        // Update date
         const now = new Date();
         document.getElementById('current-date').textContent = now.toLocaleDateString('ar-SA', {
             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -369,7 +375,6 @@
             return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
         }
 
-        // Load all dashboard data
         async function loadDashboard() {
             await Promise.all([
                 loadVisitorStats(),
@@ -386,7 +391,7 @@
                 const data = await response.json();
 
                 document.getElementById('stat-visitors-inside').textContent = toArabicNum(data.today?.inside || 0);
-                document.getElementById('stat-visitors-today').textContent = `اليوم: ${toArabicNum(data.today?.total || 0)} زائر`;
+                document.getElementById('stat-visitors-today').textContent = `اليوم: ${toArabicNum(data.today?.total || 0)}`;
                 document.getElementById('stat-entries-today').textContent = toArabicNum(data.today?.total || 0);
                 document.getElementById('stat-exits-today').textContent = `خروج: ${toArabicNum(data.today?.left || 0)}`;
             } catch (error) {
@@ -400,14 +405,14 @@
                 const data = await response.json();
 
                 document.getElementById('stat-patrols-today').textContent = toArabicNum(data.completed || 0);
-                document.getElementById('stat-patrols-expected').textContent = `المطلوب: ${toArabicNum(data.expected || 6)} جولات`;
+                document.getElementById('stat-patrols-expected').textContent = `المطلوب: ${toArabicNum(data.expected || 6)}`;
                 document.getElementById('stat-observations').textContent = toArabicNum(data.observation || 0);
                 document.getElementById('stat-dangers').textContent = `تنبيهات: ${toArabicNum(data.danger || 0)}`;
 
                 // Update progress bar
                 const progress = Math.min((data.completed / data.expected) * 100, 100);
                 document.getElementById('patrol-progress-bar').style.width = `${progress}%`;
-                document.getElementById('patrol-progress-text').textContent = `${data.completed}/${data.expected}`;
+                document.getElementById('shift-completed-num').textContent = toArabicNum(data.completed);
             } catch (error) {
                 console.error('Error loading patrol stats:', error);
             }
@@ -422,30 +427,52 @@
                 const logs = data.logs || [];
 
                 if (logs.length === 0) {
-                    container.innerHTML = '<div class="p-6 text-center text-gray-400">لا توجد أحداث مسجلة</div>';
+                    container.innerHTML = '<div class="p-8 text-center text-slate-400 flex flex-col items-center"><span class="material-symbols-outlined text-3xl mb-2 opacity-50">inbox</span><p>لا توجد أحداث مسجلة</p></div>';
                     return;
                 }
 
                 const eventTypes = {
                     'visitor_entry': { icon: 'login', color: 'text-blue-600', bg: 'bg-blue-50', text: 'دخول زائر' },
-                    'visitor_exit': { icon: 'logout', color: 'text-gray-600', bg: 'bg-gray-100', text: 'خروج زائر' },
+                    'visitor_exit': { icon: 'logout', color: 'text-slate-600', bg: 'bg-slate-100', text: 'خروج زائر' },
                     'patrol': { icon: 'shield', color: 'text-emerald-600', bg: 'bg-emerald-50', text: 'جولة أمنية' },
                     'system': { icon: 'settings', color: 'text-purple-600', bg: 'bg-purple-50', text: 'نظام' }
                 };
 
-                container.innerHTML = logs.map(log => {
+                container.innerHTML = logs.map((log, index) => {
                     const event = eventTypes[log.event_type] || eventTypes.system;
                     const time = new Date(log.event_time);
                     const timeAgo = getTimeAgo(time);
+                    const delayClass = index < 5 ? `delay-${(index + 1) * 100}` : '';
+                    
+                    // Handle image thumbnail for patrols
+                    let imageHtml = '';
+                    if (log.event_type === 'patrol' && log.patrol_id && log.attachments) {
+                        const imgSrc = log.attachments;
+                        imageHtml = `
+                            <div class="mt-3 relative group/img cursor-zoom-in" onclick="event.stopPropagation(); window.open('${imgSrc}')">
+                                <img src="${imgSrc}" class="h-20 w-32 object-cover rounded-lg border border-slate-200 shadow-sm transition-transform group-hover/img:scale-[1.02]" alt="Patrol Image">
+                                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 rounded-lg flex items-center justify-center transition-opacity">
+                                    <span class="material-symbols-outlined text-white text-sm">open_in_new</span>
+                                </div>
+                            </div>
+                        `;
+                    }
 
                     return `
-                        <div class="px-6 py-4 hover:bg-gray-50/50 transition-colors flex items-start gap-4">
-                            <div class="w-10 h-10 rounded-lg ${event.bg} flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined ${event.color}">${event.icon}</span>
+                        <div class="px-6 py-4 hover:bg-slate-50/80 transition-colors flex items-start gap-4 animate-fade-in ${delayClass} border-l-4 border-transparent hover:border-l-blue-500">
+                            <div class="w-10 h-10 rounded-xl ${event.bg} flex items-center justify-center shrink-0 shadow-sm">
+                                <span class="material-symbols-outlined ${event.color} text-xl">${event.icon}</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-medium text-gray-900 text-sm">${log.description || event.text}</p>
-                                <p class="text-xs text-gray-500 mt-1">${log.user_name || '--'} • ${timeAgo}</p>
+                                <p class="font-bold text-slate-800 text-sm leading-snug">${log.description || event.text}</p>
+                                <div class="flex items-center gap-2 mt-1.5">
+                                    <span class="text-xs font-medium text-slate-500 bg-white px-2 py-0.5 rounded border border-gray-100">${log.user_name || '--'}</span>
+                                    <span class="text-[10px] text-slate-400 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[12px]">schedule</span>
+                                        ${timeAgo}
+                                    </span>
+                                </div>
+                                ${imageHtml}
                             </div>
                         </div>
                     `;
@@ -464,20 +491,20 @@
                 const visitors = (data.visitors || []).slice(0, 5);
 
                 if (visitors.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">لا يوجد زوار اليوم</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">لا يوجد زوار اليوم</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = visitors.map(v => {
                     const time = new Date(v.entry_time);
                     return `
-                        <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-gray-900">${v.full_name}</td>
-                            <td class="px-6 py-4 text-gray-600">${v.company || '-'}</td>
-                            <td class="px-6 py-4 text-gray-600 font-mono">${time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                        <tr class="hover:bg-blue-50/30 transition-colors group">
+                            <td class="px-6 py-4 font-bold text-slate-700">${v.full_name}</td>
+                            <td class="px-6 py-4 text-slate-500 text-xs">${v.company || '-'}</td>
+                            <td class="px-6 py-4 text-slate-500 font-mono text-xs dir-ltr text-right">${time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
                             <td class="px-6 py-4 text-center">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${v.status === 'inside' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
-                                    ${v.status === 'inside' ? 'داخل' : 'غادر'}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide border ${v.status === 'inside' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-100 text-slate-600 border-slate-200'}">
+                                    ${v.status === 'inside' ? 'داخل المنشأة' : 'غادر'}
                                 </span>
                             </td>
                         </tr>
@@ -491,10 +518,10 @@
         function getTimeAgo(date) {
             const mins = Math.floor((new Date() - date) / 60000);
             if (mins < 1) return 'الآن';
-            if (mins < 60) return `منذ ${mins} دقيقة`;
+            if (mins < 60) return `منذ ${toArabicNum(mins)} دقيقة`;
             const hours = Math.floor(mins / 60);
-            if (hours < 24) return `منذ ${hours} ساعة`;
-            return `منذ ${Math.floor(hours / 24)} يوم`;
+            if (hours < 24) return `منذ ${toArabicNum(hours)} ساعة`;
+            return `منذ ${toArabicNum(Math.floor(hours / 24))} يوم`;
         }
 
         function logout() {
@@ -504,8 +531,8 @@
 
         // Initial load
         loadDashboard();
-
-        // Refresh every 30 seconds
+        
+        // Refresh interval
         setInterval(loadDashboard, 30000);
     </script>
 </body>

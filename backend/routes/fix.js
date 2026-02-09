@@ -34,6 +34,7 @@ router.get('/recreate-database', async (req, res) => {
         const db = await getDatabase();
 
         // Drop existing tables
+        await db.query('DROP TABLE IF EXISTS role_permissions CASCADE');
         await db.query('DROP TABLE IF EXISTS activity_log CASCADE');
         await db.query('DROP TABLE IF EXISTS patrol_rounds CASCADE');
         await db.query('DROP TABLE IF EXISTS visitors CASCADE');
@@ -115,6 +116,36 @@ router.get('/recreate-database', async (req, res) => {
                 attachments TEXT
             )
         `);
+
+        await db.query(`
+            CREATE TABLE role_permissions (
+                id SERIAL PRIMARY KEY,
+                role TEXT NOT NULL,
+                permission TEXT NOT NULL,
+                UNIQUE(role, permission)
+            )
+        `);
+
+        // Seed default permissions
+        const defaultPermissions = [
+            ['admin', 'manage_users'],
+            ['admin', 'manage_permissions'],
+            ['admin', 'view_reports'],
+            ['admin', 'manage_visitors'],
+            ['admin', 'manage_patrols'],
+            ['supervisor', 'view_reports'],
+            ['supervisor', 'manage_visitors'],
+            ['supervisor', 'manage_patrols'],
+            ['guard', 'manage_visitors'],
+            ['guard', 'manage_patrols'],
+            ['operations_manager', 'view_reports'],
+            ['hr_manager', 'view_reports'],
+            ['safety_officer', 'view_reports']
+        ];
+        
+        for (const [role, perm] of defaultPermissions) {
+            await db.query('INSERT INTO role_permissions (role, permission) VALUES ($1, $2)', [role, perm]);
+        }
 
         // Insert admin user
         const adminPassword = bcrypt.hashSync('admin@123', 10);
