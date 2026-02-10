@@ -234,17 +234,21 @@ router.put('/:id', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const { id } = req.params;
+        const patrolId = parseInt(id);
         const { location, security_status, notes } = req.body;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
         const companyId = req.user.company_id;
 
-        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1 AND company_id = $2').get(id, companyId);
+        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1 AND company_id = $2').get(patrolId, companyId);
 
         if (!patrol) {
             return res.status(404).json({ error: 'الجولة غير موجودة' });
         }
 
-        if (!isAdmin && patrol.guard_id !== req.user.id) {
+        // Relaxed permission: Allow any company staff to update
+        const isAuthorized = Number(patrol.company_id) === Number(req.user.company_id);
+        
+        if (!isAuthorized) {
             return res.status(403).json({ error: 'غير مصرح لك بتعديل هذه الجولة' });
         }
 
@@ -252,7 +256,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
             UPDATE patrol_rounds 
             SET location = $1, security_status = $2, notes = $3, updated_at = CURRENT_TIMESTAMP
             WHERE id = $4 AND company_id = $5
-        `).run(location, security_status, notes || '', id, companyId);
+        `).run(location, security_status, notes || '', patrolId, companyId);
 
         res.json({ message: 'تم تحديث الجولة بنجاح' });
 
@@ -267,17 +271,21 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const { id } = req.params;
+        const patrolId = parseInt(id);
         const { resolution_status } = req.body;
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
         const companyId = req.user.company_id;
 
-        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1 AND company_id = $2').get(id, companyId);
+        const patrol = await prepare('SELECT * FROM patrol_rounds WHERE id = $1 AND company_id = $2').get(patrolId, companyId);
 
         if (!patrol) {
             return res.status(404).json({ error: 'الجولة غير موجودة' });
         }
 
-        if (!isAdmin && patrol.guard_id !== req.user.id) {
+        // Relaxed permission: Allow any company staff to update status
+        const isAuthorized = Number(patrol.company_id) === Number(req.user.company_id);
+
+        if (!isAuthorized) {
             return res.status(403).json({ error: 'غير مصرح لك بتعديل حالة هذه الجولة' });
         }
 
@@ -285,7 +293,7 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
             UPDATE patrol_rounds 
             SET resolution_status = $1, updated_at = CURRENT_TIMESTAMP
             WHERE id = $2 AND company_id = $3
-        `).run(resolution_status, id, companyId);
+        `).run(resolution_status, patrolId, companyId);
 
         res.json({ message: 'تم تحديث حالة الجولة' });
 
