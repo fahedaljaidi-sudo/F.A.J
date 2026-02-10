@@ -172,12 +172,14 @@ router.post('/', authenticateToken, validate(schemas.createVisitor), async (req,
             RETURNING id
         `).run(companyId, full_name, id_number, phone || '', company || '', host_name || '', visit_reason || '', gate_number, notes || '', req.user.id);
 
+        const newId = result.rows[0].id;
+
         await prepare(`
             INSERT INTO activity_log (company_id, event_type, description, user_id, visitor_id, location, status)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `).run(companyId, 'visitor_entry', `دخول زائر: ${full_name} - ${company || 'زائر شخصي'}`, req.user.id, result.lastInsertRowid, `البوابة ${gate_number}`, 'completed');
+        `).run(companyId, 'visitor_entry', `دخول زائر: ${full_name} - ${company || 'زائر شخصي'}`, req.user.id, newId, `البوابة ${gate_number}`, 'completed');
 
-        const newVisitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(result.lastInsertRowid, companyId);
+        const newVisitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(newId, companyId);
 
         res.status(201).json({
             message: 'تم تسجيل دخول الزائر بنجاح',

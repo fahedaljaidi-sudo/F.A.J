@@ -200,6 +200,7 @@ router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, 
             RETURNING id
         `).run(companyId, req.user.id, location, security_status, notes || '', savedImagePath);
 
+        const newId = result.rows[0].id;
         const statusText = { 'normal': 'طبيعي', 'observation': 'ملاحظة', 'danger': 'خطر' };
         const description = notes
             ? `جولة أمنية: ${location} - ${statusText[security_status]} | ${notes}`
@@ -208,14 +209,14 @@ router.post('/', authenticateToken, validate(schemas.createPatrol), async (req, 
         await prepare(`
             INSERT INTO activity_log (company_id, event_type, description, user_id, patrol_id, location, status, attachments)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        `).run(companyId, 'patrol', description, req.user.id, result.lastInsertRowid, location, security_status === 'normal' ? 'completed' : 'review', savedImagePath);
+        `).run(companyId, 'patrol', description, req.user.id, newId, location, security_status === 'normal' ? 'completed' : 'review', savedImagePath);
 
         const newPatrol = await prepare(`
             SELECT p.*, u.full_name as guard_name
             FROM patrol_rounds p
             LEFT JOIN users u ON p.guard_id = u.id
             WHERE p.id = $1 AND p.company_id = $2
-        `).get(result.lastInsertRowid, companyId);
+        `).get(newId, companyId);
 
         res.status(201).json({
             message: 'تم تسجيل الجولة بنجاح',

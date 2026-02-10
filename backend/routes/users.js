@@ -91,10 +91,12 @@ router.post('/', authenticateToken, requireAdmin, validate(schemas.createUser), 
             RETURNING id
         `).run(companyId, username, password_hash, full_name, email || '', validRole, unit_number || '');
 
+        const newId = result.rows[0].id;
+
         const newUser = await prepare(`
             SELECT id, username, full_name, email, role, unit_number, is_active, created_at
             FROM users WHERE id = $1
-        `).get(result.lastInsertRowid);
+        `).get(newId);
 
         await prepare(`
             INSERT INTO activity_log (company_id, event_type, description, user_id, status)
