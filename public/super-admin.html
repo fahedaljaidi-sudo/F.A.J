@@ -194,6 +194,54 @@
         </div>
     </div>
 
+    <!-- Edit Company Modal -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            <div class="p-6 border-b border-border-color bg-primary text-white flex items-center justify-between">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <span class="material-symbols-outlined">edit</span>
+                    تعديل بيانات الشركة
+                </h3>
+                <button onclick="closeEditModal()" class="text-white/60 hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="edit-company-form" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="hidden" id="edit-id">
+                <div class="md:col-span-2">
+                    <h4 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-2">تحديث بيانات المنشأة</h4>
+                    <hr class="mb-4">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">اسم الشركة *</label>
+                    <input type="text" id="edit-name" required class="w-full p-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">باقة الاشتراك</label>
+                    <select id="edit-subscription_plan" class="w-full p-3 border rounded-lg">
+                        <option value="basic">أساسي (Basic)</option>
+                        <option value="pro">احترافي (Pro)</option>
+                        <option value="enterprise">مؤسسات (Enterprise)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">تاريخ الانتهاء</label>
+                    <input type="date" id="edit-expiry_date" class="w-full p-3 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">الحد الأقصى للمستخدمين</label>
+                    <input type="number" id="edit-max_users" class="w-full p-3 border rounded-lg">
+                </div>
+
+                <div class="md:col-span-2 pt-4">
+                    <button type="submit" class="w-full py-4 bg-primary text-white rounded-lg font-bold hover:bg-primary-hover shadow-lg transition-all">
+                        حفظ التغييرات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const API_BASE = '/api/super-admin';
         const token = localStorage.getItem('token');
@@ -239,7 +287,11 @@
                             ${c.status === 'active' ? 'نشط' : 'معلق'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-4 text-center flex items-center justify-center gap-3">
+                        <button onclick="openEditModal(${JSON.stringify(c).replace(/"/g, '&quot;')})" class="text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                            <span class="text-xs font-bold">تعديل</span>
+                        </button>
                         <button onclick="toggleStatus(${c.id}, '${c.status}')" class="text-xs font-bold hover:underline ${c.status === 'active' ? 'text-red-500' : 'text-green-500'}">
                             ${c.status === 'active' ? 'إيقاف' : 'تفعيل'}
                         </button>
@@ -289,7 +341,7 @@
         async function toggleStatus(id, currentStatus) {
             const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
             try {
-                await fetch(`${API_BASE}/companies/${id}/status`, {
+                await fetch(`${API_BASE}/companies/${id}`, {
                     method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -302,6 +354,57 @@
                 console.error(error);
             }
         }
+
+        function openEditModal(company) {
+            document.getElementById('edit-id').value = company.id;
+            document.getElementById('edit-name').value = company.name;
+            document.getElementById('edit-subscription_plan').value = company.subscription_plan || 'basic';
+            document.getElementById('edit-max_users').value = company.max_users || 10;
+            
+            if (company.expiry_date) {
+                const date = new Date(company.expiry_date);
+                document.getElementById('edit-expiry_date').value = date.toISOString().split('T')[0];
+            }
+            
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        document.getElementById('edit-company-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const payload = {
+                name: document.getElementById('edit-name').value,
+                subscription_plan: document.getElementById('edit-subscription_plan').value,
+                expiry_date: document.getElementById('edit-expiry_date').value,
+                max_users: document.getElementById('edit-max_users').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/companies/${id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showSuccessModal('تمت العملية', 'تم تحديث بيانات الشركة بنجاح');
+                    closeEditModal();
+                    loadCompanies();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'حدث خطأ');
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال');
+            }
+        });
 
         loadCompanies();
     </script>

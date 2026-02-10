@@ -82,24 +82,37 @@ router.post('/companies', authenticateToken, requireSuperAdmin, async (req, res)
     }
 });
 
-// PUT /api/super-admin/companies/:id/status - Update company status
-router.put('/companies/:id/status', authenticateToken, requireSuperAdmin, async (req, res) => {
+// PUT /api/super-admin/companies/:id - Update company data
+router.put('/companies/:id', authenticateToken, requireSuperAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, expiry_date } = req.body;
+        const { status, expiry_date, name, subscription_plan, max_users } = req.body;
 
         await getDatabase();
-        if (status) {
-            await run('UPDATE companies SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [status, id]);
+        
+        const updates = [];
+        const params = [];
+        let paramIdx = 1;
+
+        if (status) { updates.push(`status = $${paramIdx++}`); params.push(status); }
+        if (expiry_date) { updates.push(`expiry_date = $${paramIdx++}`); params.push(expiry_date); }
+        if (name) { updates.push(`name = $${paramIdx++}`); params.push(name); }
+        if (subscription_plan) { updates.push(`subscription_plan = $${paramIdx++}`); params.push(subscription_plan); }
+        if (max_users) { updates.push(`max_users = $${paramIdx++}`); params.push(parseInt(max_users)); }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'لا يوجد بيانات لتحديثها' });
         }
-        if (expiry_date) {
-            await run('UPDATE companies SET expiry_date = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [expiry_date, id]);
-        }
+
+        updates.push(`updated_at = CURRENT_TIMESTAMP`);
+        params.push(id);
+        
+        await run(`UPDATE companies SET ${updates.join(', ')} WHERE id = $${paramIdx}`, params);
 
         res.json({ message: 'تم تحديث بيانات الشركة بنجاح' });
     } catch (error) {
         console.error('Update company error:', error);
-        res.status(500).json({ error: 'خطأ في التحديث' });
+        res.status(500).json({ error: 'خطأ في التحديث: ' + error.message });
     }
 });
 
