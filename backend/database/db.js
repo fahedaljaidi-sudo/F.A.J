@@ -18,13 +18,23 @@ async function getDatabase() {
             id SERIAL PRIMARY KEY, 
             name TEXT NOT NULL, 
             company_code TEXT UNIQUE NOT NULL, 
-            status TEXT DEFAULT 'active', 
-            subscription_plan TEXT DEFAULT 'basic',
-            max_users INTEGER DEFAULT 10,
-            expiry_date TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            status TEXT DEFAULT 'active'
         )`);
+
+        // Add missing columns to Companies
+        const companyColumns = [
+            { name: 'subscription_plan', type: "TEXT DEFAULT 'basic'" },
+            { name: 'max_users', type: 'INTEGER DEFAULT 10' },
+            { name: 'expiry_date', type: "TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days')" },
+            { name: 'created_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP' },
+            { name: 'updated_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP' }
+        ];
+
+        for (const col of companyColumns) {
+            try {
+                await pool.query(`ALTER TABLE companies ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+            } catch (err) {}
+        }
 
         // 2. Users (Basic)
         await pool.query(`CREATE TABLE IF NOT EXISTS users (

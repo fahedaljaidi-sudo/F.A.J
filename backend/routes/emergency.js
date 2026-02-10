@@ -65,4 +65,25 @@ router.get('/db-status', async (req, res) => {
     }
 });
 
+router.get('/db-schema', async (req, res) => {
+    try {
+        const db = await getDatabase();
+        const tables = ['companies', 'users', 'visitors', 'patrol_rounds', 'role_permissions'];
+        const schema = {};
+
+        for (const table of tables) {
+            const columns = await db.query(`
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = $1
+            `, [table]);
+            schema[table] = columns.rows;
+        }
+
+        res.json({ success: true, schema });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
