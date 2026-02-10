@@ -204,10 +204,15 @@ router.put('/:id/checkout', authenticateToken, async (req, res) => {
         const visitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(visitorId, companyId);
 
         if (!visitor) {
+            console.log(`❌ Checkout Failed: Visitor ${visitorId} not found for company ${companyId}`);
             return res.status(404).json({ error: 'الزائر غير موجود' });
         }
 
-        if (!isAdmin && visitor.registered_by !== req.user.id) {
+        // Robust check for authorization (compare as numbers)
+        const isAuthorized = isAdmin || Number(visitor.registered_by) === Number(req.user.id);
+        
+        if (!isAuthorized) {
+            console.log(`🚫 Checkout Unauthorized: User ${req.user.id} (${req.user.role}) tried to checkout visitor ${visitorId} registered by ${visitor.registered_by}`);
             return res.status(403).json({ error: 'غير مصرح لك بتسجيل خروج هذا الزائر' });
         }
 
