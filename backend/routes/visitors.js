@@ -208,11 +208,12 @@ router.put('/:id/checkout', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'الزائر غير موجود' });
         }
 
-        // Robust check for authorization (compare as numbers)
-        const isAuthorized = isAdmin || Number(visitor.registered_by) === Number(req.user.id);
+        // ALLOW any authenticated user from the SAME company to perform checkout
+        // This is necessary for guards taking over shifts.
+        const isAuthorized = Number(visitor.company_id) === Number(req.user.company_id);
         
         if (!isAuthorized) {
-            console.log(`🚫 Checkout Unauthorized: User ${req.user.id} (${req.user.role}) tried to checkout visitor ${visitorId} registered by ${visitor.registered_by}`);
+            console.log(`🚫 Checkout Unauthorized: User ${req.user.id} from company ${req.user.company_id} tried to checkout visitor from company ${visitor.company_id}`);
             return res.status(403).json({ error: 'غير مصرح لك بتسجيل خروج هذا الزائر' });
         }
 
