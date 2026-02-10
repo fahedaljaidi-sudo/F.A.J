@@ -197,10 +197,11 @@ router.put('/:id/checkout', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const { id } = req.params;
+        const visitorId = parseInt(id);
         const isAdmin = req.user.role === 'admin' || req.user.role === 'supervisor';
         const companyId = req.user.company_id;
 
-        const visitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(parseInt(id), companyId);
+        const visitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(visitorId, companyId);
 
         if (!visitor) {
             return res.status(404).json({ error: 'الزائر غير موجود' });
@@ -214,14 +215,14 @@ router.put('/:id/checkout', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'تم تسجيل خروج هذا الزائر مسبقاً' });
         }
 
-        await prepare(`UPDATE visitors SET exit_time = CURRENT_TIMESTAMP, status = 'left' WHERE id = $1 AND company_id = $2`).run(parseInt(id), companyId);
+        await prepare(`UPDATE visitors SET exit_time = CURRENT_TIMESTAMP, status = 'left' WHERE id = $1 AND company_id = $2`).run(visitorId, companyId);
 
         await prepare(`
             INSERT INTO activity_log (company_id, event_type, description, user_id, visitor_id, status)
             VALUES ($1, $2, $3, $4, $5)
-        `).run(companyId, 'visitor_exit', `خروج زائر: ${visitor.full_name}`, req.user.id, parseInt(id), 'completed');
+        `).run(companyId, 'visitor_exit', `خروج زائر: ${visitor.full_name}`, req.user.id, visitorId, 'completed');
 
-        const updatedVisitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(parseInt(id), companyId);
+        const updatedVisitor = await prepare('SELECT * FROM visitors WHERE id = $1 AND company_id = $2').get(visitorId, companyId);
 
         res.json({
             message: 'تم تسجيل خروج الزائر بنجاح',

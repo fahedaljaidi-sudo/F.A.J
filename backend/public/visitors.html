@@ -4,48 +4,40 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>تسجيل الزوار - نظام إدارة الحراسات الأمنية</title>
-    <link rel="manifest" href="/manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap"
+    <title>إدارة الزوار - نظام FAJ الأمني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="/responsive.css" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="loader.js"></script>
+    <script src="/js/layout.js"></script>
     <script src="mock-api.js"></script>
     <script src="success-modal.js"></script>
-    <script src="/js/layout.js"></script>
     <script src="/mobile-nav.js"></script>
-    <script id="tailwind-config">
+    <script>
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
                         "primary": "#162841",
-                        "primary-hover": "#2c4a6e",
+                        "primary-hover": "#233b5c",
                         "secondary": "#4C8E4D",
-                        "background-light": "#ffffff",
-                        "surface-light": "#F5F7FA",
-                        "border-light": "#e2e8f0",
-                        "text-main": "#101418",
-                        "text-sub": "#5c6f8a",
+                        "surface-light": "#F8FAFC",
+                        "background-light": "#F1F5F9",
+                        "border-light": "#E2E8F0",
+                        "text-main": "#1E293B",
+                        "text-sub": "#64748B"
                     },
                     fontFamily: {
-                        "display": ["Public Sans", "Noto Sans Arabic", "sans-serif"],
-                        "body": ["Public Sans", "Noto Sans Arabic", "sans-serif"]
-                    },
+                        "body": ['Public Sans', 'sans-serif'],
+                    }
                 },
             },
         }
     </script>
     <style>
-        body {
-            font-family: "Public Sans", "Noto Sans Arabic", sans-serif;
-        }
-
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -148,100 +140,64 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold text-white mb-1.5">سبب الزيارة</label>
-                                <select id="visit_reason"
-                                    class="form-select w-full bg-white border-none rounded-sm px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-400 text-gray-900">
-                                    <option>اجتماع عمل</option>
-                                    <option>توصيل طلبية</option>
-                                    <option>مقابلة شخصية</option>
-                                    <option>أعمال صيانة</option>
-                                    <option>أخرى</option>
-                                </select>
+                                <input id="visit_reason"
+                                    class="form-input w-full bg-white border-none rounded-sm px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-400 placeholder-gray-400 text-gray-900"
+                                    placeholder="مثال: صيانة، اجتماع" type="text" />
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white/5 rounded-sm p-3 border border-white/10 mt-6 grid grid-cols-2 gap-4">
-                        <div>
-                            <span class="text-xs text-blue-200 block mb-1">وقت الدخول</span>
-                            <div class="flex items-center gap-1.5 text-white font-bold font-mono text-sm">
-                                <span class="material-symbols-outlined text-[16px]">access_time</span>
-                                <span class="dir-ltr" id="entry-time">--:-- --</span>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="text-xs text-blue-200 block mb-1">المسؤول المناوب</span>
-                            <div class="flex items-center gap-1.5 text-white font-bold text-sm">
-                                <span class="material-symbols-outlined text-[16px]">verified_user</span>
-                                <span id="guard-name">--</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pt-4 flex gap-3">
-                        <button type="submit"
-                            class="flex-1 bg-white hover:bg-blue-50 text-primary font-bold py-3 px-4 rounded-sm transition-colors shadow-sm flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">login</span>
-                            تسجيل دخول
-                        </button>
-                        <button type="reset"
-                            class="bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-4 rounded-sm border border-white/10 transition-colors">
-                            مسح
+                    <div class="pt-6">
+                        <button
+                            class="w-full bg-secondary hover:bg-green-600 text-white font-bold py-3.5 rounded-sm shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-[0.98]"
+                            type="submit">
+                            <span class="material-symbols-outlined">how_to_reg</span>
+                            تسجيل دخول الزائر
                         </button>
                     </div>
                 </form>
-            </aside>
-            <section class="flex-1 bg-surface-light flex flex-col h-full overflow-hidden">
-                <!-- Header -->
-                <header
-                    class="h-16 bg-white border-b border-border-light flex items-center justify-between px-4 md:px-6 shrink-0">
-                    <div class="flex-1 min-w-0">
-                        <h2 class="text-lg md:text-xl font-bold text-primary truncate">تسجيل الزوار</h2>
-                        <p class="text-xs text-gray-500 hidden sm:block" id="current-datetime">--</p>
-                    </div>
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="text-right hidden sm:block">
-                            <p class="text-xs md:text-sm font-bold text-gray-900" id="user-name">--</p>
-                            <p class="text-xs text-gray-500" id="user-role">--</p>
+                <div class="p-6 bg-white/5 border-t border-white/5 mt-auto">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-blue-300">verified_user</span>
                         </div>
-                        <div
-                            class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-white flex items-center justify-center">
-                            <span class="material-symbols-outlined text-lg md:text-xl">person</span>
+                        <div>
+                            <p class="text-xs text-blue-200">مسؤول التسجيل</p>
+                            <p id="guard-name" class="text-sm font-bold text-white">--</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Visitor List Main Content -->
+            <section class="flex-1 flex flex-col min-w-0">
+                <header class="h-16 bg-white border-b border-border-light flex items-center justify-between px-6 shrink-0">
+                    <div class="flex items-center gap-4">
+                        <h1 class="text-xl font-black text-primary tracking-tight">سجل الزوار اليومي</h1>
+                        <span id="today-date" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">--</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="relative hidden md:block">
+                            <input id="search-input"
+                                class="w-64 bg-gray-50 border border-border-light rounded-sm pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
+                                placeholder="بحث بالاسم أو الهوية..." type="text" />
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-2 text-gray-400 text-[20px]">search</span>
+                        </div>
+                        <div class="h-8 w-px bg-border-light mx-2"></div>
+                        <div class="text-left">
+                            <p id="current-datetime" class="text-sm font-black text-primary">--:--</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Live Monitor</p>
                         </div>
                     </div>
                 </header>
 
-                <!-- Main Content -->
-                <div class="flex-1 p-4 md:p-6 overflow-hidden flex flex-col">
-                    <div class="flex items-center justify-between mb-4 shrink-0 flex-wrap gap-4">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white p-2 rounded-sm border border-border-light shadow-sm">
-                                <span class="material-symbols-outlined text-primary">list_alt</span>
-                            </div>
-                            <div>
-                                <h2 class="text-xl font-bold text-primary">سجل زوار اليوم</h2>
-                                <p class="text-sm text-text-sub" id="today-date">--</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="relative">
-                                <input id="search-input"
-                                    class="pl-3 pr-9 py-2 rounded-sm border border-gray-300 text-sm focus:border-primary focus:ring-0 w-64"
-                                    placeholder="بحث بالاسم أو الهوية..." type="text" />
-                                <span
-                                    class="material-symbols-outlined absolute right-2.5 top-2 text-gray-400 text-[18px]">search</span>
-                            </div>
-                            <button onclick="window.print()"
-                                class="bg-white hover:bg-gray-50 text-primary border border-gray-300 px-3 py-2 rounded-sm flex items-center gap-2 transition-colors">
-                                <span class="material-symbols-outlined text-[18px]">print</span>
-                                <span class="text-sm font-medium">طباعة التقرير</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div
-                        class="flex-1 bg-white border border-border-light rounded-sm shadow-sm overflow-hidden flex flex-col">
+                <div class="flex-1 p-6 overflow-hidden flex flex-col">
+                    <!-- Table Container -->
+                    <div class="bg-white rounded-sm border border-border-light shadow-sm flex-1 flex flex-col overflow-hidden">
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-sm text-right">
-                                <thead
-                                    class="bg-gray-50 text-text-sub font-semibold border-b border-border-light sticky top-0">
-                                    <tr>
+                                <thead class="bg-gray-50 border-b border-border-light sticky top-0 z-10">
+                                    <tr class="text-text-sub font-bold">
                                         <th class="px-4 py-3 whitespace-nowrap">اسم الزائر</th>
                                         <th class="px-4 py-3 whitespace-nowrap">رقم الهوية</th>
                                         <th class="px-4 py-3 whitespace-nowrap">رقم الجوال</th>
