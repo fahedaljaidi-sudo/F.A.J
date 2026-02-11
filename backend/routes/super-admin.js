@@ -24,7 +24,7 @@ router.get('/companies', authenticateToken, requireSuperAdmin, async (req, res) 
 // POST /api/super-admin/companies - Register new company
 router.post('/companies', authenticateToken, requireSuperAdmin, async (req, res) => {
     try {
-        const { name, company_code, subscription_plan, expiry_days, max_users, admin_username, admin_password, admin_full_name } = req.body;
+        const { name, company_code, subscription_plan, expiry_days, max_users, admin_username, admin_password, admin_full_name, logo } = req.body;
 
         if (!name || !company_code || !admin_username || !admin_password) {
             return res.status(400).json({ error: 'يرجى إكمال جميع الحقول المطلوبة' });
@@ -36,11 +36,28 @@ router.post('/companies', authenticateToken, requireSuperAdmin, async (req, res)
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + (parseInt(expiry_days) || 30));
 
+        // Handle Logo Save (if provided)
+        let savedLogoPath = null;
+        if (logo && logo.startsWith('data:image')) {
+            const fs = require('fs');
+            const path = require('path');
+            const fileName = `logo_${Date.now()}_${company_code.toLowerCase()}.png`;
+            const uploadDir = path.join(__dirname, '../public/uploads/logos');
+            
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            const base64Data = logo.replace(/^data:image\/\w+;base64,/, "");
+            fs.writeFileSync(path.join(uploadDir, fileName), base64Data, 'base64');
+            savedLogoPath = `/uploads/logos/${fileName}`;
+        }
+
         const companyResult = await run(`
-            INSERT INTO companies (name, company_code, subscription_plan, expiry_date, max_users, status)
-            VALUES ($1, $2, $3, $4, $5, 'active')
+            INSERT INTO companies (name, company_code, subscription_plan, expiry_date, max_users, logo_url, status)
+            VALUES ($1, $2, $3, $4, $5, $6, 'active')
             RETURNING id
-        `, [name, company_code.toUpperCase(), subscription_plan || 'basic', expiryDate.toISOString(), parseInt(max_users) || 10]);
+        `, [name, company_code.toUpperCase(), subscription_plan || 'basic', expiryDate.toISOString(), parseInt(max_users) || 10, savedLogoPath]);
 
         const companyId = companyResult.rows[0].id;
 
@@ -84,7 +101,7 @@ router.post('/companies', authenticateToken, requireSuperAdmin, async (req, res)
 router.put('/companies/:id', authenticateToken, requireSuperAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, expiry_date, name, subscription_plan, max_users } = req.body;
+        const { status, expiry_date, name, subscription_plan, max_users, logo } = req.body;
 
         await getDatabase();
         
@@ -97,6 +114,28 @@ router.put('/companies/:id', authenticateToken, requireSuperAdmin, async (req, r
         if (name) { updates.push(`name = $${paramIdx++}`); params.push(name); }
         if (subscription_plan) { updates.push(`subscription_plan = $${paramIdx++}`); params.push(subscription_plan); }
         if (max_users) { updates.push(`max_users = $${paramIdx++}`); params.push(parseInt(max_users)); }
+
+        // Handle Logo Update
+        if (logo && logo.startsWith('data:image')) {
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Get company code for filename
+            const company = await get('SELECT company_code FROM companies WHERE id = $1', id);
+            const fileName = `logo_${Date.now()}_${company.company_code.toLowerCase()}.png`;
+            const uploadDir = path.join(__dirname, '../public/uploads/logos');
+            
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            const base64Data = logo.replace(/^data:image\/\w+;base64,/, "");
+            fs.writeFileSync(path.join(uploadDir, fileName), base64Data, 'base64');
+            const savedLogoPath = `/uploads/logos/${fileName}`;
+            
+            updates.push(`logo_url = $${paramIdx++}`);
+            params.push(savedLogoPath);
+        }
 
         if (updates.length === 0) {
             return res.status(400).json({ error: 'لا يوجد بيانات لتحديثها' });

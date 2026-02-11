@@ -25,6 +25,7 @@ async function getDatabase() {
         const companyColumns = [
             { name: 'subscription_plan', type: "TEXT DEFAULT 'basic'" },
             { name: 'max_users', type: 'INTEGER DEFAULT 10' },
+            { name: 'logo_url', type: 'TEXT' },
             { name: 'expiry_date', type: "TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days')" },
             { name: 'created_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP' },
             { name: 'updated_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP' }

@@ -16,7 +16,7 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
 
         // 1. Verify Company (Case-Insensitive)
         const company = await prepare(`
-            SELECT id, name, status, expiry_date FROM companies WHERE UPPER(company_code) = UPPER($1)
+            SELECT id, name, status, expiry_date, logo_url FROM companies WHERE UPPER(company_code) = UPPER($1)
         `).get(company_code);
 
         if (!company) {
@@ -99,7 +99,8 @@ router.post('/login', detectMobile, validate(schemas.login), async (req, res) =>
                 email: user.email,
                 role: user.role,
                 unit_number: user.unit_number,
-                company_name: company.name
+                company_name: company.name,
+                company_logo: company.logo_url
             }
         });
 
@@ -118,8 +119,11 @@ router.get('/me', authenticateToken, async (req, res) => {
     try {
         await getDatabase();
         const user = await prepare(`
-            SELECT id, username, full_name, email, role, unit_number, is_active, created_at
-            FROM users WHERE id = $1
+            SELECT u.id, u.username, u.full_name, u.email, u.role, u.unit_number, u.is_active, u.created_at,
+                   c.name as company_name, c.logo_url as company_logo
+            FROM users u
+            JOIN companies c ON u.company_id = c.id
+            WHERE u.id = $1
         `).get(req.user.id);
 
         if (!user) {

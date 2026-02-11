@@ -17,6 +17,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (response.ok) {
                 const html = await response.text();
                 sidebarContainer.innerHTML = html;
+
+                // Update Sidebar Logo and Company Name
+                const sidebarLogo = document.getElementById('sidebar-logo');
+                const sidebarCompanyName = document.getElementById('sidebar-company-name');
+                if (sidebarLogo && user.company_logo) {
+                    sidebarLogo.src = user.company_logo;
+                }
+                if (sidebarCompanyName && user.company_name) {
+                    sidebarCompanyName.textContent = user.company_name;
+                }
                 
                 // Set Active State
                 const currentPage = document.body.dataset.page || '';

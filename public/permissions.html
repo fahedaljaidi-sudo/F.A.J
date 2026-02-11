@@ -108,6 +108,16 @@
         document.getElementById('user-name').textContent = user.full_name || '--';
         document.getElementById('user-role').textContent = 'مدير النظام';
 
+        // Update Sidebar Logo and Company Name
+        const sidebarLogo = document.getElementById('sidebar-logo');
+        const sidebarCompanyName = document.getElementById('sidebar-company-name');
+        if (sidebarLogo && user.company_logo) {
+            sidebarLogo.src = user.company_logo;
+        }
+        if (sidebarCompanyName && user.company_name) {
+            sidebarCompanyName.textContent = user.company_name;
+        }
+
         const roles = ['admin', 'supervisor', 'guard', 'operations_manager', 'hr_manager', 'safety_officer'];
         const permissions = [
             { id: 'manage_users', name: 'إدارة المستخدمين', icon: 'person_add' },

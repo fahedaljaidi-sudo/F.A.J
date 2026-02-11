@@ -158,6 +158,13 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1">مدة الاشتراك (أيام)</label>
                     <input type="number" id="expiry_days" value="30" class="w-full p-3 border rounded-lg">
                 </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">شعار الشركة (Logo)</label>
+                    <input type="file" id="company_logo" accept="image/*" class="w-full p-3 border rounded-lg" onchange="previewLogo(this, 'add-logo-preview')">
+                    <div id="add-logo-preview" class="mt-2 hidden">
+                        <img src="" class="h-20 object-contain rounded border">
+                    </div>
+                </div>
 
                 <div class="md:col-span-2 mt-4">
                     <h4 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-2">حساب المدير الأول للمنشأة</h4>
@@ -223,6 +230,13 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1">الحد الأقصى للمستخدمين</label>
                     <input type="number" id="edit-max_users" class="w-full p-3 border rounded-lg">
                 </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">تحديث شعار الشركة</label>
+                    <input type="file" id="edit-company_logo" accept="image/*" class="w-full p-3 border rounded-lg" onchange="previewLogo(this, 'edit-logo-preview')">
+                    <div id="edit-logo-preview" class="mt-2 hidden">
+                        <img src="" class="h-20 object-contain rounded border">
+                    </div>
+                </div>
 
                 <div class="md:col-span-2 pt-4">
                     <button type="submit" class="w-full py-4 bg-primary text-white rounded-lg font-bold hover:bg-primary-hover shadow-lg transition-all">
@@ -237,6 +251,27 @@
         const API_BASE = '/api/super-admin';
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        let addLogoBase64 = null;
+        let editLogoBase64 = null;
+
+        function previewLogo(input, previewId) {
+            const previewDiv = document.getElementById(previewId);
+            const previewImg = previewDiv.querySelector('img');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    if (previewId === 'add-logo-preview') addLogoBase64 = base64;
+                    else editLogoBase64 = base64;
+                    
+                    previewImg.src = base64;
+                    previewDiv.classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
         if (!token || user.role !== 'super_admin') {
             alert('غير مصرح لك بدخول هذه الصفحة');
@@ -267,7 +302,12 @@
 
             tbody.innerHTML = companies.map(c => `
                 <tr class="hover:bg-gray-50/50">
-                    <td class="px-6 py-4 font-bold text-gray-900">${c.name}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            ${c.logo_url ? `<img src="${c.logo_url}" class="w-10 h-10 object-contain rounded bg-gray-50 border">` : `<div class="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-gray-400"><span class="material-symbols-outlined">business</span></div>`}
+                            <span class="font-bold text-gray-900">${c.name}</span>
+                        </div>
+                    </td>
                     <td class="px-6 py-4 font-mono text-blue-600 font-bold">${c.company_code}</td>
                     <td class="px-6 py-4 uppercase text-xs font-bold text-gray-500">${c.subscription_plan}</td>
                     <td class="px-6 py-4 text-xs">${new Date(c.expiry_date).toLocaleDateString('ar-SA')}</td>
@@ -289,7 +329,12 @@
             `).join('');
         }
 
-        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
+        function openAddModal() { 
+            document.getElementById('add-modal').classList.remove('hidden'); 
+            addLogoBase64 = null;
+            document.getElementById('add-logo-preview').classList.add('hidden');
+            document.getElementById('add-company-form').reset();
+        }
         function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
 
         document.getElementById('add-company-form').addEventListener('submit', async (e) => {
@@ -301,7 +346,8 @@
                 expiry_days: document.getElementById('expiry_days').value,
                 admin_username: document.getElementById('admin_username').value,
                 admin_password: document.getElementById('admin_password').value,
-                admin_full_name: document.getElementById('admin_full_name').value
+                admin_full_name: document.getElementById('admin_full_name').value,
+                logo: addLogoBase64
             };
 
             try {
@@ -350,6 +396,16 @@
             document.getElementById('edit-subscription_plan').value = company.subscription_plan || 'basic';
             document.getElementById('edit-max_users').value = company.max_users || 10;
             
+            editLogoBase64 = null;
+            const previewDiv = document.getElementById('edit-logo-preview');
+            const previewImg = previewDiv.querySelector('img');
+            if (company.logo_url) {
+                previewImg.src = company.logo_url;
+                previewDiv.classList.remove('hidden');
+            } else {
+                previewDiv.classList.add('hidden');
+            }
+
             if (company.expiry_date) {
                 const date = new Date(company.expiry_date);
                 document.getElementById('edit-expiry_date').value = date.toISOString().split('T')[0];
@@ -369,7 +425,8 @@
                 name: document.getElementById('edit-name').value,
                 subscription_plan: document.getElementById('edit-subscription_plan').value,
                 expiry_date: document.getElementById('edit-expiry_date').value,
-                max_users: document.getElementById('edit-max_users').value
+                max_users: document.getElementById('edit-max_users').value,
+                logo: editLogoBase64
             };
 
             try {
