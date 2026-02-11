@@ -10,9 +10,7 @@ router.get('/companies', authenticateToken, requireSuperAdmin, async (req, res) 
     try {
         await getDatabase();
         const companies = await all(`
-            SELECT c.*, 
-                   (SELECT COUNT(*) FROM users WHERE company_id = c.id) as user_count,
-                   (SELECT COUNT(*) FROM patrol_rounds WHERE company_id = c.id) as patrol_count
+            SELECT c.*
             FROM companies c
             ORDER BY c.created_at DESC
         `);

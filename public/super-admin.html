@@ -51,10 +51,6 @@
                 <span class="material-symbols-outlined">corporate_fare</span>
                 <span class="font-bold">إدارة الشركات</span>
             </a>
-            <a href="/dashboard.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-                <span class="material-symbols-outlined">arrow_back</span>
-                <span class="font-medium">العودة للنظام</span>
-            </a>
         </nav>
         <div class="p-4 border-t border-white/10">
             <button onclick="logout()" class="w-full flex items-center justify-center gap-2 text-red-300 hover:text-red-200 hover:bg-white/5 py-2 rounded-lg transition-colors">
@@ -82,14 +78,10 @@
         <div class="flex-1 overflow-y-auto p-8">
             <div class="max-w-6xl mx-auto space-y-6">
                 <!-- Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl border border-border-color shadow-sm">
                         <p class="text-gray-500 text-sm font-bold mb-1">إجمالي الشركات</p>
                         <h3 class="text-3xl font-black text-primary" id="stat-companies">--</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl border border-border-color shadow-sm">
-                        <p class="text-gray-500 text-sm font-bold mb-1">إجمالي الحراس</p>
-                        <h3 class="text-3xl font-black text-secondary" id="stat-users">--</h3>
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-border-color shadow-sm">
                         <p class="text-gray-500 text-sm font-bold mb-1">الاشتراكات النشطة</p>
@@ -113,14 +105,13 @@
                                     <th class="px-6 py-3 font-bold text-gray-600">الكود</th>
                                     <th class="px-6 py-3 font-bold text-gray-600">الاشتراك</th>
                                     <th class="px-6 py-3 font-bold text-gray-600">تاريخ الانتهاء</th>
-                                    <th class="px-6 py-3 font-bold text-gray-600">المستخدمين</th>
                                     <th class="px-6 py-3 font-bold text-gray-600">الحالة</th>
                                     <th class="px-6 py-3 font-bold text-gray-600 text-center">إجراء</th>
                                 </tr>
                             </thead>
                             <tbody id="companies-table" class="divide-y divide-gray-100">
                                 <tr>
-                                    <td colspan="7" class="px-6 py-8 text-center text-gray-400">جاري التحميل...</td>
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-400">جاري التحميل...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -267,11 +258,10 @@
         function renderCompanies(companies) {
             const tbody = document.getElementById('companies-table');
             document.getElementById('stat-companies').textContent = companies.length;
-            document.getElementById('stat-users').textContent = companies.reduce((acc, c) => acc + (parseInt(c.user_count) || 0), 0);
             document.getElementById('stat-active').textContent = companies.filter(c => c.status === 'active').length;
 
             if (companies.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-400">لا يوجد شركات مسجلة</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">لا يوجد شركات مسجلة</td></tr>';
                 return;
             }
 
@@ -281,7 +271,6 @@
                     <td class="px-6 py-4 font-mono text-blue-600 font-bold">${c.company_code}</td>
                     <td class="px-6 py-4 uppercase text-xs font-bold text-gray-500">${c.subscription_plan}</td>
                     <td class="px-6 py-4 text-xs">${new Date(c.expiry_date).toLocaleDateString('ar-SA')}</td>
-                    <td class="px-6 py-4">${c.user_count} مستخدم</td>
                     <td class="px-6 py-4">
                         <span class="px-2 py-1 rounded-full text-[10px] font-bold ${c.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
                             ${c.status === 'active' ? 'نشط' : 'معلق'}

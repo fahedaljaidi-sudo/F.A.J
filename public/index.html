@@ -147,7 +147,11 @@
                         submitBtn.innerHTML = '<span class="material-symbols-outlined">check</span> تم الدخول بنجاح';
                         
                         setTimeout(() => {
-                            window.location.href = '/dashboard.html';
+                            if (data.user && data.user.role === 'super_admin') {
+                                window.location.href = '/super-admin.html';
+                            } else {
+                                window.location.href = '/dashboard.html';
+                            }
                         }, 500);
                     } else {
                         errorBox.classList.remove('hidden');

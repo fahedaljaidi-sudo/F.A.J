@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // Role-based access control
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const currentPage = document.body.dataset.page || '';
+    
+    // Super Admin should only access the super-admin page
+    if (user.role === 'super_admin' && ['dashboard', 'visitors', 'patrols', 'reports', 'users', 'permissions'].includes(currentPage)) {
+        window.location.href = '/super-admin.html';
+        return;
+    }
+
     // Load Sidebar
     try {
         const sidebarContainer = document.querySelector('aside');
@@ -18,27 +28,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                     activeLink.querySelector('.font-medium').classList.replace('font-medium', 'font-bold');
                 }
 
-                // Check Admin/Supervisor Role
+                // Check Role-based Visibility
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 
-                // Add a small delay or ensure this runs after innerHTML is fully processed
-                if (user.role === 'admin' || user.role === 'supervisor') {
-                    const adminLink = document.getElementById('admin-link');
-                    if (adminLink) adminLink.classList.remove('hidden');
-                }
-                
-                if (user.role === 'admin') {
-                    // Use a slightly more aggressive check to ensure it's shown
-                    const permissionsLink = document.getElementById('admin-link-permissions');
-                    if (permissionsLink) {
-                        permissionsLink.classList.remove('hidden');
-                        console.log('✅ Permissions link shown for admin');
-                    }
-                }
-
                 if (user.role === 'super_admin') {
+                    // Hide operational links for Super Admin
+                    const operationalLinks = sidebarContainer.querySelectorAll('a[data-page="dashboard"], a[data-page="visitors"], a[data-page="patrols"], a[data-page="reports"]');
+                    operationalLinks.forEach(link => link.classList.add('hidden'));
+                    
                     const superAdminLink = document.getElementById('super-admin-link');
                     if (superAdminLink) superAdminLink.classList.remove('hidden');
+                } else {
+                    // Regular roles logic
+                    if (user.role === 'admin' || user.role === 'supervisor') {
+                        const adminLink = document.getElementById('admin-link');
+                        if (adminLink) adminLink.classList.remove('hidden');
+                    }
+                    
+                    if (user.role === 'admin') {
+                        const permissionsLink = document.getElementById('admin-link-permissions');
+                        if (permissionsLink) permissionsLink.classList.remove('hidden');
+                    }
                 }
             }
         }
